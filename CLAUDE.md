@@ -39,7 +39,7 @@ three facets of one argument; each page leads with its facet, then can cross-sel
 
 | # | Ad Set | Angle | Hero leads with | Key number |
 |---|--------|-------|-----------------|-----------|
-| 01 | **Focus on Cost** | Same location, same SFT — lower price | "Same Kollur. Lower Cheque." | **₹34.4L** less than other premium builders |
+| 01 | **Focus on Cost** | Same location, same SFT — lower price | "Same Tellapur. Lower Cheque." | **₹34.4L** less than other premium builders |
 
 > **Decided:** the competitor comparison appears **unnamed** ("other premium builders / comparable
 > projects") — never naming a specific developer (ASCI safety). The ₹34.4L value story stays.
@@ -121,9 +121,9 @@ confirm/replace before publishing** (ASCI + real-person accuracy).
 - **Project:** Elegant Nivasa — *"High Rise Lifestyle at Kollur"*
 - **Developer:** E-Infra (*"Foundation on Values"*)
 - **RERA:** TS RERA **P01100007243** · **HMDA & RERA approved**
-- **Location:** **Kollur**, west Hyderabad (near ORR). *(Decided: site uses **Kollur** as the
-  primary locality — matches brochure / RERA positioning. The ad deck's "Tellapur" wording is the
-  adjacent locality; may still appear in ad-matched copy but Kollur is canonical on-site.)*
+- **Location:** Kollur / **Tellapur**, west Hyderabad (near ORR). *(**Reversed 2026-06-18 — user
+  override: on-site copy now uses "Tellapur" everywhere** (matches the ad-deck wording). Kollur
+  remains the brochure / RERA locality, but all three landing pages and the JS now say Tellapur.)*
 - **Scale:** 3 towers (Blocks A, B, C) · **23 floors each** · **526 apartments** · **4-acre** gated community
 - **Configs:** 2 & 3 BHK · **1,375 – 2,205 sft** (super built-up)
 - **Facing:** East, West & North-facing units · 100% Vastu
@@ -226,7 +226,7 @@ Derived indicative all-in prices (super built-up × ₹6,999) — **placeholder,
 
 ## 7. Open questions / to confirm with client
 
-1. ~~Canonical locality wording~~ → **Decided: Kollur.**
+1. ~~Canonical locality wording~~ → ~~Kollur~~ → **Reversed 2026-06-18: on-site copy uses Tellapur** (per user).
 2. Final pricing for the EMI calculator (flat ₹/sft vs per-type, premiums).
 3. Exact lead-form fields + WhatsApp/CRM destination for live build.
 4. ~~Competitor comparison naming~~ → **Decided: unnamed ("other premium builders").**

@@ -51,7 +51,7 @@
   // same three groups, with each variant floating its own group first.
   var CMP = [
     // ── The Cost Comparative ──
-    { g:"cost",    metric:"Price / sft",            sub:"Same Kollur micro-market",       us:"₹7,000",   them:"₹8,500",   edge:"₹1,500/sft lighter", v:"win" },
+    { g:"cost",    metric:"Price / sft",            sub:"Same Tellapur micro-market",       us:"₹7,000",   them:"₹8,500",   edge:"₹1,500/sft lighter", v:"win" },
     { g:"cost",    metric:"Total cost · 1,375 sft", sub:"Like-for-like home",             us:"₹96.25 L", them:"₹1.17 Cr", edge:"You keep ₹20.6 L",   v:"win" },
     // ── The Product Comparative ──
     { g:"product", metric:"Flats per acre",         sub:"How dense it feels",             us:"131",      them:"178",      edge:"26% less dense",     v:"win" },
@@ -449,9 +449,9 @@
      WHATSAPP direct-connect — page-aware prefilled message per rep
      ===================================================================== */
   var WA_MSG = {
-    cost:     "Hi {rep}, I saw the Elegant Nivasa cost comparison at Kollur — can you send the best price for a 3 BHK and current availability?",
-    yield:    "Hi {rep}, I'm looking at Elegant Nivasa, Kollur for rental yield — can you share pricing and the expected rentals/possession?",
-    handover: "Hi {rep}, I'm interested in Elegant Nivasa, Kollur (June 2027 possession) — can you share price, availability and a site-visit slot?"
+    cost:     "Hi {rep}, I saw the Elegant Nivasa cost comparison at Tellapur — can you send the best price for a 3 BHK and current availability?",
+    yield:    "Hi {rep}, I'm looking at Elegant Nivasa, Tellapur for rental yield — can you share pricing and the expected rentals/possession?",
+    handover: "Hi {rep}, I'm interested in Elegant Nivasa, Tellapur (June 2027 possession) — can you share price, availability and a site-visit slot?"
   };
   document.querySelectorAll("[data-wa]").forEach(function (a) {
     var num = a.getAttribute("data-wa");
