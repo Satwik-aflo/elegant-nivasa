@@ -40,6 +40,114 @@
   }
 
   /* =====================================================================
+     COMPARISON — data-driven from "Nivasa vs New Launch Branded Builder
+     2026" (Sheet 1), plus a rental-yield row inserted above handover.
+     Renders the full scoreboard ([data-compare]) and the grouped
+     deep-dives ([data-groups]). Runs before the reveal/count observers
+     below so injected nodes get picked up.
+     ===================================================================== */
+  var CMP = [
+    { n:1,  g:"cost",    metric:"Price / sft",            sub:"Same Kollur micro-market", us:"₹7,000",   them:"₹8,500",   edge:"₹1,500/sft lighter", v:"win" },
+    { n:2,  g:"cost",    metric:"Total cost · 1,375 sft", sub:"Like-for-like home",       us:"₹96.25 L", them:"₹1.17 Cr", edge:"You keep ₹20.6 L",   v:"win" },
+    { n:3,  g:"living",  metric:"Flats per acre",         sub:"How dense it feels",       us:"131",      them:"178",      edge:"26% less dense",     v:"win" },
+    { n:4,  g:"living",  metric:"Ceiling height",         sub:"Floor to ceiling",         us:"9.8 ft",   them:"9.8 ft",   edge:"Matched",            v:"tie" },
+    { n:5,  g:"conv",    metric:"Car parks / home",       sub:"Covered parking",          us:"2.09",     them:"1.86",     edge:"13% more parking",   v:"win" },
+    { n:6,  g:"living",  metric:"Built-up ÷ saleable",    sub:"Usable floor you pay for", us:"0.77",     them:"0.70",     edge:"7% more livable",    v:"win" },
+    { n:7,  g:"conv",    metric:"Distance from ORR",      sub:"To the expressway",        us:"2.1 km",   them:"1.9 km",   edge:"+200 m · ~30 sec",   v:"tie" },
+    { n:8,  g:"living",  metric:"Corridor width",         sub:"Shared corridors",         us:"8–14 ft",  them:"6–8 ft",   edge:"Wider & brighter",   v:"win" },
+    { n:9,  g:"returns", metric:"Rental income starts",   sub:"When cashflow begins",     us:"2028",     them:"2032",     edge:"₹19.2 L sooner",     v:"win", isNew:true },
+    { n:10, g:"returns", metric:"Handover",               sub:"Keys in your hand",        us:"2027",     them:"2031",     edge:"4 years earlier",    v:"win" }
+  ];
+  var GROUPS = {
+    cost:    { label:"The Cheque",             kicker:"What you pay", line:"Same address, same carpet — a lighter cheque, and a lighter EMI." },
+    living:  { label:"Living Quality",         kicker:"How you live", line:"Less dense, more usable floor, wider and brighter corridors." },
+    conv:    { label:"Convenience & Location", kicker:"Day to day",   line:"More covered parking; the ORR a whisker further — we’ll call it even." },
+    returns: { label:"Your Returns",           kicker:"When it pays", line:"Rent and possession arrive a full market cycle earlier." }
+  };
+  var GROUP_ORDER = {
+    cost:     ["cost", "living", "conv", "returns"],
+    yield:    ["returns", "cost", "living", "conv"],
+    handover: ["returns", "cost", "living", "conv"]
+  };
+  var HILITE = { yield: 9, handover: 10 };
+
+  function renderCompare(host) {
+    var wins = 0, ties = 0;
+    CMP.forEach(function (r) { if (r.v === "win") wins++; else if (r.v === "tie") ties++; });
+    var rows = CMP.map(function (r) {
+      var nn = (r.n < 10 ? "0" : "") + r.n;
+      return '<div class="cmp-row" data-v="' + r.v + '">' +
+        '<div class="cr-metric"><span class="cr-n">' + nn + '</span>' +
+          '<span class="cr-name">' + r.metric + (r.isNew ? ' <span class="cr-new">NEW</span>' : '') +
+          '<small>' + r.sub + '</small></span></div>' +
+        '<div class="cr-us"><span class="cr-cap">Nivasa</span>' + r.us + '</div>' +
+        '<div class="cr-them"><span class="cr-cap">Branded</span>' + r.them + '</div>' +
+        '<div class="cr-edge"><span class="cr-pill cr-' + r.v + '">' + r.edge + '</span></div>' +
+      '</div>';
+    }).join("");
+    host.innerHTML =
+      '<div class="cmp-score reveal">' +
+        '<div class="cs-cell"><b data-count="' + wins + '">' + wins + '</b><span>points ahead</span></div>' +
+        '<div class="cs-cell"><b data-count="' + ties + '">' + ties + '</b><span>level pegging</span></div>' +
+        '<div class="cs-cell"><b>0</b><span>points behind</span></div>' +
+        '<div class="cs-note">Elegant Nivasa vs a new-launch branded builder · same micro-market · 2026 model</div>' +
+      '</div>' +
+      '<div class="cmp-tbl reveal d1">' +
+        '<div class="cmp-hrow"><div>The 10-point audit</div><div>Elegant Nivasa</div><div>Branded builder</div><div>Edge</div></div>' +
+        rows +
+      '</div>' +
+      '<div class="cmp-bottom reveal d1">' +
+        '<div class="adv-row">' +
+          '<div class="adv-card"><div class="a">₹20.6L</div><div class="l">Lower entry cost</div></div>' +
+          '<div class="adv-op">+</div>' +
+          '<div class="adv-card"><div class="a">₹19.2L</div><div class="l">Rent earned earlier</div></div>' +
+          '<div class="adv-op">+</div>' +
+          '<div class="adv-card"><div class="a">₹6.2L</div><div class="l">Interest saved</div></div>' +
+          '<div class="adv-op">=</div>' +
+          '<div class="adv-card total"><div class="a">₹46L</div><div class="l">Total advantage</div></div>' +
+        '</div>' +
+        '<p class="cmp-tagline">Same cheque today. <span>A great deal more over time.</span></p>' +
+      '</div>';
+  }
+
+  function renderGroups(host, page) {
+    var order = GROUP_ORDER[page] || GROUP_ORDER.cost;
+    var hot = HILITE[page] || 0;
+    host.innerHTML = order.map(function (key, gi) {
+      var meta = GROUPS[key];
+      var lead = gi === 0;
+      var cards = CMP.filter(function (r) { return r.g === key; }).map(function (r) {
+        var isHot = r.n === hot;
+        return '<div class="gr-card" data-v="' + r.v + '"' + (isHot ? ' data-hot="1"' : '') + '>' +
+          '<div class="gr-top"><span class="gr-metric">' + r.metric + '</span>' +
+            (isHot ? '<span class="gr-foc">Your focus</span>' : '<span class="gr-edge">' + r.edge + '</span>') + '</div>' +
+          '<div class="gr-vs">' +
+            '<div class="gr-side us"><span class="lab">Elegant Nivasa</span><span class="val">' + r.us + '</span></div>' +
+            '<div class="gr-div">vs</div>' +
+            '<div class="gr-side them"><span class="lab">Branded builder</span><span class="val">' + r.them + '</span></div>' +
+          '</div>' +
+          '<div class="gr-foot"><span class="gr-tick gr-' + r.v + '">' + (r.v === "win" ? "Nivasa ahead" : "Level") + '</span>' +
+            '<span class="gr-sub">' + r.sub + '</span></div>' +
+        '</div>';
+      }).join("");
+      return '<article class="grp reveal' + (lead ? " grp--lead" : "") + '">' +
+        '<header class="grp-head">' +
+          '<p class="eyebrow">' + meta.kicker + (lead ? " · your angle" : "") + '</p>' +
+          '<h3 class="grp-title">' + meta.label + '</h3>' +
+          '<p class="grp-line">' + meta.line + '</p>' +
+        '</header>' +
+        '<div class="grp-rows">' + cards + '</div>' +
+      '</article>';
+    }).join("");
+  }
+
+  var pageKey = document.body.getAttribute("data-page") || "cost";
+  var cmpHost = document.querySelector("[data-compare]");
+  var grpHost = document.querySelector("[data-groups]");
+  if (cmpHost) renderCompare(cmpHost);
+  if (grpHost) renderGroups(grpHost, pageKey);
+
+  /* =====================================================================
      NAV: scroll state + mobile toggle
      ===================================================================== */
   var header = document.querySelector(".site-header");
