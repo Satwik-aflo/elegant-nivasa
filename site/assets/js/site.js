@@ -370,9 +370,9 @@
       var phone = form.querySelector("[name=phone]");
       var email = form.querySelector("[name=email]");
       form.querySelectorAll(".form-field").forEach(function (w) { w.classList.remove("err"); });
-      if (!name.value.trim()) { fail(name, "Please enter your name"); ok = false; }
-      if (!/^[6-9]\d{9}$/.test(phone.value.replace(/\D/g, "").slice(-10))) { fail(phone, "Enter a valid 10-digit mobile"); ok = false; }
-      if (email.value && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value)) { fail(email, "Enter a valid email"); ok = false; }
+      if (name && !name.value.trim()) { fail(name, "Please enter your name"); ok = false; }
+      if (phone && !/^[6-9]\d{9}$/.test(phone.value.replace(/\D/g, "").slice(-10))) { fail(phone, "Enter a valid 10-digit mobile"); ok = false; }
+      if (email && email.value && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value)) { fail(email, "Enter a valid email"); ok = false; }
       if (!ok) return;
       // Simulate async submit (live build → POST to DB + WhatsApp trigger)
       var btn = form.querySelector("button[type=submit]");
@@ -381,11 +381,26 @@
         form.style.display = "none";
         if (success) {
           success.classList.add("show");
-          var nm = success.querySelector("[data-name]"); if (nm) nm.textContent = name.value.trim().split(" ")[0];
+          var nm = success.querySelector("[data-name]"); if (nm && name) nm.textContent = name.value.trim().split(" ")[0];
         }
         btn.textContent = label; btn.disabled = false;
       }, 850);
     });
+  });
+
+  /* =====================================================================
+     WHATSAPP direct-connect — page-aware prefilled message per rep
+     ===================================================================== */
+  var WA_MSG = {
+    cost:     "Hi {rep}, I saw the Elegant Nivasa cost comparison at Kollur — can you send the best price for a 3 BHK and current availability?",
+    yield:    "Hi {rep}, I'm looking at Elegant Nivasa, Kollur for rental yield — can you share pricing and the expected rentals/possession?",
+    handover: "Hi {rep}, I'm interested in Elegant Nivasa, Kollur (June 2027 possession) — can you share price, availability and a site-visit slot?"
+  };
+  document.querySelectorAll("[data-wa]").forEach(function (a) {
+    var num = a.getAttribute("data-wa");
+    var rep = a.getAttribute("data-rep") || "team";
+    var msg = (WA_MSG[pageKey] || WA_MSG.cost).replace("{rep}", rep);
+    a.setAttribute("href", "https://wa.me/" + num + "?text=" + encodeURIComponent(msg));
   });
 
   /* =====================================================================

@@ -96,6 +96,14 @@ by 2032*, Handover highlights *Handover*). Data + render live in `site/assets/js
 **Strategy note (from Sheet 2 "Distribution"):** *publicly "we are same", privately "we are better"* —
 the scoreboard is the reveal. Competitor stays **unnamed** ("new-launch branded builder").
 
+**Enquire section = "direct to a closer" (no middleman).** Replaces the generic form with two
+**senior sales leads — Bharat & Satish** — each a card with closing stats and a **one-tap WhatsApp**
+button (page-aware prefilled message via `[data-wa]`/`[data-rep]` in `site.js`), an "online now ·
+fast reply" urgency cue, and a slim "drop your number, Bharat texts you himself" fallback capture
+(keeps the lead-capture must-have, still framed as direct). ⚠️ **Names are real; the sales stats
+(₹41/₹33 Cr, 34/28 homes, etc.) and the WhatsApp/phone numbers (`910000000000`) are PLACEHOLDERS —
+confirm/replace before publishing** (ASCI + real-person accuracy).
+
 **Repo:** private GitHub `Satwik-aflo/elegant-nivasa` (created 2026-06-18).
 
 ---
