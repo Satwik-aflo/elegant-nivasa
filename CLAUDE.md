@@ -68,26 +68,30 @@ advantage** → *"Lower outlay today. More value over time."* / *"Nivasa. Start 
 > Builder 2026.xlsx`**. Render gallery, floor-plan explorer, amenities and location are **stripped**;
 > EMI calculator and lead form are **kept**.
 
-**Page structure (all three):** Hero (per-variant) → **full 10-point comparison scoreboard** →
-**grouped deep-dives** (commonalities) → EMI → lead form.
+**Page structure (all three):** Hero (per-variant) → **full comparison scoreboard with 3 section
+breaks** → **grouped deep-dives** (same 3 groups) → EMI → lead form.
 
 **Decided: on-page comparison uses Sheet 1's figures, not the ad-deck's.** The competitor is the
 sheet's **₹8,500/sft** (not ₹9,499), so the cost delta on the page is **₹20.6 L** (1,375 sft:
-₹96.25 L vs ₹1.169 Cr), and the advantage stack is **₹20.6 L + ₹19.2 L + ₹6.2 L = ₹46 L**
-(previously ₹34.4 + 19.2 + 6.2 = ₹59.8 L). Cost-page hero/meta updated ₹34.4 L → ₹20.6 L to match.
+₹96.25 L vs ₹1.169 Cr), and the advantage stack is **₹20.6 L + ₹16.8 L + ₹6.2 L = ₹43.6 L**
+(was ₹20.6 + 19.2 + 6.2 = ₹46 before the Jun-2026 sheet update; ad-deck original ₹59.8 L).
+Cost-page hero/meta show ₹20.6 L; yield-page hero/meta updated ₹19.2 L → **₹16.8 L** to match.
 
-**The 10 points** (Sheet 1, rows 1–9, in order; **a rental-yield row was added above handover**):
-1 Price/sft ₹7,000 vs ₹8,500 · 2 Total cost (1,375 sft) ₹96.25 L vs ₹1.17 Cr · 3 Flats/acre 131 vs
-178 (26% less dense) · 4 Ceiling 9.8 ft = 9.8 ft (tie) · 5 Car parks/home 2.09 vs 1.86 · 6 Built-up÷
-saleable 0.77 vs 0.70 · 7 Distance from ORR 2.1 km vs 1.9 km (**only near-tie — branded ~200 m
-closer; framed honestly**) · 8 Corridor 8–14 ft vs 6–8 ft · **9 Rental income starts 2028 vs 2032
-(₹19.2 L sooner — added row)** · 10 Handover 2027 vs 2031. **Tally: 8 ahead · 2 even · 0 behind.**
+**Sheet 1 is now 3 labelled "comparatives" (the table breaks), 11 points total** — drives both the
+scoreboard section dividers and the deep-dive groups:
+- **The Cost Comparative** — 1 Price/sft ₹7,000 vs ₹8,500 · 2 Total cost (1,375 sft) ₹96.25 L vs ₹1.17 Cr.
+- **The Product Comparative** — Flats/acre 131 vs 178 (26% less dense) · Ceiling 9.8 ft = 9.8 ft (tie) ·
+  Car parks/home 2.09 vs 1.86 · Built-up÷saleable 0.77 vs 0.70 · Distance from ORR 2.1 km vs 1.9 km
+  (**only near-tie — branded ~200 m closer; framed honestly**) · Corridor 8–14 ft vs 6–8 ft.
+- **The Yield Comparative** — Handover 2027 vs 2031 · **Rent collected by 2032 ₹16.8 L vs ₹0** ·
+  **Resale /sft @ 2031 ₹11,000 vs ₹12,000 → >14% higher ROI** (Nivasa's lower ₹7,000 entry vs ₹8,500
+  drives the ROI; shown with that context so the "win" reads correctly).
 
-**Commonality groups** (deep-dives, with each variant floating its own group first): **The Cheque**
-(1,2) · **Living Quality** (3,4,6,8) · **Convenience & Location** (5,7) · **Your Returns** (9,10).
-Cost→leads with The Cheque; Yield & Handover→lead with Your Returns (Yield highlights row 9,
-Handover row 10). Data + render live in `site/assets/js/site.js` (`CMP`, `GROUPS`, `GROUP_ORDER`,
-`HILITE`); styles under "COMPARISON SCOREBOARD" / "GROUPED DEEP-DIVES" in `site.css`.
+**Tally: 9 ahead · 2 even · 0 behind.** Each variant floats its own group first in the deep-dives:
+Cost→The Cost Comparative; Yield & Handover→The Yield Comparative (Yield highlights *Rent collected
+by 2032*, Handover highlights *Handover*). Data + render live in `site/assets/js/site.js`
+(`CMP`, `GROUP_SEQ`, `GROUPS`, `GROUP_ORDER`, `HILITE`); styles under "COMPARISON SCOREBOARD"
+(incl. `.cmp-break`) / "GROUPED DEEP-DIVES" in `site.css`.
 
 **Strategy note (from Sheet 2 "Distribution"):** *publicly "we are same", privately "we are better"* —
 the scoreboard is the reveal. Competitor stays **unnamed** ("new-launch branded builder").

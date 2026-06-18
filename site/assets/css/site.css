@@ -461,7 +461,10 @@ input[type=range]::-moz-range-thumb { width:22px;height:22px;border-radius:50%; 
 .cmp-score .cs-note { grid-column: 1/-1; font-size:.82rem; color:rgba(255,255,255,.45); border-top:1px solid rgba(255,255,255,.12); padding-top:15px; }
 
 .cmp-tbl { border:1px solid rgba(255,255,255,.14); border-radius: var(--radius-lg); overflow:hidden; background: rgba(255,255,255,.03); }
-.cmp-hrow, .cmp-row { display:grid; grid-template-columns: 2.3fr 1fr 1fr 1.5fr; align-items:center; gap: 12px; padding: 15px clamp(16px,2.2vw,28px); }
+.cmp-break { display:flex; align-items:baseline; gap:14px; padding: 17px clamp(16px,2.2vw,28px) 13px; background: rgba(127,211,194,.07); border-top:1px solid rgba(255,255,255,.14); }
+.cmp-break .bk-t { font-family: var(--font-display); color:#fff; font-size: clamp(1.15rem,2vw,1.5rem); line-height:1; }
+.cmp-break .bk-s { margin-left:auto; font-size:.7rem; letter-spacing:.16em; text-transform:uppercase; color:#7fd3c2; font-weight:700; }
+.cmp-hrow, .cmp-row { display:grid; grid-template-columns: 1.9fr .9fr .9fr 1.9fr; align-items:center; gap: 12px; padding: 15px clamp(16px,2.2vw,28px); }
 .cmp-hrow { background: rgba(255,255,255,.05); font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.55); font-weight:700; }
 .cmp-hrow div:nth-child(2) { color:#7fd3c2; }
 .cmp-row { border-top:1px solid rgba(255,255,255,.09); transition: background .3s var(--ease); }
@@ -476,7 +479,7 @@ input[type=range]::-moz-range-thumb { width:22px;height:22px;border-radius:50%; 
 .cr-them { color: rgba(255,255,255,.6); }
 .cr-cap { display:none; }
 .cr-edge { text-align:right; }
-.cr-pill { display:inline-block; font-size:.8rem; font-weight:600; padding: 6px 13px; border-radius: 100px; }
+.cr-pill { display:inline-block; font-size:1.05rem; font-weight:700; padding: 9px 18px; border-radius: 100px; letter-spacing:.005em; line-height:1.15; }
 .cr-win { background: rgba(15,107,95,.32); color:#9ce0d1; border:1px solid rgba(47,179,156,.42); }
 .cr-tie { background: rgba(255,255,255,.08); color: rgba(255,255,255,.66); border:1px solid rgba(255,255,255,.18); }
 .cmp-bottom { margin-top: 36px; }
