@@ -548,7 +548,7 @@ input[type=range]::-moz-range-thumb { width:22px;height:22px;border-radius:50%; 
 .online { display:inline-flex; align-items:center; gap:7px; margin-top:8px; font-size:.78rem; color:#7fe0b0; }
 .online i { width:8px; height:8px; border-radius:50%; background:#46d977; animation: wapulse 2s infinite; }
 @keyframes wapulse { 0%{box-shadow:0 0 0 0 rgba(70,217,119,.55);} 70%{box-shadow:0 0 0 8px rgba(70,217,119,0);} 100%{box-shadow:0 0 0 0 rgba(70,217,119,0);} }
-.lc-stats { display:grid; grid-template-columns: repeat(3,1fr); gap: 12px; padding: 20px 0; margin-bottom: 22px; border-top:1px solid rgba(255,255,255,.12); border-bottom:1px solid rgba(255,255,255,.12); }
+.lc-stats { display:grid; grid-template-columns: repeat(2,1fr); gap: 12px; padding: 20px 0; margin-bottom: 22px; border-top:1px solid rgba(255,255,255,.12); border-bottom:1px solid rgba(255,255,255,.12); }
 .lc-stats div { text-align:center; }
 .lc-stats b { display:block; font-family:var(--font-display); font-size: clamp(1.3rem,2.4vw,1.75rem); color:#fff; line-height:1; }
 .lc-stats span { font-size:.71rem; color: rgba(255,255,255,.55); margin-top:7px; display:block; line-height:1.25; }
