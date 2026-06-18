@@ -467,6 +467,7 @@ input[type=range]::-moz-range-thumb { width:22px;height:22px;border-radius:50%; 
 .cmp-hrow, .cmp-row { display:grid; grid-template-columns: 1.9fr .9fr .9fr 1.9fr; align-items:center; gap: 12px; padding: 15px clamp(16px,2.2vw,28px); }
 .cmp-hrow { background: rgba(255,255,255,.05); font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.55); font-weight:700; }
 .cmp-hrow div:nth-child(2) { color:#7fd3c2; }
+.cmp-hrow div:nth-child(4) { text-align:right; }
 .cmp-row { border-top:1px solid rgba(255,255,255,.09); transition: background .3s var(--ease); }
 .cmp-row:hover { background: rgba(255,255,255,.055); }
 .cr-metric { display:flex; align-items:baseline; gap: 14px; }
