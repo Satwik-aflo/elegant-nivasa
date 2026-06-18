@@ -338,6 +338,29 @@ input[type=range]::-moz-range-thumb { width:22px;height:22px;border-radius:50%; 
 .emi-note { font-size:.78rem; color: var(--muted); margin-top: 16px; }
 @media (max-width: 800px){ .emi { grid-template-columns: 1fr; } }
 
+/* calculator tabs + affordability / rent-vs-own */
+.calc-tabs { display:flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+.calc-tab { padding: 12px 22px; border-radius: 100px; border:1px solid var(--line); background: var(--cream-2); font-weight:650; font-size:.96rem; color: var(--ink-soft); transition: .25s var(--ease); }
+.calc-tab:hover { border-color: var(--navy-300); }
+.calc-tab.active { background: var(--navy); color:#fff; border-color: var(--navy); box-shadow: var(--shadow-sm); }
+.calc-panel[hidden] { display:none; }
+.check { display:flex; align-items:center; gap:11px; margin: -8px 0 18px; cursor:pointer; font-size:.93rem; color: var(--ink-soft); font-weight:550; }
+.check input { width:20px; height:20px; accent-color: var(--teal); cursor:pointer; flex:none; }
+.co-field[hidden] { display:none; }
+.emi-result .k.normal { text-transform:none; letter-spacing:0; color: rgba(255,255,255,.62); }
+.aff-fit { margin-top: 24px; padding-top: 22px; border-top:1px solid rgba(255,255,255,.16); }
+.fit-head { font-family: var(--font-display); font-size: 1.18rem; color:#fff; margin-bottom: 14px; line-height:1.3; }
+.fit-head b { color:#7fd3c2; }
+.fit-row { display:flex; align-items:center; gap: 12px; padding: 9px 0; border-bottom:1px solid rgba(255,255,255,.09); font-size:.92rem; }
+.fit-row:last-child { border-bottom:none; }
+.fit-row .fk { width:20px; height:20px; border-radius:50%; display:grid; place-items:center; font-size:.68rem; flex:none; }
+.fit-row.ok .fk { background: rgba(47,179,156,.26); color:#7fe0c4; }
+.fit-row.no .fk { background: rgba(255,255,255,.08); color: rgba(255,255,255,.4); }
+.fit-row .fl { color: rgba(255,255,255,.86); }
+.fit-row .fp { margin-left:auto; font-family: var(--font-display); color:#fff; }
+.fit-row.no .fl, .fit-row.no .fp { color: rgba(255,255,255,.4); }
+.rnt-msg { margin-top: 22px; padding-top: 20px; border-top:1px solid rgba(255,255,255,.16); color: rgba(255,255,255,.85); font-size:.96rem; line-height:1.55; }
+
 /* ===================== LOCATION ===================== */
 .loc { display:grid; grid-template-columns: 1fr 1fr; gap: clamp(22px,3vw,50px); align-items:center; }
 .loc-list { display:grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--line-soft); border-radius: var(--radius); overflow:hidden; }

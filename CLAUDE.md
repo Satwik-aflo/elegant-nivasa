@@ -96,6 +96,14 @@ by 2032*, Handover highlights *Handover*). Data + render live in `site/assets/js
 **Strategy note (from Sheet 2 "Distribution"):** *publicly "we are same", privately "we are better"* —
 the scoreboard is the reveal. Competitor stays **unnamed** ("new-launch branded builder").
 
+**Calculator = two tabs (replaces the single EMI tool).** (1) **"What can I afford?"** — income
++ optional co-applicant (checkbox reveals a field) + existing EMIs, with a **40–50% FOIR** slider →
+eligible loan, total budget, serviceable EMI, affordable sft, and a ✓/✗ list of which Nivasa configs
+fit (e.g. ₹2 L/mo → up to a 3 BHK 1,845 sft). (2) **"Already paying rent?"** — rent + a home + a
+**10–20% down-payment** slider → the *top-up over your rent* to own (e.g. ₹45 k rent → ~₹26 k more
+for a ₹96.2 L asset), with the "zero-equity rent vs owning" message. Logic in `site.js` under
+`[data-calc]` (`calcAfford` / `calcRent`, reverse-EMI `loanFromEmi`); styles under the EMI block.
+
 **Enquire section = "direct to a closer" (no middleman).** Replaces the generic form with two
 **senior sales leads — Bharat & Satish** — each a card with closing stats and a **one-tap WhatsApp**
 button (page-aware prefilled message via `[data-wa]`/`[data-rep]` in `site.js`), an "online now ·

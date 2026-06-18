@@ -258,56 +258,113 @@
   }
 
   /* =====================================================================
-     EMI CALCULATOR
+     CALCULATOR — tabbed: (1) affordability/eligibility from income,
+     (2) rent-vs-own top-up. Shares the EMI maths and Nivasa pricing.
      ===================================================================== */
-  var emi = document.querySelector("[data-emi]");
-  if (emi) {
-    var sel = emi.querySelector("#emi-unit");
-    var priceEl = emi.querySelector("#emi-price");
-    var dpRange = emi.querySelector("#emi-dp");
-    var rateRange = emi.querySelector("#emi-rate");
-    var tenRange = emi.querySelector("#emi-tenure");
+  var calcRoot = document.querySelector("[data-calc]");
+  if (calcRoot) {
+    var TIERS = [
+      { label: "2 BHK · 1,375 sft", area: 1375 },
+      { label: "3 BHK · 1,700 sft", area: 1700 },
+      { label: "3 BHK · 1,845 sft", area: 1845 },
+      { label: "3 BHK · 2,205 sft", area: 2205 }
+    ];
+    function emiOf(P, annual, years) {
+      var r = annual / 12 / 100, n = years * 12;
+      return r === 0 ? P / n : (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    }
+    function loanFromEmi(e, annual, years) {
+      if (e <= 0) return 0;
+      var r = annual / 12 / 100, n = years * 12;
+      return r === 0 ? e * n : e * (Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n));
+    }
+    function fill(r) { var mn = +r.min, mx = +r.max; r.style.setProperty("--p", ((+r.value - mn) / (mx - mn) * 100) + "%"); }
+    function $(id) { return calcRoot.querySelector("#" + id); }
 
+    // ---- tab switching ----
+    var tabs = calcRoot.querySelectorAll(".calc-tab");
+    var panels = calcRoot.querySelectorAll(".calc-panel");
+    tabs.forEach(function (t) {
+      t.addEventListener("click", function () {
+        tabs.forEach(function (x) { x.classList.remove("active"); });
+        t.classList.add("active");
+        var m = t.getAttribute("data-mode");
+        panels.forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== m; });
+      });
+    });
+
+    // ---- affordability ----
+    var aInc = $("aff-income"), aCo = $("aff-co"), aCoWrap = $("aff-co-wrap"), aCoInc = $("aff-co-income"),
+        aEx = $("aff-existing"), aFoir = $("aff-foir"), aRate = $("aff-rate"), aTen = $("aff-ten"), aDp = $("aff-dp");
+    function calcAfford() {
+      var inc = (+aInc.value || 0) + (aCo.checked ? (+aCoInc.value || 0) : 0);
+      var maxEMI = Math.max(inc * (+aFoir.value / 100) - (+aEx.value || 0), 0);
+      var loan = loanFromEmi(maxEMI, +aRate.value, +aTen.value);
+      var dp = +aDp.value / 100;
+      var budget = dp < 1 ? loan / (1 - dp) : loan;
+      var area = budget / RATE;
+      $("aff-loan").textContent = crore(loan);
+      $("aff-budget").textContent = crore(budget);
+      $("aff-maxemi").textContent = inr(maxEMI);
+      $("aff-dpamt").textContent = crore(budget - loan);
+      $("aff-area").textContent = Math.round(area).toLocaleString("en-IN") + " sft";
+      $("aff-income-tot").textContent = crore(inc);
+      var best = null;
+      var rows = TIERS.map(function (t) {
+        var price = t.area * RATE, ok = price <= budget; if (ok) best = t;
+        return '<div class="fit-row ' + (ok ? "ok" : "no") + '"><span class="fk">' + (ok ? "✓" : "✕") + '</span>' +
+          '<span class="fl">' + t.label + '</span><span class="fp">' + crore(price) + '</span></div>';
+      }).join("");
+      var head = best ? ('Your income can own up to a <b>' + best.label + '</b> at Nivasa.')
+                      : 'Just shy of our current configs — talk to Bharat about flexible plans.';
+      $("aff-fit").innerHTML = '<p class="fit-head">' + head + '</p>' + rows;
+      $("aff-income-val").textContent = crore(+aInc.value || 0);
+      $("aff-co-val").textContent = crore(+aCoInc.value || 0);
+      $("aff-emi-val").textContent = crore(+aEx.value || 0);
+      $("aff-foir-val").textContent = aFoir.value + "% of income";
+      $("aff-rate-val").textContent = (+aRate.value).toFixed(1) + "%";
+      $("aff-ten-val").textContent = aTen.value + " yrs";
+      $("aff-dp-val").textContent = aDp.value + "%";
+      [aFoir, aRate, aTen, aDp].forEach(fill);
+    }
+    aCo.addEventListener("change", function () { aCoWrap.hidden = !aCo.checked; calcAfford(); });
+    [aInc, aCoInc, aEx].forEach(function (el) { el.addEventListener("input", calcAfford); });
+    [aFoir, aRate, aTen, aDp].forEach(function (el) { el.addEventListener("input", calcAfford); });
+    calcAfford();
+
+    // ---- rent vs own ----
+    var rRent = $("rnt-rent"), rUnit = $("rnt-unit"), rDp = $("rnt-dp"), rRate = $("rnt-rate"), rTen = $("rnt-ten");
     UNITS.slice().sort(function (a, b) { return a.area - b.area; }).forEach(function (u) {
       var o = document.createElement("option");
       o.value = u.area; o.textContent = u.name + " · " + u.area + " sft — " + crore(priceOf(u.area));
-      sel.appendChild(o);
+      rUnit.appendChild(o);
     });
-
-    function setRangeFill(r) {
-      var min = +r.min, max = +r.max, v = +r.value;
-      r.style.setProperty("--p", ((v - min) / (max - min) * 100) + "%");
+    function calcRent() {
+      var rent = +rRent.value || 0;
+      var price = priceOf(+rUnit.value);
+      var dp = +rDp.value / 100;
+      var loan = price * (1 - dp);
+      var emi = emiOf(loan, +rRate.value, +rTen.value);
+      var top = emi - rent;
+      $("rnt-topup").innerHTML = (top > 0 ? inr(top) : "₹0") + '<small>/mo more</small>';
+      $("rnt-rentecho").textContent = inr(rent).replace("₹", "");
+      $("rnt-emi").textContent = inr(emi);
+      $("rnt-rent2").textContent = inr(rent);
+      $("rnt-dpamt").textContent = crore(price * dp);
+      $("rnt-equity").textContent = crore(price);
+      $("rnt-msg").textContent = top <= 0
+        ? "Your rent already covers the EMI — you could own this home for what you pay now, and stop paying off someone else's loan."
+        : "You already pay " + inr(rent) + " a month in rent. For about " + inr(top) + " more, that money builds your own " + crore(price) + " asset — instead of zero equity.";
+      $("rnt-rent-val").textContent = inr(rent);
+      $("rnt-dp-val").textContent = rDp.value + "% · " + crore(price * dp);
+      $("rnt-rate-val").textContent = (+rRate.value).toFixed(1) + "%";
+      $("rnt-ten-val").textContent = rTen.value + " yrs";
+      [rDp, rRate, rTen].forEach(fill);
     }
-    function calc() {
-      var price = +priceEl.value || priceOf(+sel.value);
-      var dpPct = +dpRange.value;
-      var annual = +rateRange.value;
-      var years = +tenRange.value;
-      var dp = price * dpPct / 100;
-      var P = Math.max(price - dp, 0);
-      var r = annual / 12 / 100;
-      var n = years * 12;
-      var emiVal = r === 0 ? P / n : (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-      var total = emiVal * n;
-      var interest = total - P;
-
-      emi.querySelector("#emi-out").textContent = inr(emiVal);
-      emi.querySelector("#emi-loan").textContent = crore(P);
-      var l2 = emi.querySelector("#emi-loan2"); if (l2) l2.textContent = crore(P);
-      emi.querySelector("#emi-dpval").textContent = crore(dp);
-      emi.querySelector("#emi-interest").textContent = crore(interest);
-      emi.querySelector("#emi-total").textContent = crore(total + dp);
-
-      emi.querySelector("#dp-label").textContent = dpPct + "% · " + crore(dp);
-      emi.querySelector("#rate-label").textContent = annual.toFixed(1) + "%";
-      emi.querySelector("#ten-label").textContent = years + " yrs";
-      [dpRange, rateRange, tenRange].forEach(setRangeFill);
-    }
-    sel.addEventListener("change", function () { priceEl.value = priceOf(+sel.value); calc(); });
-    priceEl.addEventListener("input", calc);
-    [dpRange, rateRange, tenRange].forEach(function (r) { r.addEventListener("input", calc); });
-    // init
-    sel.selectedIndex = 0; priceEl.value = priceOf(+sel.value); calc();
+    rRent.addEventListener("input", calcRent);
+    rUnit.addEventListener("change", calcRent);
+    [rDp, rRate, rTen].forEach(function (el) { el.addEventListener("input", calcRent); });
+    calcRent();
   }
 
   /* =====================================================================

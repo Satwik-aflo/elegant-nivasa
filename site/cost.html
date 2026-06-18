@@ -85,48 +85,105 @@
   </div>
 </section>
 
-<!-- ============ EMI CALCULATOR ============ -->
+<!-- ============ EMI / AFFORDABILITY CALCULATOR ============ -->
 <section class="section" id="emi">
   <div class="wrap">
     <div class="shead reveal">
       <p class="eyebrow">Plan your home</p>
-      <h2 class="h2">What would it cost you a month?</h2>
-      <p class="lead">A lower entry price means a lighter EMI. Pick a home, set your down payment and see your monthly number instantly.</p>
+      <h2 class="h2">See exactly what you can afford.</h2>
+      <p class="lead">Two quick tools — find the Nivasa home your income qualifies for, or see how little more than your rent it takes to own one.</p>
     </div>
-    <div class="emi reveal d1" data-emi>
-      <div class="emi-controls">
-        <div class="field">
-          <div class="field-top"><label for="emi-unit">Choose your home</label></div>
-          <select class="input" id="emi-unit"></select>
+    <div class="calc reveal d1" data-calc>
+      <div class="calc-tabs" role="tablist">
+        <button type="button" class="calc-tab active" data-mode="afford">What can I afford?</button>
+        <button type="button" class="calc-tab" data-mode="rent">Already paying rent?</button>
+      </div>
+
+      <!-- AFFORDABILITY -->
+      <div class="emi calc-panel" data-panel="afford">
+        <div class="emi-controls">
+          <div class="field">
+            <div class="field-top"><label for="aff-income">Your monthly income</label><span class="fval" id="aff-income-val"></span></div>
+            <input class="input" id="aff-income" type="number" step="5000" inputmode="numeric" value="200000">
+          </div>
+          <label class="check" for="aff-co"><input type="checkbox" id="aff-co"> Add another earning family member</label>
+          <div class="field co-field" id="aff-co-wrap" hidden>
+            <div class="field-top"><label for="aff-co-income">Co-applicant monthly income</label><span class="fval" id="aff-co-val"></span></div>
+            <input class="input" id="aff-co-income" type="number" step="5000" inputmode="numeric" value="100000">
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="aff-existing">Existing EMIs / obligations</label><span class="fval" id="aff-emi-val"></span></div>
+            <input class="input" id="aff-existing" type="number" step="1000" inputmode="numeric" value="0">
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="aff-foir">EMI from income</label><span class="fval" id="aff-foir-val"></span></div>
+            <input id="aff-foir" type="range" min="40" max="50" value="45" step="1">
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="aff-rate">Interest rate</label><span class="fval" id="aff-rate-val"></span></div>
+            <input id="aff-rate" type="range" min="7" max="12" value="8.5" step="0.1">
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="aff-ten">Loan tenure</label><span class="fval" id="aff-ten-val"></span></div>
+            <input id="aff-ten" type="range" min="5" max="30" value="20" step="1">
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="aff-dp">Down payment</label><span class="fval" id="aff-dp-val"></span></div>
+            <input id="aff-dp" type="range" min="10" max="40" value="20" step="1">
+          </div>
         </div>
-        <div class="field">
-          <div class="field-top"><label for="emi-price">Property price</label><span class="fval"></span></div>
-          <input class="input" id="emi-price" type="number" step="50000" inputmode="numeric">
-        </div>
-        <div class="field">
-          <div class="field-top"><label for="emi-dp">Down payment</label><span class="fval" id="dp-label"></span></div>
-          <input id="emi-dp" type="range" min="10" max="60" value="20" step="1">
-        </div>
-        <div class="field">
-          <div class="field-top"><label for="emi-rate">Interest rate</label><span class="fval" id="rate-label"></span></div>
-          <input id="emi-rate" type="range" min="7" max="12" value="8.5" step="0.1">
-        </div>
-        <div class="field">
-          <div class="field-top"><label for="emi-tenure">Loan tenure</label><span class="fval" id="ten-label"></span></div>
-          <input id="emi-tenure" type="range" min="5" max="30" value="20" step="1">
+        <div class="emi-result">
+          <span class="k">You could be eligible for</span>
+          <div class="emi-big" id="aff-loan">₹0</div>
+          <span class="k normal">home loan · on a <span id="aff-budget">₹0</span> total budget</span>
+          <div class="emi-break">
+            <div class="b"><div class="bv" id="aff-maxemi">₹0</div><div class="bl">Monthly EMI you can service</div></div>
+            <div class="b"><div class="bv" id="aff-dpamt">₹0</div><div class="bl">Down payment needed</div></div>
+            <div class="b"><div class="bv" id="aff-area">0 sft</div><div class="bl">Affordable size</div></div>
+            <div class="b"><div class="bv" id="aff-income-tot">₹0</div><div class="bl">Income considered</div></div>
+          </div>
+          <div class="aff-fit" id="aff-fit"></div>
+          <p class="emi-note">Indicative eligibility at 40–50% of income toward EMI (bank FOIR). Final sanction depends on your lender, profile &amp; documents.</p>
         </div>
       </div>
-      <div class="emi-result">
-        <span class="k">Estimated monthly EMI</span>
-        <div class="emi-big" id="emi-out">₹0</div>
-        <span class="k" style="text-transform:none;letter-spacing:0;color:rgba(255,255,255,.6)">on a <span id="emi-loan">₹0</span> home loan</span>
-        <div class="emi-break">
-          <div class="b"><div class="bv" id="emi-dpval">₹0</div><div class="bl">Down payment</div></div>
-          <div class="b"><div class="bv" id="emi-loan2">₹0</div><div class="bl">Loan amount</div></div>
-          <div class="b"><div class="bv" id="emi-interest">₹0</div><div class="bl">Total interest</div></div>
-          <div class="b"><div class="bv" id="emi-total">₹0</div><div class="bl">Total payable</div></div>
+
+      <!-- RENT VS OWN -->
+      <div class="emi calc-panel" data-panel="rent" hidden>
+        <div class="emi-controls">
+          <div class="field">
+            <div class="field-top"><label for="rnt-rent">Rent you pay now</label><span class="fval" id="rnt-rent-val"></span></div>
+            <input class="input" id="rnt-rent" type="number" step="1000" inputmode="numeric" value="45000">
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="rnt-unit">The home you&rsquo;d own</label></div>
+            <select class="input" id="rnt-unit"></select>
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="rnt-dp">Down payment</label><span class="fval" id="rnt-dp-val"></span></div>
+            <input id="rnt-dp" type="range" min="10" max="20" value="15" step="1">
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="rnt-rate">Interest rate</label><span class="fval" id="rnt-rate-val"></span></div>
+            <input id="rnt-rate" type="range" min="7" max="12" value="8.5" step="0.1">
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="rnt-ten">Loan tenure</label><span class="fval" id="rnt-ten-val"></span></div>
+            <input id="rnt-ten" type="range" min="5" max="30" value="20" step="1">
+          </div>
         </div>
-        <p class="emi-note" style="color:rgba(255,255,255,.5)">Indicative only · @ ₹6,999/sft base. Final pricing, taxes &amp; charges confirmed by our sales team.</p>
+        <div class="emi-result">
+          <span class="k">Just a little more than rent</span>
+          <div class="emi-big" id="rnt-topup">₹0<small>/mo more</small></div>
+          <span class="k normal">on top of your ₹<span id="rnt-rentecho">0</span> rent — and the home is yours</span>
+          <div class="emi-break">
+            <div class="b"><div class="bv" id="rnt-emi">₹0</div><div class="bl">Your home-loan EMI</div></div>
+            <div class="b"><div class="bv" id="rnt-rent2">₹0</div><div class="bl">Rent you pay today</div></div>
+            <div class="b"><div class="bv" id="rnt-dpamt">₹0</div><div class="bl">Down payment</div></div>
+            <div class="b"><div class="bv" id="rnt-equity">₹0</div><div class="bl">Asset you&rsquo;d own</div></div>
+          </div>
+          <p class="rnt-msg" id="rnt-msg"></p>
+          <p class="emi-note">Indicative only @ ₹6,999/sft base. Rent-vs-EMI is illustrative; taxes, maintenance &amp; appreciation not shown.</p>
+        </div>
       </div>
     </div>
   </div>
