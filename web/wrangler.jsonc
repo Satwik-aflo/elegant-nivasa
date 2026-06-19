@@ -2,7 +2,7 @@
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"compatibility_date": "2026-06-19",
 	"compatibility_flags": ["global_fetch_strictly_public"],
-	"name": "web",
+	"name": "elegant-nivasa",
 	"main": "@astrojs/cloudflare/entrypoints/server",
 	"assets": {
 		"directory": "./dist",
@@ -18,7 +18,7 @@
 		{
 			"binding": "DB",
 			"database_name": "elegant-nivasa",
-			"database_id": "PLACEHOLDER_RUN_wrangler_d1_create",
+			"database_id": "0dc16711-61e3-499f-94b2-71e4c08a4749",
 			"migrations_dir": "migrations"
 		}
 	]
