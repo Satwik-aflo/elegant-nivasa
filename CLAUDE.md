@@ -21,11 +21,18 @@ do not.
 Deliverable sequence:
 1. **High-fidelity interactive mockup** (this repo) → for client approval.
 2. Push to **claude.ai/design** (via the DesignSync tool) for browsable review/sign-off.
-3. **Live build** after approval.
+3. **Live build** after approval — see **§8** for the hosting + lead-engine architecture.
+
+> **Scope expanded 2026-06-19.** Originally just the 3 sales-redirect pages. Now we **also rewrite
+> the main site** (`elegantnivasa.com`) in the same conversion-first system. The existing main site
+> is **WordPress + Elementor** and "not generating leads" — but the cause is **conversion + lead
+> routing, not missing forms** (it already has contact forms, a brochure-OTP form, a callback popup,
+> WhatsApp and phones). The rewrite applies the same speed-to-lead pipeline (§8) to the whole site.
+> See §8 for the current-site audit.
 
 Must-have features (present on every variation):
 - **Lead-capture form** → in live build, store to a **database + trigger WhatsApp/SMS** to sales
-  (speed-to-lead). Mockup simulates submit + validation.
+  (speed-to-lead). Full live architecture in **§8**. Mockup simulates submit + validation.
 - **EMI calculator** → anchored to project pricing (see §5).
 - Render gallery, floor-plan explorer, amenities, location/connectivity, project highlights,
   RERA/legal footer.
@@ -228,7 +235,88 @@ Derived indicative all-in prices (super built-up × ₹6,999) — **placeholder,
 
 1. ~~Canonical locality wording~~ → ~~Kollur~~ → **Reversed 2026-06-18: on-site copy uses Tellapur** (per user).
 2. Final pricing for the EMI calculator (flat ₹/sft vs per-type, premiums).
-3. Exact lead-form fields + WhatsApp/CRM destination for live build.
+3. Exact lead-form fields + WhatsApp/CRM destination → **partly decided (§8):** Tranquil CRM + rep
+   notify. **OPEN:** rep-notify channel for the form fallback — instant **SMS/email (A, recommended)**
+   vs **Meta WhatsApp Cloud API (B)**. Field set still to finalize.
 4. ~~Competitor comparison naming~~ → **Decided: unnamed ("other premium builders").**
 5. Possession date wording (June 2027) and the 78.19% "structure complete" figure — keep updated.
-6. Domain / hosting / analytics + ad-tracking (per-variation UTM routing) for the live build.
+6. ~~Domain / hosting / analytics~~ → **Decided 2026-06-19 (§8):** campaign on `invest.elegantnivasa.com`
+   via **Cloudflare** (Pages + Workers + D1 + Turnstile); main site stays on Hostinger; Clarity + Meta
+   Pixel for analytics. **OPEN:** get Tranquil API credentials; pick rep-notify channel (#3).
+7. **Real placeholders to replace before publish (§2):** Bharat/Satish sales stats, all WhatsApp/phone
+   numbers (`910000000000`), and competitor figures — RERA/ASCI + real-person accuracy.
+8. **Privacy/consent:** DPDP Act 2023 needs a consent banner + privacy policy before Pixel/Clarity
+   ship (they set cookies / process PII). Mask the lead fields in Clarity recordings.
+
+---
+
+## 8. Live build — hosting, runtime & the lead engine
+
+All decided 2026-06-19. **Budget: ₹50,000** (hosting is ~free; budget goes to ad spend / per-message
+costs / the live build, not infra).
+
+### Hosting & runtime
+- **Campaign subdomain:** `invest.elegantnivasa.com`, with the three pages as **paths** —
+  `/cost`, `/yield`, `/handover`. Pointed via a single **CNAME** at the current DNS host (Hostinger)
+  → the Cloudflare Pages target. **Main site `elegantnivasa.com` nameservers are NOT moved** (zero
+  blast radius on the main WordPress site).
+- **Platform: Cloudflare** (chosen because it's CLI-operable end-to-end via `wrangler`, and free at
+  this volume — Hostinger shared/Premium is PHP-only with no clean CLI, so it was dropped for the app):
+  - **Pages** → hosts the static pages.
+  - **Workers** → the `POST /api/lead` intake endpoint (replaces the earlier `lead.php` plan).
+  - **D1** (SQLite) → `leads` (source of truth) + `outbox` tables.
+  - **Cron Triggers** (free) → drain the outbox / fan out. *(Queues would be cleaner but need Workers
+    Paid $5/mo; using free Cron Triggers instead.)*
+  - **Turnstile** → invisible spam guard on the form (no Google cookies → better for DPDP).
+  - **Cost: ₹0 upfront, no credit card to start.** Free tiers cover everything.
+- **Same-origin:** static + `/api/lead` on the same Cloudflare domain → no CORS. Secrets (Tranquil
+  key, Meta token, SMS key) live **only** in Worker env, never in client JS.
+- **Deploy:** GitHub stays source of truth; I deploy via `wrangler` after a one-time `wrangler login`
+  (or a scoped CF API token).
+
+### Lead flow (speed-to-lead)
+`form submit → Turnstile check → POST /api/lead (Worker) → validate + honeypot + rate-limit →
+write to D1 (truth) → enqueue outbox → return 200 fast → Cron drains outbox → fan out to:
+(a) Tranquil CRM, (b) rep notify, (c) Meta Conversions API`. D1-first means **no lead is ever lost**
+even while Tranquil is pending.
+
+### Integrations
+- **Tranquil CRM** (`tranquilcrm.com`) — real-estate CRM; has API/webhook lead intake + auto-assign +
+  telephony. **No public API docs → must get the key + lead-push spec from their team (NOT YET — first
+  action).** Endpoint built Tranquil-ready (stubbed `tranquil_push` outbox job) so we ship without it
+  and backfill when the key lands. Carry **page + UTM** into the lead source.
+- **WhatsApp** — two distinct flows: (1) **click-to-chat** buttons → straight to reps' real numbers
+  (this is the "direct, no middleman" access; just needs real numbers, anti-scrape: inject via JS, not
+  raw HTML). (2) **form-fallback rep notify** → can't send WA from a server without **Meta WhatsApp
+  Cloud API**; default to **SMS/email (A)** at launch, add Cloud API (B) later. **BSP** = reseller
+  (AiSensy/Wati/Interakt) — skipped per "direct" preference.
+- **Meta Pixel** — client Pixel (PageView/ViewContent/Lead/Contact) **+ server Conversions API** with
+  shared `event_id` dedup + hashed PII + `fbp`/`fbc` cookies (recovers iOS/ad-blocker losses). Per-page
+  + UTM attribution so we know which ad *angle* converts.
+- **Behavior analytics** — **Microsoft Clarity** (free, unlimited heatmaps + recordings + scroll/click)
+  recommended over **Hotjar** (free tier ≈35 sessions/day, too small for ad traffic). One thin
+  `track(event, props)` wrapper in `site.js` fans out to Clarity + Pixel (+ GA4 later). "Button +
+  scroll listening" = Clarity heatmaps + explicit events on CTAs, calc usage, WhatsApp clicks, submit.
+- **Spam safeguards (reps' numbers are real people):** Turnstile + honeypot + time-trap + per-IP/
+  per-phone rate limit + Indian-mobile regex, server-side. Optional **phone OTP** = strongest.
+
+### Current main site audit (elegantnivasa.com — to be rewritten)
+- **Stack:** WordPress + **Elementor** (popups, brochure-via-Google-Drive, YouTube embeds).
+- **Nav/pages:** Home · About · Highlights & Amenities · Floor Plans · Gallery · Project Updates ·
+  Team · Contact.
+- **Hero:** *"Premium 2 & 3 BHK Apartments in Tellapur, Starting at just 96L* Onwards."* (already
+  Tellapur + ₹96L — consistent with our pages.)
+- **Existing lead capture (so the problem is conversion/routing, not absence):** contact forms,
+  brochure download w/ name+phone+**OTP**, "Request a Callback" popup, WhatsApp, phones
+  **+91 90 90 366 366 / 9030555036**, email now **sales@e-infra.in**. *(Client removed the old
+  channel-partner inbox `Info@patwarisaab.com` from the site on 2026-06-19 — verified gone.)*
+  ⚠️ Still an inbox, not a CRM — the **speed-to-lead gap remains** until §8's pipeline routes leads to
+  Tranquil + instant rep notify. Confirm who monitors `sales@e-infra.in` and the current response time.
+- **Rewrite implication:** keep the full marketing surface (amenities/floorplans/gallery/team) the
+  sales-redirect pages stripped, but wire every CTA into the §8 pipeline (D1 → Tranquil → rep).
+
+### Repo / deploy state
+- **GitHub:** `Satwik-aflo/elegant-nivasa` — **now PUBLIC** (2026-06-18). ⚠️ public = placeholder data
+  (§7.7) is crawlable; consider `noindex` until client sign-off.
+- **GitHub Pages** is live (`satwik-aflo.github.io/elegant-nivasa/`) via `.github/workflows/pages.yml`
+  — a temporary review host; production target is Cloudflare Pages on the subdomain above.
