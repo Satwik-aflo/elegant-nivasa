@@ -1,0 +1,106 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import LeadForm from "../components/LeadForm.astro";
+import { site } from "../config/site";
+
+// Content is placeholder pending brochure/figure sign-off (CLAUDE.md §7).
+const highlights = [
+  ["4 acres", "Gated community"],
+  ["3 towers", "23 floors each"],
+  ["526", "2 & 3 BHK homes"],
+  ["100%", "Vastu compliant"],
+];
+const amenities = [
+  "5-level clubhouse", "Terrace swimming pool", "Crossfit arena",
+  "Badminton & squash", "Business lounge", "Yoga & meditation",
+  "Banquet hall", "Spa & salon", "Indoor games",
+];
+const location = [
+  ["1 min", "Radial Road No. 7"], ["3 min", "ORR Exit No. 2"],
+  ["10 min", "Narayana Junior College"], ["20 min", "Lingampalli Railway Station"],
+];
+---
+<MainLayout
+  title={`${site.name} — Premium 2 & 3 BHK at ${site.locality}, ${site.city}`}
+  description={`${site.name} by ${site.developer} — a 4-acre gated high-rise community at ${site.locality}, West Hyderabad. HMDA & RERA approved (${site.rera}). From ${site.startingPrice}.`}
+>
+  <!-- HERO -->
+  <section class="section wrap" id="top">
+    <p class="eyebrow">High-rise lifestyle at {site.locality}</p>
+    <h1 style="max-width:18ch">Premium 2 &amp; 3 BHK homes, from {site.startingPrice}.</h1>
+    <p class="muted" style="max-width:58ch;font-size:1.2rem">
+      A 4-acre gated community by {site.developer} in {site.locality}, West Hyderabad —
+      HMDA &amp; RERA approved. Designed for the achiever in you.
+    </p>
+    <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.5rem">
+      <a class="btn btn--rust btn--lg" href="#enquire">Get the price sheet</a>
+      <a class="btn btn--ghost btn--lg" href="#project">Explore the project</a>
+    </div>
+  </section>
+
+  <!-- HIGHLIGHTS -->
+  <section class="section" id="project" style="background:var(--cream)">
+    <div class="wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1.5rem">
+      {highlights.map(([big, small]) => (
+        <div class="reveal">
+          <div style="font-family:var(--serif);font-size:2.4rem;color:var(--rust);line-height:1">{big}</div>
+          <div class="muted">{small}</div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- AMENITIES -->
+  <section class="section wrap" id="amenities">
+    <p class="eyebrow">Club @ Nivasa</p>
+    <h2>A five-level clubhouse, and then some.</h2>
+    <ul style="columns:2;gap:2rem;max-width:640px;margin-top:1rem;padding-left:1.1rem">
+      {amenities.map((a) => <li class="reveal">{a}</li>)}
+    </ul>
+  </section>
+
+  <!-- FLOOR PLANS / GALLERY (placeholders) -->
+  <section class="section" id="plans" style="background:var(--cream)">
+    <div class="wrap">
+      <p class="eyebrow">Floor plans &amp; gallery</p>
+      <h2>Six thoughtful configurations.</h2>
+      <p class="muted">2 &amp; 3 BHK · 1,375–2,205 sft super built-up. Renders and plans load here.</p>
+      <div id="gallery" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:1.5rem">
+        {[1,2,3,4].map((n) => (
+          <div class="reveal" style="aspect-ratio:4/3;background:#e8e0cd;border-radius:12px;display:grid;place-items:center;color:var(--muted)">Render {n}</div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- LOCATION -->
+  <section class="section wrap" id="location">
+    <p class="eyebrow">Location &amp; connectivity</p>
+    <h2>Minutes from the ORR.</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.2rem;margin-top:1rem">
+      {location.map(([t, place]) => (
+        <div class="reveal">
+          <strong style="color:var(--rust)">{t}</strong> — {place}
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ENQUIRE -->
+  <section class="section" id="enquire" style="background:var(--navy);color:#fff">
+    <div class="wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start">
+      <div>
+        <p class="eyebrow" style="color:#e7b87f">Enquire</p>
+        <h2 style="color:#fff">Get the price sheet &amp; brochure.</h2>
+        <p style="color:#cdd2e6;max-width:42ch">
+          Drop your details and a senior sales lead reaches out — the brochure lands
+          on your WhatsApp. No call-centre, no spam.
+        </p>
+      </div>
+      <div style="background:var(--paper);color:var(--ink);padding:1.8rem;border-radius:var(--radius)">
+        <LeadForm />
+      </div>
+    </div>
+  </section>
+
+</MainLayout>

@@ -1,0 +1,21 @@
+---
+import type { CompRow } from "../data/comparison";
+interface Props { rows: CompRow[]; }
+const { rows } = Astro.props;
+---
+<div class="compare">
+  <div class="compare__row compare__head">
+    <div>Metric</div>
+    <div class="us">Elegant Nivasa</div>
+    <div class="compare__them">Nearby builder</div>
+    <div class="compare__edge">Your edge</div>
+  </div>
+  {rows.map((r) => (
+    <div class="compare__row">
+      <div class="compare__metric">{r.metric}</div>
+      <div>{r.us}</div>
+      <div class="compare__them">{r.them}</div>
+      <div class="compare__edge">{r.edge}</div>
+    </div>
+  ))}
+</div>
