@@ -9,6 +9,7 @@ declare global {
   interface Window {
     clarity?: (...args: unknown[]) => void;
     fbq?: (...args: unknown[]) => void;
+    _fbq?: unknown; // internal handle set by the Meta Pixel bootstrap snippet
   }
 }
 

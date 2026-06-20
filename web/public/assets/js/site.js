@@ -433,7 +433,7 @@
       if (!ok) return;
       // Live: POST to D1 + sales email via /api/lead
       var btn = form.querySelector("button[type=submit]");
-      var label = btn.textContent; btn.textContent = "Sending…"; btn.disabled = true;
+      btn.textContent = "Sending…"; btn.disabled = true;
       function showSuccess() {
         form.style.display = "none";
         if (success) {
@@ -470,10 +470,14 @@
     handover: "Hi {rep}, I'm interested in Elegant Nivasa, Tellapur (June 2027 possession) — can you share price, availability and a site-visit slot?"
   };
   document.querySelectorAll("[data-wa]").forEach(function (a) {
-    var num = a.getAttribute("data-wa");
+    // Number is base64-encoded in markup (anti-scrape, CLAUDE.md §3); decode here.
+    var num = "";
+    try { num = atob(a.getAttribute("data-wa") || ""); } catch (err) { num = ""; }
+    if (!/^\d{8,15}$/.test(num)) return; // bad/empty payload — leave link inert
     var rep = a.getAttribute("data-rep") || "team";
     var msg = (WA_MSG[pageKey] || WA_MSG.cost).replace("{rep}", rep);
     a.setAttribute("href", "https://wa.me/" + num + "?text=" + encodeURIComponent(msg));
+    a.setAttribute("target", "_blank");
     a.addEventListener("click", function () {
       if (window.track) window.track("whatsapp_click", { page: pageKey, rep: rep });
     });

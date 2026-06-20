@@ -19,5 +19,10 @@
   },
   "overrides": {
     "vite": "^7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "puppeteer-core": "^23.11.1",
+    "typescript": "^6.0.3"
   }
 }

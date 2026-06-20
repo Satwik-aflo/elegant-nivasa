@@ -8,8 +8,7 @@ export default defineConfig({
   // Pages are static (served from the Pages CDN); only /api/* opts into the
   // Worker runtime via `export const prerender = false`.
   output: 'static',
-  adapter: cloudflare({
-    // Exposes D1/env bindings to `astro dev` from wrangler config.
-    platformProxy: { enabled: true },
-  }),
+  // The adapter reads bindings from wrangler.jsonc automatically in dev (the
+  // old `platformProxy` option was removed in @astrojs/cloudflare v13).
+  adapter: cloudflare(),
 });

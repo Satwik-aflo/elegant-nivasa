@@ -1,8 +1,10 @@
 ---
-// Ported from the original site/*.html design. Shared chrome + sections;
-// the per-angle hero comes in via the default <slot/>. Styling/behaviour from
-// the original /assets/css/site.css + /assets/js/site.js (in public/).
+// Shared sub-site chrome + sections; the per-angle hero comes in via the
+// default <slot/>. Styling/behaviour from /assets/css/site.css +
+// /assets/js/site.js (in public/). (Originally ported from a hand-coded static
+// HTML site that has since been deleted — recoverable from git history.)
 import AnalyticsScripts from "../components/AnalyticsScripts.astro";
+import { site } from "../config/site.ts";
 interface Props {
   title: string;
   description: string;
@@ -10,8 +12,16 @@ interface Props {
   adSet: string;
   active: "cost" | "rental-yield" | "handover";
 }
-const { title, description, page, adSet, active } = Astro.props;
-const sw = (slug: string) => (active === slug ? "active" : "");
+// `active` stays in Props (pages still pass the angle slug) for upcoming
+// per-angle comparison work (handoff B2), but the layout no longer consumes
+// it — the ad-set switcher that used it was removed.
+const { title, description, page, adSet } = Astro.props;
+// Anti-scrape (CLAUDE.md §3): never ship the raw number in markup. Base64 it
+// at build time; site.js decodes it at runtime (atob) to build the wa.me link.
+// Use btoa (Web API) not Buffer — the Cloudflare runtime has no Node Buffer.
+const enc = (s: string) => btoa(s);
+// WhatsApp glyph reused by both rep buttons.
+const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColor" aria-hidden="true"><path d="M16 .4C7.4.4.5 7.3.5 15.9c0 2.8.7 5.4 2 7.8L.4 31.6l8.1-2.1c2.3 1.2 4.8 1.9 7.5 1.9 8.6 0 15.5-6.9 15.5-15.5S24.6.4 16 .4zm0 28.3c-2.4 0-4.7-.6-6.7-1.8l-.5-.3-4.8 1.3 1.3-4.7-.3-.5a12.7 12.7 0 0 1-1.9-6.8C2.4 8.4 8.5 2.4 16 2.4s13.6 6 13.6 13.5S23.5 28.7 16 28.7zm7.4-9.5c-.4-.2-2.4-1.2-2.7-1.3-.4-.1-.6-.2-.9.2-.3.4-1 1.3-1.2 1.5-.2.2-.4.3-.8.1-.4-.2-1.7-.6-3.3-2-.1-.1-1.5-1.3-1.5-2.8 0-.4.2-.6.4-.8.2-.2.4-.4.5-.7.2-.2.2-.4.4-.7.1-.3 0-.5 0-.7-.1-.2-.9-2.1-1.2-2.9-.3-.7-.6-.6-.9-.6h-.7c-.2 0-.6.1-1 .5-.3.4-1.3 1.3-1.3 3.1s1.3 3.6 1.5 3.9c.2.2 2.6 4 6.3 5.5.9.4 1.6.6 2.1.8.9.3 1.7.2 2.3.1.7-.1 2.4-1 2.7-1.9.3-.9.3-1.7.2-1.9-.1-.2-.3-.2-.7-.4z"/></svg>`;
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -175,8 +185,9 @@ const sw = (slug: string) => (active === slug ? "active" : "");
 </section>
 
 <!-- ============ ENQUIRE / DIRECT CONNECT ============ -->
-<!-- NOTE: Bharat/Satish names are real; the sales stats and WhatsApp/phone
-     numbers below are PLACEHOLDERS — confirm & replace before publishing. -->
+<!-- NOTE: rep names + WhatsApp numbers are REAL, sourced from site.reps and
+     base64-injected (anti-scrape). The sales STATS below (aggregate + per-rep)
+     are still PLACEHOLDERS — confirm & replace before publishing (CLAUDE.md §7). -->
 <section class="lead-sec section" id="enquire">
   <div class="wrap">
     <div class="connect-head reveal center">
@@ -190,36 +201,23 @@ const sw = (slug: string) => (active === slug ? "active" : "");
     </div>
 
     <div class="leads reveal d1">
-      <article class="lead-card">
-        <div class="lc-top">
-          <div class="avatar av-b">BH</div>
-          <div class="lc-id">
-            <h3>Bharat</h3>
-            <p>Senior Sales Lead</p>
-            <span class="online"><i></i> Online now</span>
+      {site.reps.map((rep) => (
+        <article class="lead-card">
+          <div class="lc-top">
+            <div class={`avatar ${rep.avatar}`}>{rep.initials}</div>
+            <div class="lc-id">
+              <h3>{rep.name}</h3>
+              <p>Senior Sales Lead</p>
+              <span class="online"><i></i> Online now</span>
+            </div>
           </div>
-        </div>
-        <div class="lc-stats">
-          <div><b>₹41 Cr</b><span>closed last year</span></div>
-          <div><b>34</b><span>Nivasa homes sold</span></div>
-        </div>
-        <a class="btn btn--wa btn--block btn--lg" data-wa="910000000000" data-rep="Bharat" href="https://wa.me/910000000000" target="_blank" rel="noopener"><svg viewBox="0 0 32 32" width="21" height="21" fill="currentColor" aria-hidden="true"><path d="M16 .4C7.4.4.5 7.3.5 15.9c0 2.8.7 5.4 2 7.8L.4 31.6l8.1-2.1c2.3 1.2 4.8 1.9 7.5 1.9 8.6 0 15.5-6.9 15.5-15.5S24.6.4 16 .4zm0 28.3c-2.4 0-4.7-.6-6.7-1.8l-.5-.3-4.8 1.3 1.3-4.7-.3-.5a12.7 12.7 0 0 1-1.9-6.8C2.4 8.4 8.5 2.4 16 2.4s13.6 6 13.6 13.5S23.5 28.7 16 28.7zm7.4-9.5c-.4-.2-2.4-1.2-2.7-1.3-.4-.1-.6-.2-.9.2-.3.4-1 1.3-1.2 1.5-.2.2-.4.3-.8.1-.4-.2-1.7-.6-3.3-2-.1-.1-1.5-1.3-1.5-2.8 0-.4.2-.6.4-.8.2-.2.4-.4.5-.7.2-.2.2-.4.4-.7.1-.3 0-.5 0-.7-.1-.2-.9-2.1-1.2-2.9-.3-.7-.6-.6-.9-.6h-.7c-.2 0-.6.1-1 .5-.3.4-1.3 1.3-1.3 3.1s1.3 3.6 1.5 3.9c.2.2 2.6 4 6.3 5.5.9.4 1.6.6 2.1.8.9.3 1.7.2 2.3.1.7-.1 2.4-1 2.7-1.9.3-.9.3-1.7.2-1.9-.1-.2-.3-.2-.7-.4z"/></svg> WhatsApp Bharat <span class="arr">→</span></a>
-      </article>
-      <article class="lead-card">
-        <div class="lc-top">
-          <div class="avatar av-s">ST</div>
-          <div class="lc-id">
-            <h3>Satish</h3>
-            <p>Senior Sales Lead</p>
-            <span class="online"><i></i> Online now</span>
+          <div class="lc-stats">
+            <div><b>{rep.closed}</b><span>closed last year</span></div>
+            <div><b>{rep.homes}</b><span>Nivasa homes sold</span></div>
           </div>
-        </div>
-        <div class="lc-stats">
-          <div><b>₹33 Cr</b><span>closed last year</span></div>
-          <div><b>28</b><span>Nivasa homes sold</span></div>
-        </div>
-        <a class="btn btn--wa btn--block btn--lg" data-wa="910000000000" data-rep="Satish" href="https://wa.me/910000000000" target="_blank" rel="noopener"><svg viewBox="0 0 32 32" width="21" height="21" fill="currentColor" aria-hidden="true"><path d="M16 .4C7.4.4.5 7.3.5 15.9c0 2.8.7 5.4 2 7.8L.4 31.6l8.1-2.1c2.3 1.2 4.8 1.9 7.5 1.9 8.6 0 15.5-6.9 15.5-15.5S24.6.4 16 .4zm0 28.3c-2.4 0-4.7-.6-6.7-1.8l-.5-.3-4.8 1.3 1.3-4.7-.3-.5a12.7 12.7 0 0 1-1.9-6.8C2.4 8.4 8.5 2.4 16 2.4s13.6 6 13.6 13.5S23.5 28.7 16 28.7zm7.4-9.5c-.4-.2-2.4-1.2-2.7-1.3-.4-.1-.6-.2-.9.2-.3.4-1 1.3-1.2 1.5-.2.2-.4.3-.8.1-.4-.2-1.7-.6-3.3-2-.1-.1-1.5-1.3-1.5-2.8 0-.4.2-.6.4-.8.2-.2.4-.4.5-.7.2-.2.2-.4.4-.7.1-.3 0-.5 0-.7-.1-.2-.9-2.1-1.2-2.9-.3-.7-.6-.6-.9-.6h-.7c-.2 0-.6.1-1 .5-.3.4-1.3 1.3-1.3 3.1s1.3 3.6 1.5 3.9c.2.2 2.6 4 6.3 5.5.9.4 1.6.6 2.1.8.9.3 1.7.2 2.3.1.7-.1 2.4-1 2.7-1.9.3-.9.3-1.7.2-1.9-.1-.2-.3-.2-.7-.4z"/></svg> WhatsApp Satish <span class="arr">→</span></a>
-      </article>
+          <a class="btn btn--wa btn--block btn--lg" data-wa={enc(rep.wa)} data-rep={rep.name} href="#enquire" rel="noopener" set:html={`${waSvg} WhatsApp ${rep.name} <span class="arr">→</span>`}></a>
+        </article>
+      ))}
     </div>
 
     <form class="connect-alt reveal d2" data-leadform novalidate>
@@ -268,14 +266,8 @@ const sw = (slug: string) => (active === slug ? "active" : "");
   </div>
 </footer>
 
-<!-- floating CTA + variation switcher -->
+<!-- floating CTA -->
 <div class="float-cta"><a class="btn btn--orange" href="#enquire"><span class="label">Enquire</span> <span class="arr">→</span></a></div>
-<nav class="switcher" aria-label="Campaign variations">
-  <span class="pill-lab">Ad set</span>
-  <a href="/cost" class={sw("cost")}>01 · Cost</a>
-  <a href="/rental-yield" class={sw("rental-yield")}>02 · Yield</a>
-  <a href="/handover" class={sw("handover")}>03 · Handover</a>
-</nav>
 
 <script is:inline src="/assets/js/site.js"></script>
 </body>
