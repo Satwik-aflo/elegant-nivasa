@@ -47,8 +47,8 @@ const PHONE = "9090366366"; // public sales line (shown on the live site)
 
 // Hero = full-bleed cinematic (variant B, chosen 2026-06-21). On mobile the
 // stat chips get a solid dark fill so the text reads over the render.
-const HERO_LEAD = "About <b>₹20 lakhs* less</b> than the branded launch next door — with measurably more space, light and air for every rupee.";
-const HERO_IMG = "/assets/img/renders/hero.png";
+const HERO_LEAD = "526 residences across four acres in Tellapur, wrapped around an <b>8-level, 40,000+ sft clubhouse</b>. Spacious 2 &amp; 3 BHK homes from <b>₹6,999/sft</b>*, ready 2027.";
+const HERO_IMG = "/assets/img/renders/hero-alt.webp";
 const EINFRA_DARK = "/assets/img/brand/einfra-wordmark-dark.png";
 ---
 <!DOCTYPE html>
@@ -58,6 +58,8 @@ const EINFRA_DARK = "/assets/img/brand/einfra-wordmark-dark.png";
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Elegant Nivasa, Tellapur — Room to Live Well | Premium 2 &amp; 3 BHK</title>
 <meta name="description" content="Premium 2 &amp; 3 BHK homes at Tellapur, West Hyderabad — three towers, 526 residences and a clubhouse on a 4-acre car-free podium community, two minutes from the ORR. For about ₹20 lakhs less than the branded launch next door. HMDA &amp; RERA approved." />
+<!-- noindex while the site lives on the temporary *.workers.dev URL (avoid indexing / duplicate content with the WordPress domain). REMOVE at domain cutover. -->
+<meta name="robots" content="noindex, nofollow" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -79,27 +81,22 @@ const EINFRA_DARK = "/assets/img/brand/einfra-wordmark-dark.png";
     <a href="#amenities">Amenities</a>
     <a href="#plans">Floor plans</a>
     <a href="#location">Location</a>
-    <a class="btn btn--gold" href="#brochure">Book a visit <span class="arr">→</span></a>
+    <a class="btn btn--gold" href={`tel:${PHONE}`} data-book>Book a visit <span class="arr">→</span></a>
   </nav>
 </header>
 
-<!-- ============ HERO — full-bleed cinematic (legibility prototype: ?leg=A..F) ============ -->
+<!-- ============ HERO — stacked: full render in a top frame, copy panel below ============ -->
 <section class="hero hero--bleed">
   <div class="hb-stage">
     <img class="hb-bg" src={HERO_IMG} alt="Elegant Nivasa towers at Tellapur" fetchpriority="high" />
     <div class="hb-scrim"></div>
     <div class="wrap hb-inner">
       <p class="eyebrow stagger s1">Tellapur · West Hyderabad</p>
-      <h1 class="display stagger s2">Room to live <em>well.</em></h1>
+      <h1 class="display stagger s2">A home, and a <em>world</em> around it.</h1>
       <p class="lead stagger s3" set:html={HERO_LEAD}></p>
-      <div class="hb-chips stagger s4">
-        <span class="hb-chip"><b>₹6,999</b>/sft*</span>
-        <span class="hb-chip">Possession <b>2027</b></span>
-        <span class="hb-chip">Corridors to <b>14 ft</b></span>
-      </div>
       <div class="hero-cta stagger s4">
-        <a class="btn btn--gold btn--lg" href="#brochure">Book a visit <span class="arr">→</span></a>
-        <a class="btn btn--ghost btn--lg" href="#gallery">Take the tour ↓</a>
+        <a class="btn btn--gold btn--lg" href={`tel:${PHONE}`} data-book>Book a visit <span class="arr">→</span></a>
+        <a class="btn btn--ghost btn--lg" href={BROCHURE} download data-brochure>Download brochure <span class="arr">↓</span></a>
       </div>
       <div class="hero-rera stagger s5">
         <span><b>HMDA &amp; RERA approved</b></span>
@@ -224,10 +221,15 @@ const EINFRA_DARK = "/assets/img/brand/einfra-wordmark-dark.png";
       <h2 class="h2">Two minutes to the ORR.<br><em>The whole city follows.</em></h2>
       <p class="lead" style="margin-inline:auto">Tellapur, West Hyderabad — off a 100&nbsp;ft masterplan road, a two-minute drive from ORR Exit&nbsp;2. The Financial District, Gachibowli and the airport are all an easy run from your door.</p>
     </div>
-    <div class="cmap">
-      <svg data-citymap viewBox="0 0 760 600" role="img" aria-label="Map of drive times from Elegant Nivasa, Tellapur"></svg>
+    <div class="loc-grid">
+      <div class="cmap">
+        <svg data-citymap viewBox="0 0 760 600" role="img" aria-label="Map of drive times from Elegant Nivasa, Tellapur"></svg>
+        <p class="cmap-cap">Marker positions to true bearing &amp; scale (OpenStreetMap data); ORR&nbsp;Exit&nbsp;2 location indicative.</p>
+      </div>
+      <iframe class="loc-iframe" title="Elegant Nivasa on Google Maps" loading="lazy" allowfullscreen
+        referrerpolicy="no-referrer-when-downgrade"
+        src="https://www.google.com/maps?q=E-infra+Elegant+Nivasa,+Tellapur&z=16&output=embed"></iframe>
     </div>
-    <p class="cmap-cap">Marker positions to true bearing &amp; scale (OpenStreetMap data); ORR&nbsp;Exit&nbsp;2 location indicative.</p>
     <p class="conn-note reveal">Access via a <b>100&nbsp;ft masterplan road</b> — no narrow approach, no bottleneck at the gate.</p>
   </div>
 </section>
@@ -250,6 +252,7 @@ const EINFRA_DARK = "/assets/img/brand/einfra-wordmark-dark.png";
         <div><b>RERA</b><span>P01100007243</span></div>
         <div><b>HMDA</b><span>&amp; TS-RERA approved</span></div>
       </div>
+      <a class="btn btn--gold tg-brochure" href={BROCHURE} download data-brochure>See it all in the brochure <span class="arr">↓</span></a>
     </div>
   </div>
 </section>
@@ -276,70 +279,112 @@ const EINFRA_DARK = "/assets/img/brand/einfra-wordmark-dark.png";
   </div>
 </section>
 
-<!-- ============ CONFIDENCE CROSS-SELL — on-page entry to the 3 sub-sites ============ -->
-<section class="section xs" id="compare">
+<!-- ============ EMI / AFFORDABILITY CALCULATOR (ported from sub-sites; site.js wires [data-calc]) ============ -->
+<section class="section" id="emi">
   <div class="wrap">
     <div class="shead reveal center">
-      <p class="eyebrow eyebrow--center">Still weighing it up?</p>
-      <h2 class="h2">See us <em>head-to-head</em> with the launch next door.</h2>
+      <p class="eyebrow eyebrow--center">Plan your home</p>
+      <h2 class="h2">See exactly what you can afford.</h2>
+      <p class="lead" style="margin-inline:auto">Two quick tools — find the Nivasa home your income qualifies for, or see how little more than your rent it takes to own one.</p>
     </div>
-    <div class="xs-grid">
-      <a class="xs-card reveal" href="/cost">
-        <span class="xs-fig">₹20.6&nbsp;L<small>* less</small></span>
-        <span class="xs-body"><span class="xs-k">Cost</span><span class="xs-h">Pay less per sft</span></span>
-        <span class="xs-go">→</span>
-      </a>
-      <a class="xs-card reveal d1" href="/handover">
-        <span class="xs-fig">2027<small>not 2031</small></span>
-        <span class="xs-body"><span class="xs-k">Handover</span><span class="xs-h">Move in years sooner</span></span>
-        <span class="xs-go">→</span>
-      </a>
-      <a class="xs-card reveal d2" href="/rental-yield">
-        <span class="xs-fig">₹16.8&nbsp;L<small>* rent</small></span>
-        <span class="xs-body"><span class="xs-k">Rental yield</span><span class="xs-h">Earn while they wait</span></span>
-        <span class="xs-go">→</span>
-      </a>
+    <div class="calc reveal d1" data-calc>
+      <div class="calc-tabs" role="tablist">
+        <button type="button" class="calc-tab active" data-mode="afford">What can I afford?</button>
+        <button type="button" class="calc-tab" data-mode="rent">Already paying rent?</button>
+      </div>
+
+      <!-- AFFORDABILITY -->
+      <div class="emi calc-panel" data-panel="afford">
+        <div class="emi-controls">
+          <div class="field">
+            <div class="field-top"><label for="aff-income">Your monthly income</label><span class="fval" id="aff-income-val"></span></div>
+            <input class="input" id="aff-income" type="number" min="0" max="10000000" step="5000" inputmode="numeric" value="200000" />
+          </div>
+          <label class="check" for="aff-co"><input type="checkbox" id="aff-co" /> Add another earning family member</label>
+          <div class="field co-field" id="aff-co-wrap" hidden>
+            <div class="field-top"><label for="aff-co-income">Co-applicant monthly income</label><span class="fval" id="aff-co-val"></span></div>
+            <input class="input" id="aff-co-income" type="number" min="0" max="10000000" step="5000" inputmode="numeric" value="100000" />
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="aff-existing">Existing EMIs / obligations</label><span class="fval" id="aff-emi-val"></span></div>
+            <input class="input" id="aff-existing" type="number" min="0" max="1000000" step="1000" inputmode="numeric" value="0" />
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="aff-foir">EMI from income</label><span class="fval" id="aff-foir-val"></span></div>
+            <input id="aff-foir" type="range" min="40" max="50" value="45" step="1" />
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="aff-rate">Interest rate</label><span class="fval" id="aff-rate-val"></span></div>
+            <input id="aff-rate" type="range" min="7" max="12" value="8.5" step="0.1" />
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="aff-ten">Loan tenure</label><span class="fval" id="aff-ten-val"></span></div>
+            <input id="aff-ten" type="range" min="5" max="30" value="20" step="1" />
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="aff-dp">Down payment</label><span class="fval" id="aff-dp-val"></span></div>
+            <input id="aff-dp" type="range" min="10" max="40" value="20" step="1" />
+          </div>
+        </div>
+        <div class="emi-result">
+          <span class="k">You could be eligible for</span>
+          <div class="emi-big" id="aff-loan">₹0</div>
+          <span class="k normal">home loan · on a <span id="aff-budget">₹0</span> total budget</span>
+          <div class="emi-break">
+            <div class="b"><div class="bv" id="aff-maxemi">₹0</div><div class="bl">Monthly EMI you can service</div></div>
+            <div class="b"><div class="bv" id="aff-dpamt">₹0</div><div class="bl">Down payment needed</div></div>
+            <div class="b"><div class="bv" id="aff-area">0 sft</div><div class="bl">Affordable size</div></div>
+            <div class="b"><div class="bv" id="aff-income-tot">₹0</div><div class="bl">Income considered</div></div>
+          </div>
+          <div class="aff-fit" id="aff-fit"></div>
+          <p class="emi-note">Indicative eligibility at 40–50% of income toward EMI (bank FOIR). Final sanction depends on your lender, profile &amp; documents.</p>
+        </div>
+      </div>
+
+      <!-- RENT VS OWN -->
+      <div class="emi calc-panel" data-panel="rent" hidden>
+        <div class="emi-controls">
+          <div class="field">
+            <div class="field-top"><label for="rnt-rent">Rent you pay now</label><span class="fval" id="rnt-rent-val"></span></div>
+            <input class="input" id="rnt-rent" type="number" min="0" max="1000000" step="1000" inputmode="numeric" value="45000" />
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="rnt-unit">The home you&rsquo;d own</label></div>
+            <select class="input" id="rnt-unit"></select>
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="rnt-dp">Down payment</label><span class="fval" id="rnt-dp-val"></span></div>
+            <input id="rnt-dp" type="range" min="10" max="20" value="15" step="1" />
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="rnt-rate">Interest rate</label><span class="fval" id="rnt-rate-val"></span></div>
+            <input id="rnt-rate" type="range" min="7" max="12" value="8.5" step="0.1" />
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="rnt-ten">Loan tenure</label><span class="fval" id="rnt-ten-val"></span></div>
+            <input id="rnt-ten" type="range" min="5" max="30" value="20" step="1" />
+          </div>
+        </div>
+        <div class="emi-result">
+          <span class="k">Just a little more than rent</span>
+          <div class="emi-big" id="rnt-topup">₹0<small>/mo more</small></div>
+          <span class="k normal">on top of your ₹<span id="rnt-rentecho">0</span> rent — and the home is yours</span>
+          <div class="emi-break">
+            <div class="b"><div class="bv" id="rnt-emi">₹0</div><div class="bl">Your home-loan EMI</div></div>
+            <div class="b"><div class="bv" id="rnt-rent2">₹0</div><div class="bl">Rent you pay today</div></div>
+            <div class="b"><div class="bv" id="rnt-dpamt">₹0</div><div class="bl">Down payment</div></div>
+            <div class="b"><div class="bv" id="rnt-equity">₹0</div><div class="bl">Asset you&rsquo;d own</div></div>
+          </div>
+          <p class="rnt-msg" id="rnt-msg"></p>
+          <p class="emi-note">Indicative only @ ₹6,999/sft base. Rent-vs-EMI is illustrative; taxes, maintenance &amp; appreciation not shown.</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ============ BROCHURE (free download + optional soft capture) ============ -->
-<section class="section brochure" id="brochure">
-  <div class="wrap brochure-inner">
-    <div class="br-copy reveal">
-      <p class="eyebrow" style="color:#e7b87f">The full brochure</p>
-      <h2 class="h2" style="color:#fff">Everything, in one PDF.</h2>
-      <p class="lead" style="color:#cdd2e6;max-width:42ch">Master plan, all six unit plans, amenities, specifications and the location map — open and ungated, yours to keep.</p>
-      <a class="btn btn--gold btn--lg" href={BROCHURE} download>Download brochure (PDF) <span class="arr">↓</span></a>
-      <form class="br-email" data-leadform data-intent="brochure" novalidate>
-        <p class="br-email-note">Prefer it in your inbox? Pop in your email and we&rsquo;ll send the link.</p>
-        <div class="br-email-row">
-          <div class="form-field"><input name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@email.com" /><span class="form-err">Enter a valid email</span></div>
-          <button class="btn btn--gold" type="submit">Email it to me <span class="arr">→</span></button>
-        </div>
-      </form>
-      <div class="form-success">
-        <div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></div>
-        <h3 style="color:#fff">On its way!</h3>
-        <p class="muted" style="margin-top:6px;color:#cdd2e6">We&rsquo;re emailing your brochure now. Can&rsquo;t wait? <a href={BROCHURE} download style="color:#e7b87f;text-decoration:underline">Download it instantly ↓</a></p>
-      </div>
-    </div>
-    <div class="br-soft reveal d1">
-      <form class="br-form" data-leadform novalidate>
-        <h3>Book your site visit</h3>
-        <p class="br-soft-note">Leave your name and number — a senior sales lead calls you back with availability, pricing and a visit slot. No call-centre, no spam.</p>
-        <div class="form-field"><input name="name" type="text" placeholder="Your name" /><span class="form-err">Enter your name</span></div>
-        <div class="form-field"><input name="phone" type="tel" inputmode="numeric" placeholder="10-digit mobile" /><span class="form-err">Valid mobile please</span></div>
-        <button class="btn btn--teal btn--block" type="submit">Request a callback <span class="arr">→</span></button>
-      </form>
-      <div class="form-success">
-        <div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></div>
-        <h3 style="color:var(--navy)">Thanks, <span data-name>there</span>!</h3>
-        <p class="muted" style="margin-top:6px">A senior sales lead will call you shortly.</p>
-      </div>
-    </div>
-  </div>
-</section>
+<!-- CONFIDENCE CROSS-SELL band removed for the homepage-only launch (sub-sites
+     parked). Restore from git history when /cost · /handover · /rental-yield ship. -->
 
 <!-- ============ FOOTER ============ -->
 <footer class="site-footer">
@@ -356,27 +401,90 @@ const EINFRA_DARK = "/assets/img/brand/einfra-wordmark-dark.png";
       </div>
       <div>
         <h4>Explore</h4>
-        <a href="#corridor">The corridor test</a><a href="#plans">Floor plans</a><a href="/cost">Cost comparison</a><a href="/handover">Handover comparison</a><a href="/rental-yield">Rental yield</a>
+        <a href="#corridor">The corridor test</a><a href="#plans">Floor plans</a><a href="#amenities">Amenities</a><a href="#location">Location</a>
       </div>
       <div>
         <h4>Visit / Contact</h4>
-        <a href="#brochure">Book a site visit</a><a href={BROCHURE} download>Download brochure</a>
+        <a href={`tel:${PHONE}`} data-book>Book a site visit</a><a href={BROCHURE} download data-brochure>Download brochure</a>
         <p style="margin-top:14px;color:rgba(255,255,255,.6);font-size:.9rem">Site address: Tellapur, Hyderabad, Telangana — near ORR Exit&nbsp;2.</p>
       </div>
     </div>
     <div class="foot-bottom">
       <span>© <span data-year>2026</span> Elegant Nivasa · E-Infra. All rights reserved.</span>
-      <span>Tellapur, Hyderabad</span>
+      <span><a href="/privacy">Privacy policy</a> · Tellapur, Hyderabad</span>
     </div>
     <p class="foot-disclaimer">Disclaimer: This is a marketing page. Figures marked * — and all prices (from ₹6,999/sft), comparative figures, corridor &amp; possession details and images — are indicative, for representation only, and subject to change without notice. Comparison with &ldquo;other premium builders&rdquo; is illustrative of the micro-market and does not reference any specific developer. Floor areas are super built-up. Please verify all details with our authorised sales team and the RERA filing before purchase.</p>
   </div>
 </footer>
 
-<!-- ============ STICKY MOBILE CTA (phones only) ============ -->
+<!-- ============ STICKY CTA — mobile floating card · desktop slim bar ============ -->
 <div class="stickybar">
-  <a class="btn btn--ghost btn--calls" href={`tel:${PHONE}`} aria-label="Call sales">Call</a>
-  <a class="btn btn--gold" href="#brochure">Book a visit <span class="arr">→</span></a>
+  <p class="sb-msg">Few 2 &amp; 3 BHK homes left — <b>2027 possession</b></p>
+  <div class="sb-actions">
+    <a class="sb-btn sb-call" href={`tel:${PHONE}`} aria-label="Call sales">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      <span>Call</span>
+    </a>
+    <a class="sb-btn sb-wa" href={`https://wa.me/91${PHONE}`} target="_blank" rel="noopener" aria-label="WhatsApp sales">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.978-.997zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+      <span>WhatsApp</span>
+    </a>
+    <button class="sb-btn sb-book" type="button" data-book>Book a site visit <span class="arr">→</span></button>
+  </div>
 </div>
+
+<!-- ============ BOOK-A-VISIT DIALOG (opens in place for all [data-book] triggers) ============ -->
+<dialog class="bookdlg" id="bookDialog" aria-labelledby="bookDlgTitle">
+  <div class="bookdlg-card">
+    <button class="bookdlg-x" type="button" data-book-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="bookdlg-head">
+      <p class="eyebrow">Book a site visit</p>
+      <h3 id="bookDlgTitle">Talk to a senior sales lead</h3>
+      <p class="bookdlg-sub">Leave your number — we&rsquo;ll confirm a slot and share availability &amp; pricing. No call-centre, no spam.</p>
+    </div>
+    <form class="bookdlg-form" data-leadform novalidate>
+      <div class="form-field"><input name="name" type="text" autocomplete="name" placeholder="Your name" /><span class="form-err">Enter your name</span></div>
+      <div class="form-field bookdlg-phone">
+        <span class="bookdlg-cc">+91</span>
+        <input name="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="10-digit mobile" />
+        <span class="form-err">Valid mobile please</span>
+      </div>
+      <button class="btn btn--gold btn--block" type="submit">Request a callback <span class="arr">→</span></button>
+      <p class="bookdlg-fine">By submitting you agree to be contacted about Elegant Nivasa.</p>
+    </form>
+    <div class="form-success">
+      <div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h3 style="color:var(--navy)">Thanks, <span data-name>there</span>!</h3>
+      <p class="muted" style="margin-top:6px">A senior sales lead will call you shortly.</p>
+    </div>
+  </div>
+</dialog>
+
+<!-- ============ BROCHURE EMAIL PROMPT (lightweight; [data-brochure] triggers) ============ -->
+<dialog class="bookdlg" id="brochureDialog" aria-labelledby="brDlgTitle">
+  <div class="bookdlg-card">
+    <button class="bookdlg-x" type="button" data-book-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="bookdlg-head">
+      <p class="eyebrow">The full brochure</p>
+      <h3 id="brDlgTitle">Get the brochure</h3>
+      <p class="bookdlg-sub">Master plan, unit plans, amenities &amp; specs — downloads instantly. <strong style="color:var(--navy)">Reply to the email to reach a sales rep</strong> — nothing else from us.</p>
+    </div>
+    <form class="bookdlg-form" data-leadform data-intent="brochure" data-download={BROCHURE} novalidate>
+      <div class="form-field"><input name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@email.com" /><span class="form-err">Enter a valid email</span></div>
+      <button class="btn btn--gold btn--block" type="submit">Email it &amp; download <span class="arr">↓</span></button>
+      <p class="bookdlg-fine"><a href={BROCHURE} download>or download without sharing your email →</a></p>
+    </form>
+    <div class="form-success">
+      <div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h3 style="color:var(--navy)">On its way!</h3>
+      <p class="muted" style="margin-top:6px">Your download has started — we&rsquo;ve emailed a copy too. <a href={BROCHURE} download style="color:var(--gold);text-decoration:underline">Download again ↓</a></p>
+    </div>
+  </div>
+</dialog>
 
 <script is:inline src="/assets/js/site.js"></script>
 <script is:inline src="/assets/js/proto.js"></script>

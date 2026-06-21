@@ -165,6 +165,15 @@
     }
     function fill(r) { var mn = +r.min, mx = +r.max; r.style.setProperty("--p", ((+r.value - mn) / (mx - mn) * 100) + "%"); }
     function $(id) { return calcRoot.querySelector("#" + id); }
+    // Sanitize a free-text number input: no NaN, no negatives, no exponent
+    // (type=number accepts "1e9"), capped at the field's own max.
+    function num(el) {
+      var v = +el.value;
+      if (!isFinite(v) || v < 0) v = 0;
+      var mx = +el.max;
+      if (mx && v > mx) v = mx;
+      return v;
+    }
 
     // ---- tab switching ----
     var tabs = calcRoot.querySelectorAll(".calc-tab");
@@ -182,8 +191,8 @@
     var aInc = $("aff-income"), aCo = $("aff-co"), aCoWrap = $("aff-co-wrap"), aCoInc = $("aff-co-income"),
         aEx = $("aff-existing"), aFoir = $("aff-foir"), aRate = $("aff-rate"), aTen = $("aff-ten"), aDp = $("aff-dp");
     function calcAfford() {
-      var inc = (+aInc.value || 0) + (aCo.checked ? (+aCoInc.value || 0) : 0);
-      var maxEMI = Math.max(inc * (+aFoir.value / 100) - (+aEx.value || 0), 0);
+      var inc = num(aInc) + (aCo.checked ? num(aCoInc) : 0);
+      var maxEMI = Math.max(inc * (+aFoir.value / 100) - num(aEx), 0);
       var loan = loanFromEmi(maxEMI, +aRate.value, +aTen.value);
       var dp = +aDp.value / 100;
       var budget = dp < 1 ? loan / (1 - dp) : loan;
@@ -203,9 +212,9 @@
       var head = best ? ('Your income can own up to a <b>' + best.label + '</b> at Nivasa.')
                       : 'Just shy of our current configs — talk to Bharat about flexible plans.';
       $("aff-fit").innerHTML = '<p class="fit-head">' + head + '</p>' + rows;
-      $("aff-income-val").textContent = crore(+aInc.value || 0);
-      $("aff-co-val").textContent = crore(+aCoInc.value || 0);
-      $("aff-emi-val").textContent = crore(+aEx.value || 0);
+      $("aff-income-val").textContent = crore(num(aInc));
+      $("aff-co-val").textContent = crore(num(aCoInc));
+      $("aff-emi-val").textContent = crore(num(aEx));
       $("aff-foir-val").textContent = aFoir.value + "% of income";
       $("aff-rate-val").textContent = (+aRate.value).toFixed(1) + "%";
       $("aff-ten-val").textContent = aTen.value + " yrs";
@@ -219,13 +228,19 @@
 
     // ---- rent vs own ----
     var rRent = $("rnt-rent"), rUnit = $("rnt-unit"), rDp = $("rnt-dp"), rRate = $("rnt-rate"), rTen = $("rnt-ten");
+    // Block the keys type=number tolerates but we never want (exponent / sign).
+    [aInc, aCoInc, aEx, rRent].forEach(function (el) {
+      el.addEventListener("keydown", function (e) {
+        if (e.key === "e" || e.key === "E" || e.key === "+" || e.key === "-") e.preventDefault();
+      });
+    });
     UNITS.slice().sort(function (a, b) { return a.area - b.area; }).forEach(function (u) {
       var o = document.createElement("option");
       o.value = u.area; o.textContent = u.name + " · " + u.area + " sft — " + crore(priceOf(u.area));
       rUnit.appendChild(o);
     });
     function calcRent() {
-      var rent = +rRent.value || 0;
+      var rent = num(rRent);
       var price = priceOf(+rUnit.value);
       var dp = +rDp.value / 100;
       var loan = price * (1 - dp);
@@ -333,6 +348,13 @@
           success.classList.add("show");
           var nm = success.querySelector("[data-name]"); if (nm && name) nm.textContent = name.value.trim().split(" ")[0];
         }
+        // brochure prompt: kick off the actual PDF download once captured
+        var dl = form.getAttribute("data-download");
+        if (dl) {
+          var a = document.createElement("a");
+          a.href = dl; a.setAttribute("download", "");
+          document.body.appendChild(a); a.click(); a.remove();
+        }
         if (window.track) window.track(intent === "brochure" ? "brochure_request" : "lead_submit", { page: angleKey });
       }
       fetch("/api/lead", {
@@ -354,6 +376,37 @@
       });
     });
   });
+
+  /* =====================================================================
+     DIALOGS — a trigger opens a native <dialog> in place instead of
+     navigating (href kept as a no-JS fallback). Native <dialog> gives us
+     Esc-to-close + focus trapping for free. Two dialogs:
+       [data-book]      → book-a-visit (name + phone, intent=lead)
+       [data-brochure]  → brochure email prompt (email, intent=brochure)
+     Internal links (close ✕, "download without email") have no trigger attr.
+     ===================================================================== */
+  function wireDialog(dlg, triggerSel, trackName) {
+    if (!dlg) return;
+    document.querySelectorAll(triggerSel).forEach(function (trigger) {
+      trigger.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (typeof dlg.showModal === "function") dlg.showModal();
+        else dlg.setAttribute("open", "");
+        var firstInput = dlg.querySelector("input");
+        if (firstInput) firstInput.focus();
+        if (window.track) window.track(trackName, { page: angleKey });
+      });
+    });
+    dlg.querySelectorAll("[data-book-close]").forEach(function (x) {
+      x.addEventListener("click", function () { dlg.close(); });
+    });
+    // click on the backdrop (outside the card) closes
+    dlg.addEventListener("click", function (e) {
+      if (e.target === dlg) dlg.close();
+    });
+  }
+  wireDialog(document.getElementById("bookDialog"), "[data-book]", "book_visit_open");
+  wireDialog(document.getElementById("brochureDialog"), "[data-brochure]", "brochure_open");
 
   /* =====================================================================
      WHATSAPP direct-connect — prefilled message baked in at build time

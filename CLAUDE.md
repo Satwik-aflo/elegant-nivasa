@@ -44,9 +44,12 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
 
 ## 3. Lead & Enquiry flows
 
-- **Lead (Main site):** form → `POST /api/lead` → validate → write to **D1 first** (never lost) →
-  email to **sales@e-infra.in** → success. A CRM (e.g. Tranquil) is a later add the same endpoint
-  can call; no CRM in the MVP.
+- **Lead (Main site):** every "Book a visit" trigger (`[data-book]` — header, hero, sticky CTA,
+  footer) opens a centred **book-a-visit dialog** (native `<dialog>`, name + `+91` phone) instead
+  of navigating; submit → `POST /api/lead` (intent `lead`) → write to **D1 first** (never lost) →
+  email to **sales@e-infra.in** → success. (Brochure email capture is the same endpoint, intent
+  `brochure`.) A CRM (e.g. Tranquil) is a later add the same endpoint can call; no CRM in the MVP.
+  _(Dialog open/close is in `site.js`; Spectra-style **OTP** verification is deferred — needs backend.)_
 - **Enquiry (Sub-sites):** **two Sales rep cards** (Bharat → rep 1, Satish → rep 2), each its own
   WhatsApp click-to-chat button → opens WhatsApp with a per-angle prefilled message. _(Decision
   2026-06-20: we show both reps as cards rather than one round-robin button — better UX, and the
@@ -57,8 +60,10 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
 ## 4. Pages
 
 - **Main site (`/`):** hero · highlights/key facts · amenities · floor plans · gallery ·
-  location/connectivity · **Lead form** (brochure gated behind it) · RERA + legal footer.
-  Single scrolling page, full nav. **Dropped for MVP:** team, project updates, FAQs.
+  location/connectivity (bespoke drive-time SVG **+ Google Maps embed**) · brochure (ungated
+  download + optional email capture) · RERA + legal footer. Single scrolling page, full nav.
+  The **Lead** is captured via a **book-a-visit dialog** (see §3), not an inline form.
+  **Dropped for MVP:** team, project updates, FAQs.
 - **Sub-sites:** distraction-free (logo + soft "explore full project →" link only) · **lead with
   that angle's comparison** (static curated data, **unnamed** competitor; the full scoreboard may
   follow as supporting detail) · the two Sales rep WhatsApp cards.
@@ -123,10 +128,17 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
   `wrangler secret put` (fresh key, typed at the hidden prompt — not in chat). Verified end-to-end
   on the **live** site: a brochure submit wrote to prod D1 with **`notified=1`** (test row deleted),
   confirming both the visitor email and the `sales@e-infra.in` notify now send to any recipient
-  (no more resend.dev test-mode limit). Local dev still uses the key in `web/.dev.vars` (gitignored).
+  (no more resend.dev test-mode limit). _**Local-dev email is currently broken** (2026-06-22): the
+  key in `web/.dev.vars` is the **revoked** `re_FqkEryya…` test key, so all Resend calls from
+  `npm run dev` 401 silently — the lead still writes to local D1 and the PDF still downloads, but no
+  email sends and `notified` stays 0. To exercise email locally, drop a fresh full-access Resend key
+  into `web/.dev.vars` and restart. **Prod is unaffected** (valid secret set via `wrangler secret
+  put`).  Test email on the **live** workers.dev URL, not localhost._
 - [x] **Exposed Resend keys revoked** (2026-06-21). Both `re_FqkEryya…` (original test key) and
   `re_ZiCVqNvh…` (accidentally pasted on the command line) were revoked & deleted at resend.com.
   The live prod key (set via `wrangler secret put`, never pasted) is safe and remains in use.
+  _NB: `web/.dev.vars` was **not** updated and still holds the revoked `re_FqkEryya…` — hence
+  local-dev email is dead until a fresh key replaces it (see the Resend item above)._
 - [ ] **Inbound email for the branded domain** (so mail *to* `@elegantnivasa.com` is received, not
   just sent). Plan (all Hostinger-side, since DNS/email live there): (1) create mailbox
   `leads@elegantnivasa.com`, (2) Forwarders → **Create catch-all** → destination `leads@`, (3)
@@ -196,10 +208,16 @@ Other top-level folders are **not** the site:
 
 Specs live in [docs/specs/](./docs/specs/); implement against the spec, not a re-derivation.
 
-**Homepage (`index.astro`) — settled so far:** full-bleed cinematic hero (mobile chips solid),
-"Room to live well." headline, E-Infra render badge + footer credit (gold mark), gallery → corridor
-→ podium → location → possession/trust (78% ring) → floor plans → brochure+Lead form, sticky mobile
-Call/Book bar. Remaining homepage work:
+**Homepage (`index.astro`) — settled so far:** _(updated 2026-06-22)_ **"Stacked" hero** on the
+bright E-Infra "Sunshine" render (`hero-alt.webp`, 212 KB) — mobile shows the full render in a top
+frame with a solid navy copy panel below; desktop is a left-scrim cinematic full-bleed. Headline
+**"A home, and a *world* around it."** + project-focused subhead (526 homes · 4 acres · 8-level
+clubhouse · ₹6,999/sft\* · 2027); hero chips removed; CTAs **Book a visit** (dialog) + **Download
+brochure**. E-Infra render badge + footer credit (gold mark). Flow: gallery → corridor → podium →
+amenities → location (drive-time SVG **+ Google Maps embed**, two-up) → possession/trust (78% ring)
+→ floor plans → confidence cross-sell → brochure (download + email capture). **Sticky CTA** —
+floating card on mobile, slim full-width bar on desktop (Call · WhatsApp · Book); all "Book a visit"
+open the **book-a-visit dialog** (§3). Remaining homepage work:
 
 - [x] **Amenities section** — built 2026-06-21 (`<section class="section am" id="amenities">` in
   `index.astro`, `.am-*` styles in `proto.css`, +nav link). Placed after the podium, before
@@ -215,11 +233,16 @@ Call/Book bar. Remaining homepage work:
   `POST /api/lead` now branches on an **`intent`** field (`lead` default | `brochure`): brochure
   requires a valid email, name/phone optional (stored as `""` — `phone` stays `NOT NULL`); new
   `intent` column added via `migrations/0002_brochure_intent.sql` (applied `--local`; **run
-  `npx wrangler d1 migrations apply elegant-nivasa --remote` at next deploy**). Added a compact
-  email-capture form in the homepage brochure band's left column (`site.js` `[data-leadform]` is
-  now intent-aware; fires `brochure_request`). **Still gated on Resend** (§7): the *visitor*
-  brochure email and the sales notify are no-ops until `RESEND_API_KEY` + a verified sending domain
-  exist — D1 capture and the direct download work today.
+  `npx wrangler d1 migrations apply elegant-nivasa --remote` at next deploy**). _**Reworked
+  2026-06-22:** the dedicated brochure band/section was **deleted** (it ate a full-width band for
+  little). The download "See it all in the brochure" now lives in the **trust** section; the email
+  capture is a **lightweight prompt dialog** (`#brochureDialog`, reuses `.bookdlg`) that every
+  `[data-brochure]` trigger (hero · trust · footer) opens. On submit → `POST /api/lead`
+  (intent=brochure) → success **auto-triggers the PDF download** (`data-download` on the form) and,
+  on prod, emails the visitor the brochure link. A "download without sharing your email" escape keeps
+  it ungated. `site.js` `wireDialog()` drives both this and the book-a-visit dialog._ Visitor
+  brochure email + sales notify send on **prod** (valid Resend secret); **broken on local dev**
+  (revoked `.dev.vars` key — see §7).
 - [x] **Sub-site comparison architecture — DECIDED 2026-06-21, IMPLEMENTED 2026-06-21**
   (grill-with-docs session; full rationale in
   [ADR-0002](./docs/adr/0002-comparison-single-source-build-time.md), terms in

@@ -88,16 +88,16 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
         <div class="emi-controls">
           <div class="field">
             <div class="field-top"><label for="aff-income">Your monthly income</label><span class="fval" id="aff-income-val"></span></div>
-            <input class="input" id="aff-income" type="number" step="5000" inputmode="numeric" value="200000" />
+            <input class="input" id="aff-income" type="number" min="0" max="10000000" step="5000" inputmode="numeric" value="200000" />
           </div>
           <label class="check" for="aff-co"><input type="checkbox" id="aff-co" /> Add another earning family member</label>
           <div class="field co-field" id="aff-co-wrap" hidden>
             <div class="field-top"><label for="aff-co-income">Co-applicant monthly income</label><span class="fval" id="aff-co-val"></span></div>
-            <input class="input" id="aff-co-income" type="number" step="5000" inputmode="numeric" value="100000" />
+            <input class="input" id="aff-co-income" type="number" min="0" max="10000000" step="5000" inputmode="numeric" value="100000" />
           </div>
           <div class="field">
             <div class="field-top"><label for="aff-existing">Existing EMIs / obligations</label><span class="fval" id="aff-emi-val"></span></div>
-            <input class="input" id="aff-existing" type="number" step="1000" inputmode="numeric" value="0" />
+            <input class="input" id="aff-existing" type="number" min="0" max="1000000" step="1000" inputmode="numeric" value="0" />
           </div>
           <div class="field">
             <div class="field-top"><label for="aff-foir">EMI from income</label><span class="fval" id="aff-foir-val"></span></div>
@@ -136,7 +136,7 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
         <div class="emi-controls">
           <div class="field">
             <div class="field-top"><label for="rnt-rent">Rent you pay now</label><span class="fval" id="rnt-rent-val"></span></div>
-            <input class="input" id="rnt-rent" type="number" step="1000" inputmode="numeric" value="45000" />
+            <input class="input" id="rnt-rent" type="number" min="0" max="1000000" step="1000" inputmode="numeric" value="45000" />
           </div>
           <div class="field">
             <div class="field-top"><label for="rnt-unit">The home you&rsquo;d own</label></div>
@@ -249,7 +249,7 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
     </div>
     <div class="foot-bottom">
       <span>© <span data-year>2026</span> Elegant Nivasa · E-Infra. All rights reserved.</span>
-      <span>Campaign landing page — {adSet}</span>
+      <span><a href="/privacy">Privacy policy</a> · Campaign landing page — {adSet}</span>
     </div>
     <p class="foot-disclaimer">Disclaimer: This is a marketing landing page. Figures marked * — and all prices (from ₹6,999/sft), comparative figures, sales statistics, possession dates and images — are indicative, for representation only, and subject to change without notice. Comparison with &ldquo;other premium builders&rdquo; is illustrative of the micro-market and does not reference any specific developer. Floor areas are super built-up. Please verify all details with our authorised sales team and the RERA filing before purchase.</p>
   </div>
