@@ -1,0 +1,65 @@
+---
+// The full Scoreboard (CONTEXT.md) — identical on every Sub-site, rendered at
+// build time from the single source (ADR-0002). Replaces site.js renderCompare
+// and folds in the old ComparisonTable. Score tally, the three Comparatives
+// with their rows, and the total-advantage maths.
+import {
+  SCOREBOARD,
+  SCORE,
+  SCORE_NOTE,
+  COMPARATIVES,
+  COMPARATIVE_ORDER,
+  ADVANTAGE,
+  ADVANTAGE_TAGLINE,
+} from "../data/comparison.ts";
+---
+<section class="value section cmp-board" id="value">
+  <div class="wrap value-inner">
+    <div class="shead reveal">
+      <p class="eyebrow">Same price. We checked everything else.</p>
+      <h2 class="h2">They told you to compare.<br><em>So we did — across cost, product &amp; yield.</em></h2>
+      <p class="lead">Elegant Nivasa beside a new-launch branded builder, in the same Tellapur micro-market. The same starting cheque, on paper. Here is everything the cheque doesn&rsquo;t show.</p>
+    </div>
+
+    <div class="cmp-scene">
+      <div class="cmp-score reveal">
+        <div class="cs-cell"><b data-count={SCORE.wins}>{SCORE.wins}</b><span>points ahead</span></div>
+        <div class="cs-cell"><b data-count={SCORE.ties}>{SCORE.ties}</b><span>level pegging</span></div>
+        <div class="cs-cell"><b>{SCORE.behind}</b><span>points behind</span></div>
+        <div class="cs-note">{SCORE_NOTE}</div>
+      </div>
+
+      <div class="cmp-tbl reveal d1">
+        <div class="cmp-hrow"><div>The full audit</div><div>Elegant Nivasa</div><div>Branded builder</div><div>The edge</div></div>
+        {COMPARATIVE_ORDER.map((key) => (
+          <>
+            <div class="cmp-break">
+              <span class="bk-t">{COMPARATIVES[key].label}</span>
+              <span class="bk-s">{COMPARATIVES[key].kicker}</span>
+            </div>
+            {SCOREBOARD.filter((r) => r.comparative === key).map((r, i) => (
+              <div class="cmp-row" data-v={r.v}>
+                <div class="cr-metric"><span class="cr-n">{String(i + 1).padStart(2, "0")}</span><span class="cr-name">{r.metric}<small>{r.sub}</small></span></div>
+                <div class="cr-us"><span class="cr-cap">Nivasa</span>{r.us}</div>
+                <div class="cr-them"><span class="cr-cap">Branded</span>{r.them}</div>
+                <div class="cr-edge"><span class={`cr-pill cr-${r.v}`}>{r.edge}</span></div>
+              </div>
+            ))}
+          </>
+        ))}
+      </div>
+
+      <div class="cmp-bottom reveal d1">
+        <div class="adv-row">
+          {ADVANTAGE.map((card, i) => (
+            <>
+              {i > 0 && <div class="adv-op">{card.total ? "=" : "+"}</div>}
+              <div class={`adv-card${card.total ? " total" : ""}`}><div class="a">{card.a}</div><div class="l">{card.l}</div></div>
+            </>
+          ))}
+        </div>
+        <p class="cmp-tagline">{ADVANTAGE_TAGLINE.lead} <span>{ADVANTAGE_TAGLINE.rest}</span></p>
+      </div>
+    </div>
+  </div>
+</section>

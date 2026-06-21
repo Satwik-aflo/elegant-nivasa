@@ -4,18 +4,23 @@
 // /assets/js/site.js (in public/). (Originally ported from a hand-coded static
 // HTML site that has since been deleted — recoverable from git history.)
 import AnalyticsScripts from "../components/AnalyticsScripts.astro";
+import Scoreboard from "../components/Scoreboard.astro";
+import AngleLeadCost from "../components/AngleLeadCost.astro";
+import AngleLeadHandover from "../components/AngleLeadHandover.astro";
+import AngleLeadYield from "../components/AngleLeadYield.astro";
 import { site } from "../config/site.ts";
+import { ANGLES, type Angle } from "../data/comparison.ts";
 interface Props {
   title: string;
   description: string;
-  page: "cost" | "handover" | "yield";
+  /** Canonical Angle key (ADR-0002): cost | handover | yield. */
+  angle: Angle;
   adSet: string;
-  active: "cost" | "rental-yield" | "handover";
 }
-// `active` stays in Props (pages still pass the angle slug) for upcoming
-// per-angle comparison work (handoff B2), but the layout no longer consumes
-// it — the ad-set switcher that used it was removed.
-const { title, description, page, adSet } = Astro.props;
+const { title, description, angle, adSet } = Astro.props;
+// WhatsApp message text is baked in at build time per Angle (single source);
+// site.js interpolates {rep} and decodes the anti-scrape number at runtime.
+const waMessage = ANGLES[angle].waMessage;
 // Anti-scrape (CLAUDE.md §3): never ship the raw number in markup. Base64 it
 // at build time; site.js decodes it at runtime (atob) to build the wa.me link.
 // Use btoa (Web API) not Buffer — the Cloudflare runtime has no Node Buffer.
@@ -37,7 +42,7 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
 <link rel="stylesheet" href="/assets/css/site.css" />
 <AnalyticsScripts />
 </head>
-<body data-page={page}>
+<body data-angle={angle}>
 
 <!-- ============ HEADER ============ -->
 <header class="site-header">
@@ -46,39 +51,23 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
   </a>
   <button class="nav-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
   <nav class="nav">
-    <a href="#value">Comparison</a>
-    <a href="#detail">Point by point</a>
+    <a href="#angle">Why Nivasa</a>
+    <a href="#value">Full comparison</a>
     <a href="#emi">EMI</a>
     <a class="btn btn--teal" href="#enquire">Enquire <span class="arr">→</span></a>
   </nav>
 </header>
 
-<!-- ============ HERO (per-angle) ============ -->
+<!-- ============ HERO (per-angle; layout + image owned by the page) ============ -->
 <slot />
 
-<!-- ============ FULL COMPARISON (scoreboard) ============ -->
-<section class="value section cmp-board" id="value">
-  <div class="wrap value-inner">
-    <div class="shead reveal">
-      <p class="eyebrow">Same price. We checked everything else.</p>
-      <h2 class="h2">They told you to compare.<br><em>So we did — across cost, product &amp; yield.</em></h2>
-      <p class="lead">Elegant Nivasa beside a new-launch branded builder, in the same Tellapur micro-market. The same starting cheque, on paper. Here is everything the cheque doesn&rsquo;t show.</p>
-    </div>
-    <div class="cmp-scene" data-compare></div>
-  </div>
-</section>
+<!-- ============ ANGLE-LEAD (bespoke per Angle — leads the page, ADR-0002 B2) ============ -->
+{angle === "cost" && <AngleLeadCost />}
+{angle === "handover" && <AngleLeadHandover />}
+{angle === "yield" && <AngleLeadYield />}
 
-<!-- ============ GROUPED DEEP-DIVES ============ -->
-<section class="section section--detail" id="detail">
-  <div class="wrap">
-    <div class="shead reveal">
-      <p class="eyebrow">Point by point</p>
-      <h2 class="h2">What the same cheque actually buys.</h2>
-      <p class="lead">The eleven points, grouped the way you&rsquo;d really weigh them — cost, product, and yield.</p>
-    </div>
-    <div class="grp-mount" data-groups></div>
-  </div>
-</section>
+<!-- ============ FULL SCOREBOARD (supporting; identical on every Sub-site) ============ -->
+<Scoreboard />
 
 <!-- ============ EMI / AFFORDABILITY CALCULATOR ============ -->
 <section class="section" id="emi">
@@ -195,7 +184,7 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
       <h2 class="h2">Talk to the two people who actually close&nbsp;Nivasa.</h2>
       <p class="lead">Your message lands <b>directly</b> with Bharat or Satish — our two senior sales leads. No pre-sales queue, no middleman, no &ldquo;someone will call you back.&rdquo; Just the person who gives you the real price, the real availability, and the sharpest deal.</p>
       <div class="connect-trust">
-        <div class="ct"><b>₹74 Cr+</b><span>closed at Nivasa · last 12 months</span></div>
+        <div class="ct"><b>₹74 Cr+*</b><span>closed at Nivasa · last 12 months</span></div>
         <div class="ct"><b>62</b><span>Nivasa homes booked</span></div>
       </div>
     </div>
@@ -215,7 +204,7 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
             <div><b>{rep.closed}</b><span>closed last year</span></div>
             <div><b>{rep.homes}</b><span>Nivasa homes sold</span></div>
           </div>
-          <a class="btn btn--wa btn--block btn--lg" data-wa={enc(rep.wa)} data-rep={rep.name} href="#enquire" rel="noopener" set:html={`${waSvg} WhatsApp ${rep.name} <span class="arr">→</span>`}></a>
+          <a class="btn btn--wa btn--block btn--lg" data-wa={enc(rep.wa)} data-rep={rep.name} data-wa-msg={waMessage} href="#enquire" rel="noopener" set:html={`${waSvg} WhatsApp ${rep.name} <span class="arr">→</span>`}></a>
         </article>
       ))}
     </div>
@@ -245,12 +234,12 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
     <div class="foot-grid">
       <div class="foot-brand">
         <img src="/assets/img/brand/nivasa-logo.png" alt="Elegant Nivasa" />
-        <p style="max-width:36ch">High-rise lifestyle at Tellapur. Three towers, 526 residences and a 5-level clubhouse on a 4-acre gated community. A project by E-Infra — foundation on values.</p>
+        <p style="max-width:36ch">High-rise lifestyle at Tellapur. Three towers, 526 residences and an 8-level clubhouse on a 4-acre gated community. A project by E-Infra — foundation on values.</p>
         <div class="foot-rera">RERA No. <b>P01100007243</b> · HMDA &amp; TS-RERA approved</div>
       </div>
       <div>
         <h4>Explore</h4>
-        <a href="#value">The comparison</a><a href="#detail">Point by point</a><a href="#emi">EMI calculator</a><a href="#enquire">Enquire</a>
+        <a href="#angle">Why Nivasa</a><a href="#value">Full comparison</a><a href="#emi">EMI calculator</a><a href="#enquire">Enquire</a>
       </div>
       <div>
         <h4>Visit / Contact</h4>
@@ -262,7 +251,7 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
       <span>© <span data-year>2026</span> Elegant Nivasa · E-Infra. All rights reserved.</span>
       <span>Campaign landing page — {adSet}</span>
     </div>
-    <p class="foot-disclaimer">Disclaimer: This is a marketing landing page. Prices (from ₹6,999/sft), comparative figures, possession dates and images are indicative, for representation only, and subject to change without notice. Comparison with &ldquo;other premium builders&rdquo; is illustrative of the micro-market and does not reference any specific developer. Floor areas are super built-up. Please verify all details with our authorised sales team and the RERA filing before purchase.</p>
+    <p class="foot-disclaimer">Disclaimer: This is a marketing landing page. Figures marked * — and all prices (from ₹6,999/sft), comparative figures, sales statistics, possession dates and images — are indicative, for representation only, and subject to change without notice. Comparison with &ldquo;other premium builders&rdquo; is illustrative of the micro-market and does not reference any specific developer. Floor areas are super built-up. Please verify all details with our authorised sales team and the RERA filing before purchase.</p>
   </div>
 </footer>
 

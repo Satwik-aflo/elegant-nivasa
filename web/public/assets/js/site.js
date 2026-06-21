@@ -39,125 +39,10 @@
     return inr(n);
   }
 
-  /* =====================================================================
-     COMPARISON — data-driven from "Nivasa vs New Launch Branded Builder
-     2026" (Sheet 1), plus a rental-yield row inserted above handover.
-     Renders the full scoreboard ([data-compare]) and the grouped
-     deep-dives ([data-groups]). Runs before the reveal/count observers
-     below so injected nodes get picked up.
-     ===================================================================== */
-  // Sheet 1 is grouped into three "comparatives" (the breaks below). The
-  // scoreboard renders them as section dividers; the deep-dives reuse the
-  // same three groups, with each variant floating its own group first.
-  var CMP = [
-    // ── The Cost Comparative ──
-    { g:"cost",    metric:"Price / sft",            sub:"Same Tellapur micro-market",       us:"₹7,000",   them:"₹8,500",   edge:"₹1,500/sft lighter", v:"win" },
-    { g:"cost",    metric:"Total cost · 1,375 sft", sub:"Like-for-like home",             us:"₹96.25 L", them:"₹1.17 Cr", edge:"You keep ₹20.6 L",   v:"win" },
-    // ── The Product Comparative ──
-    { g:"product", metric:"Flats per acre",         sub:"How dense it feels",             us:"131",      them:"178",      edge:"26% less dense",     v:"win" },
-    { g:"product", metric:"Ceiling height",         sub:"Floor to ceiling",               us:"9.8 ft",   them:"9.8 ft",   edge:"Matched",            v:"tie" },
-    { g:"product", metric:"Car parks / home",       sub:"Covered parking",                us:"2.09",     them:"1.86",     edge:"13% more parking",   v:"win" },
-    { g:"product", metric:"Built-up ÷ saleable",    sub:"Usable floor you pay for",       us:"0.77",     them:"0.70",     edge:"7% more livable",    v:"win" },
-    { g:"product", metric:"Distance from ORR",      sub:"To the expressway",              us:"2.1 km",   them:"1.9 km",   edge:"+200 m · ~30 sec",   v:"tie" },
-    { g:"product", metric:"Corridor width",         sub:"Shared corridors",               us:"8–14 ft",  them:"6–8 ft",   edge:"Wider & brighter",   v:"win" },
-    // ── The Yield Comparative ──
-    { g:"yield",   metric:"Handover",               sub:"Keys in your hand",              us:"2027",     them:"2031",     edge:"4 years earlier",    v:"win" },
-    { g:"yield",   metric:"Rent collected by 2032", sub:"You earn from 2028; they build", us:"₹16.8 L",  them:"₹0",       edge:"₹16.8 L ahead",      v:"win" },
-    { g:"yield",   metric:"Resale /sft @ 2031",     sub:"On a ₹7,000 entry vs ₹8,500",    us:"₹11,000",  them:"₹12,000",  edge:">14% higher ROI",    v:"win" }
-  ];
-  var GROUP_SEQ = ["cost", "product", "yield"];   // canonical (Sheet 1) order
-  var GROUPS = {
-    cost:    { label:"The Cost Comparative",    kicker:"What you pay",    line:"Same address, same carpet — a lighter cheque, and a lighter EMI." },
-    product: { label:"The Product Comparative", kicker:"What you get",    line:"Less dense, more usable floor, more parking, wider corridors." },
-    yield:   { label:"The Yield Comparative",   kicker:"What it returns", line:"Earlier handover, rent from 2028, and a higher ROI by 2031." }
-  };
-  var GROUP_ORDER = {
-    cost:     ["cost", "product", "yield"],
-    yield:    ["yield", "cost", "product"],
-    handover: ["yield", "cost", "product"]
-  };
-  // Per page, highlight one metric inside the lead group.
-  var HILITE = { yield: "Rent collected by 2032", handover: "Handover" };
-
-  function renderCompare(host) {
-    var wins = 0, ties = 0;
-    CMP.forEach(function (r) { if (r.v === "win") wins++; else if (r.v === "tie") ties++; });
-    var body = "";
-    GROUP_SEQ.forEach(function (key) {
-      var meta = GROUPS[key];
-      body += '<div class="cmp-break"><span class="bk-t">' + meta.label + '</span>' +
-        '<span class="bk-s">' + meta.kicker + '</span></div>';
-      CMP.filter(function (r) { return r.g === key; }).forEach(function (r, i) {
-        body += '<div class="cmp-row" data-v="' + r.v + '">' +
-          '<div class="cr-metric"><span class="cr-n">0' + (i + 1) + '</span>' +
-            '<span class="cr-name">' + r.metric + '<small>' + r.sub + '</small></span></div>' +
-          '<div class="cr-us"><span class="cr-cap">Nivasa</span>' + r.us + '</div>' +
-          '<div class="cr-them"><span class="cr-cap">Branded</span>' + r.them + '</div>' +
-          '<div class="cr-edge"><span class="cr-pill cr-' + r.v + '">' + r.edge + '</span></div>' +
-        '</div>';
-      });
-    });
-    host.innerHTML =
-      '<div class="cmp-score reveal">' +
-        '<div class="cs-cell"><b data-count="' + wins + '">' + wins + '</b><span>points ahead</span></div>' +
-        '<div class="cs-cell"><b data-count="' + ties + '">' + ties + '</b><span>level pegging</span></div>' +
-        '<div class="cs-cell"><b>0</b><span>points behind</span></div>' +
-        '<div class="cs-note">Elegant Nivasa vs a new-launch branded builder · same micro-market · 2026 model</div>' +
-      '</div>' +
-      '<div class="cmp-tbl reveal d1">' +
-        '<div class="cmp-hrow"><div>The full audit</div><div>Elegant Nivasa</div><div>Branded builder</div><div>The edge</div></div>' +
-        body +
-      '</div>' +
-      '<div class="cmp-bottom reveal d1">' +
-        '<div class="adv-row">' +
-          '<div class="adv-card"><div class="a">₹20.6L</div><div class="l">Lower entry cost</div></div>' +
-          '<div class="adv-op">+</div>' +
-          '<div class="adv-card"><div class="a">₹16.8L</div><div class="l">Rent earned by 2032</div></div>' +
-          '<div class="adv-op">+</div>' +
-          '<div class="adv-card"><div class="a">₹6.2L</div><div class="l">Interest saved</div></div>' +
-          '<div class="adv-op">=</div>' +
-          '<div class="adv-card total"><div class="a">₹43.6L</div><div class="l">Total advantage</div></div>' +
-        '</div>' +
-        '<p class="cmp-tagline">Same cheque today. <span>A great deal more over time — plus &gt;14% higher ROI.</span></p>' +
-      '</div>';
-  }
-
-  function renderGroups(host, page) {
-    var order = GROUP_ORDER[page] || GROUP_ORDER.cost;
-    var hot = HILITE[page] || "";
-    host.innerHTML = order.map(function (key, gi) {
-      var meta = GROUPS[key];
-      var lead = gi === 0;
-      var cards = CMP.filter(function (r) { return r.g === key; }).map(function (r) {
-        var isHot = r.metric === hot;
-        return '<div class="gr-card" data-v="' + r.v + '"' + (isHot ? ' data-hot="1"' : '') + '>' +
-          '<div class="gr-top"><span class="gr-metric">' + r.metric + '</span>' +
-            (isHot ? '<span class="gr-foc">Your focus</span>' : '<span class="gr-edge">' + r.edge + '</span>') + '</div>' +
-          '<div class="gr-vs">' +
-            '<div class="gr-side us"><span class="lab">Elegant Nivasa</span><span class="val">' + r.us + '</span></div>' +
-            '<div class="gr-div">vs</div>' +
-            '<div class="gr-side them"><span class="lab">Branded builder</span><span class="val">' + r.them + '</span></div>' +
-          '</div>' +
-          '<div class="gr-foot"><span class="gr-tick gr-' + r.v + '">' + (r.v === "win" ? "Nivasa ahead" : "Level") + '</span>' +
-            '<span class="gr-sub">' + (isHot ? r.edge : r.sub) + '</span></div>' +
-        '</div>';
-      }).join("");
-      return '<article class="grp reveal' + (lead ? " grp--lead" : "") + '">' +
-        '<header class="grp-head">' +
-          '<p class="eyebrow">' + meta.kicker + (lead ? " · your angle" : "") + '</p>' +
-          '<h3 class="grp-title">' + meta.label + '</h3>' +
-          '<p class="grp-line">' + meta.line + '</p>' +
-        '</header>' +
-        '<div class="grp-rows">' + cards + '</div>' +
-      '</article>';
-    }).join("");
-  }
-
-  var pageKey = document.body.getAttribute("data-page") || "cost";
-  var cmpHost = document.querySelector("[data-compare]");
-  var grpHost = document.querySelector("[data-groups]");
-  if (cmpHost) renderCompare(cmpHost);
-  if (grpHost) renderGroups(grpHost, pageKey);
+  // Comparison content (Scoreboard + angle-lead) is now rendered at BUILD TIME
+  // from src/data/comparison.ts (ADR-0002); this file is behaviour-only. The
+  // canonical Angle key is read off the <body> for analytics + WhatsApp text.
+  var angleKey = document.body.getAttribute("data-angle") || "cost";
 
   /* =====================================================================
      NAV: scroll state + mobile toggle
@@ -411,8 +296,11 @@
   /* =====================================================================
      LEAD FORM validation + simulated submit (WhatsApp + DB in live build)
      ===================================================================== */
+  var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
   document.querySelectorAll("[data-leadform]").forEach(function (form) {
     var success = form.parentNode.querySelector(".form-success");
+    // intent="brochure" → email-only soft capture; default "lead" → name + phone.
+    var intent = form.getAttribute("data-intent") === "brochure" ? "brochure" : "lead";
     function fail(field, msg) {
       var wrap = field.closest(".form-field"); wrap.classList.add("err");
       var e = wrap.querySelector(".form-err"); if (e && msg) e.textContent = msg;
@@ -427,9 +315,14 @@
       var phone = form.querySelector("[name=phone]");
       var email = form.querySelector("[name=email]");
       form.querySelectorAll(".form-field").forEach(function (w) { w.classList.remove("err"); });
-      if (name && !name.value.trim()) { fail(name, "Please enter your name"); ok = false; }
-      if (phone && !/^[6-9]\d{9}$/.test(phone.value.replace(/\D/g, "").slice(-10))) { fail(phone, "Enter a valid 10-digit mobile"); ok = false; }
-      if (email && email.value && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value)) { fail(email, "Enter a valid email"); ok = false; }
+      if (intent === "brochure") {
+        // email required & valid; name/phone optional
+        if (!email || !EMAIL_RE.test(email.value.trim())) { if (email) fail(email, "Enter a valid email"); ok = false; }
+      } else {
+        if (name && !name.value.trim()) { fail(name, "Please enter your name"); ok = false; }
+        if (phone && !/^[6-9]\d{9}$/.test(phone.value.replace(/\D/g, "").slice(-10))) { fail(phone, "Enter a valid 10-digit mobile"); ok = false; }
+        if (email && email.value && !EMAIL_RE.test(email.value)) { fail(email, "Enter a valid email"); ok = false; }
+      }
       if (!ok) return;
       // Live: POST to D1 + sales email via /api/lead
       var btn = form.querySelector("button[type=submit]");
@@ -440,12 +333,13 @@
           success.classList.add("show");
           var nm = success.querySelector("[data-name]"); if (nm && name) nm.textContent = name.value.trim().split(" ")[0];
         }
-        if (window.track) window.track("lead_submit", { page: pageKey });
+        if (window.track) window.track(intent === "brochure" ? "brochure_request" : "lead_submit", { page: angleKey });
       }
       fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          intent: intent,
           name: name ? name.value.trim() : "",
           phone: phone ? phone.value.replace(/\D/g, "").slice(-10) : "",
           email: email ? email.value.trim() : "",
@@ -462,24 +356,20 @@
   });
 
   /* =====================================================================
-     WHATSAPP direct-connect — page-aware prefilled message per rep
+     WHATSAPP direct-connect — prefilled message baked in at build time
      ===================================================================== */
-  var WA_MSG = {
-    cost:     "Hi {rep}, I saw the Elegant Nivasa cost comparison at Tellapur — can you send the best price for a 3 BHK and current availability?",
-    yield:    "Hi {rep}, I'm looking at Elegant Nivasa, Tellapur for rental yield — can you share pricing and the expected rentals/possession?",
-    handover: "Hi {rep}, I'm interested in Elegant Nivasa, Tellapur (June 2027 possession) — can you share price, availability and a site-visit slot?"
-  };
   document.querySelectorAll("[data-wa]").forEach(function (a) {
     // Number is base64-encoded in markup (anti-scrape, CLAUDE.md §3); decode here.
     var num = "";
     try { num = atob(a.getAttribute("data-wa") || ""); } catch (err) { num = ""; }
     if (!/^\d{8,15}$/.test(num)) return; // bad/empty payload — leave link inert
     var rep = a.getAttribute("data-rep") || "team";
-    var msg = (WA_MSG[pageKey] || WA_MSG.cost).replace("{rep}", rep);
+    // Message text is build-time injected per Angle (ADR-0002); {rep} filled here.
+    var msg = (a.getAttribute("data-wa-msg") || "Hi {rep}, I'd like to know more about Elegant Nivasa.").replace("{rep}", rep);
     a.setAttribute("href", "https://wa.me/" + num + "?text=" + encodeURIComponent(msg));
     a.setAttribute("target", "_blank");
     a.addEventListener("click", function () {
-      if (window.track) window.track("whatsapp_click", { page: pageKey, rep: rep });
+      if (window.track) window.track("whatsapp_click", { page: angleKey, rep: rep });
     });
   });
 

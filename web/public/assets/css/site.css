@@ -519,38 +519,59 @@ input[type=range]::-moz-range-thumb { width:22px;height:22px;border-radius:50%; 
   .cr-edge { grid-column:1/-1; text-align:left; }
 }
 
-/* ===================== GROUPED DEEP-DIVES (light) ===================== */
-.section--detail { background: linear-gradient(180deg, var(--cream), var(--cream-2)); }
-.grp { padding: clamp(24px,3.4vw,40px) 0; border-top: 1px solid var(--line-soft); display:grid; grid-template-columns: 290px 1fr; gap: clamp(20px,3vw,46px); align-items:start; }
-.grp + .grp { margin-top: 0; }
-.grp--lead { background: var(--paper); border:1px solid var(--line-soft); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: clamp(24px,3vw,40px); border-top:none; margin-bottom: 14px; }
-.grp--lead + .grp { border-top:none; }
-.grp-head .eyebrow { margin-bottom: 14px; }
-.grp--lead .grp-head .eyebrow { color: var(--orange); }
-.grp-title { font-family: var(--font-display); font-weight: 470; font-size: clamp(1.7rem,3vw,2.4rem); color: var(--navy); line-height:1.02; letter-spacing:-.015em; }
-.grp-line { color: var(--muted); margin-top: 12px; font-size: .98rem; max-width: 32ch; }
-.grp-rows { display:grid; grid-template-columns: repeat(auto-fit,minmax(225px,1fr)); gap: 14px; }
-.gr-card { background: var(--cream-2); border:1px solid var(--line-soft); border-radius: var(--radius); padding: 20px; transition: transform .35s var(--ease), box-shadow .35s; }
-.grp--lead .gr-card { background: var(--cream); }
-.gr-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-.gr-card[data-hot="1"] { border-color: var(--teal); box-shadow: inset 0 0 0 1.5px var(--teal); background: var(--teal-soft); }
-.gr-top { display:flex; justify-content:space-between; align-items:flex-start; gap: 10px; margin-bottom: 18px; }
-.gr-metric { font-weight: 650; color: var(--navy); font-size: 1.02rem; line-height:1.2; }
-.gr-edge { font-size:.72rem; font-weight:650; color: var(--teal-deep); background: var(--teal-soft); padding: 4px 10px; border-radius: 100px; white-space:nowrap; }
-.gr-foc { font-size:.64rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#fff; background: var(--orange); padding: 4px 10px; border-radius: 100px; white-space:nowrap; }
-.gr-vs { display:grid; grid-template-columns: 1fr auto 1fr; align-items:center; gap: 10px; }
-.gr-side { display:flex; flex-direction:column; gap: 5px; }
-.gr-side .lab { font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color: var(--muted); }
-.gr-side .val { font-family: var(--font-display); font-size: clamp(1.45rem,2.4vw,1.95rem); line-height:1; }
-.gr-side.us .val { color: var(--teal); }
-.gr-side.them .val { color: var(--navy-300); }
-.gr-div { font-family: var(--font-display); font-style:italic; color: var(--muted); font-size: .92rem; }
-.gr-foot { display:flex; align-items:center; gap: 10px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
-.gr-tick { font-size:.72rem; font-weight:700; padding: 3px 11px; border-radius: 100px; flex:none; }
-.gr-win { background: var(--teal-soft); color: var(--teal-deep); }
-.gr-tie { background: rgba(22,32,74,.07); color: var(--muted); }
-.gr-sub { font-size:.82rem; color: var(--muted); }
-@media (max-width: 720px){ .grp { grid-template-columns: 1fr; gap: 18px; } }
+/* ===================== ANGLE-LEAD (bespoke per Sub-site, light) =====================
+   Each Sub-site leads with its own Angle (ADR-0002 B2): /cost a two-cheque
+   comparison, /handover a 2027-vs-2031 timeline, /rental-yield an earnings
+   build-up. All sit on the cream page above the dark Scoreboard. */
+.al { background: linear-gradient(180deg, var(--cream), var(--cream-2)); }
+.al-punch { margin-top: clamp(26px,3.5vw,40px); text-align:center; font-family: var(--font-display); font-weight: 450; font-size: clamp(1.3rem,2.6vw,2rem); color: var(--navy); line-height:1.15; }
+.al-punch b { color: var(--teal); font-weight: 600; }
+
+/* --- /cost: two cheques --- */
+.al-cheques { display:grid; grid-template-columns: 1fr auto 1fr; align-items:center; gap: clamp(16px,2.6vw,32px); }
+.cheque { background: var(--paper); border:1px solid var(--line-soft); border-radius: var(--radius-lg); padding: clamp(24px,3vw,40px); box-shadow: var(--shadow-sm); position:relative; }
+.cheque--us { border-color: var(--teal); box-shadow: var(--shadow-md), inset 0 0 0 1.5px var(--teal); background: var(--paper); }
+.chq-cap { display:block; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color: var(--muted); margin-bottom: 16px; }
+.cheque--us .chq-cap { color: var(--teal-deep); }
+.chq-amt { font-family: var(--font-display); font-size: clamp(2.2rem,5vw,3.6rem); line-height:.95; color: var(--navy); }
+.cheque--them .chq-amt { color: var(--navy-300); }
+.cheque--us .chq-amt { color: var(--teal); }
+.chq-rate { margin-top: 12px; font-size:.95rem; color: var(--muted); }
+.chq-vs { font-family: var(--font-display); font-style:italic; color: var(--muted); font-size: clamp(1rem,2vw,1.4rem); text-align:center; }
+@media (max-width: 720px){ .al-cheques { grid-template-columns: 1fr; } .chq-vs { transform: none; } }
+
+/* --- /handover: two timelines --- */
+.al-time { display:grid; gap: clamp(18px,2.6vw,28px); }
+.tl-track { background: var(--paper); border:1px solid var(--line-soft); border-radius: var(--radius-lg); padding: clamp(22px,2.6vw,34px); box-shadow: var(--shadow-sm); }
+.tl-us { border-color: var(--teal); box-shadow: var(--shadow-md), inset 0 0 0 1.5px var(--teal); }
+.tl-who { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color: var(--muted); margin-bottom: 22px; font-weight: 650; }
+.tl-us .tl-who { color: var(--teal-deep); }
+.tl-line { list-style:none; display:grid; grid-auto-flow:column; grid-auto-columns:1fr; gap: 10px; position:relative; }
+.tl-line::before { content:""; position:absolute; left:7px; right:7px; top:6px; height:2px; background: var(--line); }
+.tl-us .tl-line::before { background: linear-gradient(90deg, var(--teal), #2fb39c); }
+.tl-step { position:relative; padding-top: 24px; }
+.tl-dot { position:absolute; top:0; left:0; width:14px; height:14px; border-radius:50%; background: var(--cream-2); border:2px solid var(--navy-300); }
+.tl-us .tl-dot { border-color: var(--teal); background: var(--teal); }
+.tl-hot .tl-dot { border-color: var(--orange); background: var(--orange); box-shadow: 0 0 0 4px rgba(232,81,31,.18); }
+.tl-year { display:block; font-family: var(--font-display); font-size: clamp(1.25rem,2.4vw,1.7rem); line-height:1; color: var(--navy); }
+.tl-them .tl-year { color: var(--navy-300); }
+.tl-hot .tl-year { color: var(--orange); }
+.tl-label { display:block; margin-top: 7px; font-size:.86rem; color: var(--muted); }
+@media (max-width: 560px){ .tl-line { grid-auto-flow:row; grid-auto-columns:auto; } .tl-line::before { left:6px; right:auto; top:6px; bottom:6px; width:2px; height:auto; } .tl-step { padding-top:0; padding-left: 26px; } }
+
+/* --- /rental-yield: earnings build-up --- */
+.al-build { background: var(--paper); border:1px solid var(--line-soft); border-radius: var(--radius-lg); padding: clamp(24px,3vw,40px); box-shadow: var(--shadow-md); }
+.yl-steps { list-style:none; display:grid; gap: 16px; }
+.yl-step { display:grid; grid-template-columns: 56px 1fr auto; align-items:center; gap: clamp(12px,2vw,22px); }
+.yl-year { font-family: var(--font-display); font-size: 1.1rem; color: var(--navy-300); }
+.yl-track { height: 18px; border-radius: 100px; background: var(--teal-soft); overflow:hidden; }
+.yl-amt { font-family: var(--font-display); font-size: clamp(1.1rem,2.2vw,1.5rem); color: var(--teal); min-width: 5ch; text-align:right; }
+.yl-foot { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap: 14px; margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line-soft); }
+.yl-total { display:flex; flex-direction:column; gap: 6px; }
+.yl-total-k { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color: var(--muted); }
+.yl-total-v { font-family: var(--font-display); font-size: clamp(1.8rem,3.6vw,2.6rem); line-height:1; color: var(--teal); }
+.yl-them { font-size:.92rem; color: var(--muted); max-width: 38ch; }
+@media (max-width: 560px){ .yl-step { grid-template-columns: 44px 1fr; } .yl-amt { grid-column: 2; text-align:left; } }
 
 /* ===================== ENQUIRE / DIRECT CONNECT ===================== */
 .connect-head { max-width: 840px; margin: 0 auto clamp(34px,5vw,54px); }

@@ -1,0 +1,30 @@
+---
+// Bespoke angle-lead block for /cost — the two-cheque comparison (ADR-0002 B2).
+// Content/figures come from the single source; layout lives here.
+import { ANGLES } from "../data/comparison.ts";
+const d = ANGLES.cost.lead;
+if (d.kind !== "cost") throw new Error("cost angle-lead expected");
+---
+<section class="section al al-cost" id="angle">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow">{d.eyebrow}</p>
+      <h2 class="h2">{d.headline}</h2>
+      <p class="lead">{d.sub}</p>
+    </div>
+    <div class="al-cheques reveal d1">
+      <article class="cheque cheque--them">
+        <span class="chq-cap">{d.them.cap}</span>
+        <div class="chq-amt">{d.them.amount}</div>
+        <div class="chq-rate">{d.them.rate}</div>
+      </article>
+      <div class="chq-vs">vs</div>
+      <article class="cheque cheque--us">
+        <span class="chq-cap">{d.us.cap}</span>
+        <div class="chq-amt">{d.us.amount}</div>
+        <div class="chq-rate">{d.us.rate}</div>
+      </article>
+    </div>
+    <p class="al-punch reveal d1">You keep <b>{d.saving}</b> on the very same carpet.</p>
+  </div>
+</section>

@@ -1,0 +1,33 @@
+---
+// Bespoke angle-lead block for /handover — the 2027-vs-2031 timeline (ADR-0002 B2).
+// Content/figures come from the single source; layout lives here.
+import { ANGLES } from "../data/comparison.ts";
+const d = ANGLES.handover.lead;
+if (d.kind !== "handover") throw new Error("handover angle-lead expected");
+---
+<section class="section al al-handover" id="angle">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow">{d.eyebrow}</p>
+      <h2 class="h2">{d.headline}</h2>
+      <p class="lead">{d.sub}</p>
+    </div>
+    <div class="al-time reveal d1">
+      {d.tracks.map((tr) => (
+        <div class={`tl-track tl-${tr.who}`}>
+          <div class="tl-who">{tr.label}</div>
+          <ol class="tl-line">
+            {tr.milestones.map((m) => (
+              <li class={`tl-step${m.hot ? " tl-hot" : ""}`}>
+                <span class="tl-dot"></span>
+                <span class="tl-year">{m.year}</span>
+                <span class="tl-label">{m.label}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ))}
+    </div>
+    <p class="al-punch reveal d1">That&rsquo;s <b>{d.gap}</b> — and your returns start sooner.</p>
+  </div>
+</section>
