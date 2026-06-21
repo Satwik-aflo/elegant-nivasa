@@ -88,7 +88,17 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
 - [x] Two **Sales rep WhatsApp numbers** — provided 2026-06-20, wired in `config/site.ts`
   (`site.reps`): Bharat → rep 1, Satish → rep 2. Base64-injected (anti-scrape), no raw number in
   HTML. _(Per-rep sales stats on the cards are still placeholders — see below.)_
-- [ ] Domain **registrar** + login (for the nameserver change at cutover).
+- [~] Domain **registrar / DNS** — discovered 2026-06-21: registrar is **GoDaddy**, but DNS is
+  **delegated to Hostinger** (nameservers `ns1/ns2.dns-parking.com`); email runs through Hostinger
+  (`mx1/mx2.hostinger.in` + SPF `_spf.mail.hostinger.com`). **Client has Hostinger access but NOT
+  GoDaddy.** Decision: take the **Hostinger-only DNS path** — edit records in Hostinger's zone, leave
+  nameservers at Hostinger, never touch GoDaddy. This already unblocked the Resend sending domain
+  (verified 2026-06-21, records added in Hostinger). **Still open:** custom-domain cutover for the
+  *website* — without GoDaddy we can't move nameservers to Cloudflare, so the route is CNAME
+  `www` → Pages + apex domain-forwarding in Hostinger (apex can't take a plain CNAME). GoDaddy access
+  is still worth recovering for a clean cutover; chase via whoever set up the domain (created
+  2024-01-22, privacy-protected). _(NB: §6 step 3 "cancel Hostinger" no longer fully applies — the
+  DNS zone must stay at Hostinger on this path; only the WordPress hosting is retired.)_
 - [x] Static **comparison figures** confirmed 2026-06-21: **₹7,000/sft** (us) vs **₹8,500/sft**
   (competitor) → **₹20.6 L** saving on 1,375 sft; possession **2027 vs 2031**; **₹16.8 L** rent by
   2032; structure **78%** (latest 78.19, shown rounded). Clubhouse corrected to **8-level / 40,000+
@@ -96,28 +106,21 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
 - [ ] **Sales stats** on the rep cards (aggregate ₹74 Cr+/62 + per-rep `closed`/`homes` in
   `site.reps`) — decision 2026-06-21: **ship as-is with a `*`** (disclaimer-backed); replace with
   audited figures before scaling ad spend.
-- [~] **Resend** — account created & API key works; the `/api/lead` email path is **wired and
-  tested end-to-end in TEST mode** (2026-06-21, via `wrangler dev` + local D1). The `from:` is
-  centralised in `site.mailFrom` (`config/site.ts`), currently `onboarding@resend.dev`. **Test-mode
-  limits:** resend.dev only delivers to the account owner (`satwik@e-infra.in`) and forces that
-  `from` — so the *visitor* brochure email works only to that address and the `sales@e-infra.in`
-  notify is rejected (`notified` stays 0). **Still to fully enable prod email:** (1) verify a real
-  **sending domain** at resend.com/domains (needs DNS — ties to the registrar open item), (2) swap
-  `site.mailFrom` to a verified sender (e.g. `leads@elegantnivasa.com`), (3) set the prod secret
-  `npx wrangler secret put RESEND_API_KEY`. Local key lives in `web/.dev.vars` (gitignored).
-- [ ] **Revoke the test Resend key before prod.** The current key was shared in chat (test-only);
-  revoke it at resend.com/api-keys and issue a fresh production key set **only** via
-  `wrangler secret put RESEND_API_KEY` (never pasted / committed).
-- [ ] **Email/brochure → production go-live checklist** (flips the wired-but-test-mode email to
-  real sends; all blockers, consolidated):
-  1. Verify a **sending domain** at resend.com/domains (DNS records — ties to the registrar item).
-  2. Swap `site.mailFrom` (`config/site.ts`) from `onboarding@resend.dev` to a verified sender
-     (e.g. `Elegant Nivasa <leads@elegantnivasa.com>`).
-  3. Issue a fresh prod key and set it: `npx wrangler secret put RESEND_API_KEY` (see revoke item).
-  4. Apply the schema on prod D1: `npx wrangler d1 migrations apply elegant-nivasa --remote`
-     (else the live `intent` insert fails).
-  5. Build + deploy (`npm run build` → `npx wrangler deploy`), then submit a real test on the live
-     site → confirm visitor brochure email **and** the `sales@e-infra.in` notify both arrive.
+- [x] **Resend — prod email LIVE** (2026-06-21). Sending domain `elegantnivasa.com` verified at
+  resend.com (DNS records added in **Hostinger**, on the `send` subdomain so the existing root
+  Hostinger MX/SPF are untouched). `site.mailFrom` swapped to
+  `Elegant Nivasa <leads@elegantnivasa.com>`; prod secret `RESEND_API_KEY` set via
+  `wrangler secret put` (fresh key, typed at the hidden prompt — not in chat). Verified end-to-end
+  on the **live** site: a brochure submit wrote to prod D1 with **`notified=1`** (test row deleted),
+  confirming both the visitor email and the `sales@e-infra.in` notify now send to any recipient
+  (no more resend.dev test-mode limit). Local dev still uses the key in `web/.dev.vars` (gitignored).
+- [ ] **Revoke the two exposed Resend keys.** Both `re_FqkEryya…` (original test key) and
+  `re_ZiCVqNvh…` (the one accidentally pasted on the command line) appeared in chat — revoke **both**
+  at resend.com/api-keys. The live prod key (set via `wrangler secret put`, never pasted) is safe and
+  stays.
+- [x] **Email/brochure → production go-live** — DONE 2026-06-21 (all 5 checklist steps complete:
+  sending domain verified, `mailFrom` swapped, fresh prod key set, `--remote` migration applied,
+  built + deployed + live test passed with `notified=1`).
 - [x] One-time **`wrangler login`** — done; deployed to
   `elegant-nivasa.satwik-958.workers.dev` (2026-06-21). Build with `npm run build`, ship with
   `npx wrangler deploy` from `web/`.
