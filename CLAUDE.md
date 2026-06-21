@@ -114,10 +114,9 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
   on the **live** site: a brochure submit wrote to prod D1 with **`notified=1`** (test row deleted),
   confirming both the visitor email and the `sales@e-infra.in` notify now send to any recipient
   (no more resend.dev test-mode limit). Local dev still uses the key in `web/.dev.vars` (gitignored).
-- [ ] **Revoke the two exposed Resend keys.** Both `re_FqkEryya…` (original test key) and
-  `re_ZiCVqNvh…` (the one accidentally pasted on the command line) appeared in chat — revoke **both**
-  at resend.com/api-keys. The live prod key (set via `wrangler secret put`, never pasted) is safe and
-  stays.
+- [x] **Exposed Resend keys revoked** (2026-06-21). Both `re_FqkEryya…` (original test key) and
+  `re_ZiCVqNvh…` (accidentally pasted on the command line) were revoked & deleted at resend.com.
+  The live prod key (set via `wrangler secret put`, never pasted) is safe and remains in use.
 - [ ] **Inbound email for the branded domain** (so mail *to* `@elegantnivasa.com` is received, not
   just sent). Plan (all Hostinger-side, since DNS/email live there): (1) create mailbox
   `leads@elegantnivasa.com`, (2) Forwarders → **Create catch-all** → destination `leads@`, (3)
