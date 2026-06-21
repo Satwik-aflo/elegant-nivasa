@@ -361,6 +361,14 @@ input[type=range]::-moz-range-thumb { width:22px;height:22px;border-radius:50%; 
 .fit-row.no .fl, .fit-row.no .fp { color: rgba(255,255,255,.4); }
 .rnt-msg { margin-top: 22px; padding-top: 20px; border-top:1px solid rgba(255,255,255,.16); color: rgba(255,255,255,.85); font-size:.96rem; line-height:1.55; }
 
+/* rent-vs-own STATE B — rent already covers a full config (gold "owns a home") */
+.emi-result.emi--owns { background: linear-gradient(160deg, var(--teal-deep), var(--navy) 72%); }
+.emi-result.emi--owns::before { background: radial-gradient(100% 80% at 100% 0, rgba(199,154,69,.42), transparent 62%); }
+.emi-result.emi--owns #rnt-head { color: var(--gold); }
+.emi-result.emi--owns .emi-big { font-size: clamp(2rem,4.4vw,2.9rem); color:#fff; }
+.emi-result.emi--owns .emi-big small { display:block; margin-top:10px; color: var(--gold); font-weight:600; }
+.emi-result.emi--owns #rnt-sub { color:#fff; font-weight:600; font-size:1rem; }
+
 /* ===================== LOCATION ===================== */
 .loc { display:grid; grid-template-columns: 1fr 1fr; gap: clamp(22px,3vw,50px); align-items:center; }
 .loc-list { display:grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--line-soft); border-radius: var(--radius); overflow:hidden; }

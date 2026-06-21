@@ -65,9 +65,14 @@
     toggle.addEventListener("click", function () {
       var open = nav.classList.toggle("open");
       toggle.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
     });
     nav.querySelectorAll("a").forEach(function (a) {
-      a.addEventListener("click", function () { nav.classList.remove("open"); toggle.classList.remove("open"); });
+      a.addEventListener("click", function () {
+        nav.classList.remove("open");
+        toggle.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+      });
     });
   }
 
@@ -199,24 +204,53 @@
       o.value = u.area; o.textContent = u.name + " · " + u.area + " sft — " + crore(priceOf(u.area));
       rUnit.appendChild(o);
     });
+    var rPanel = calcRoot.querySelector('[data-panel="rent"] .emi-result');
     function calcRent() {
       var rent = num(rRent);
-      var price = priceOf(+rUnit.value);
-      var dp = +rDp.value / 100;
-      var loan = price * (1 - dp);
-      var emi = emiOf(loan, +rRate.value, +rTen.value);
-      var top = emi - rent;
-      $("rnt-topup").innerHTML = (top > 0 ? inr(top) : "₹0") + '<small>/mo more</small>';
-      $("rnt-rentecho").textContent = inr(rent).replace("₹", "");
-      $("rnt-emi").textContent = inr(emi);
-      $("rnt-rent2").textContent = inr(rent);
-      $("rnt-dpamt").textContent = crore(price * dp);
-      $("rnt-equity").textContent = crore(price);
-      $("rnt-msg").textContent = top <= 0
-        ? "Your rent already covers the EMI — you could own this home for what you pay now, and stop paying off someone else's loan."
-        : "You already pay " + inr(rent) + " a month in rent. For about " + inr(top) + " more, that money builds your own " + crore(price) + " asset — instead of zero equity.";
+      var dp = +rDp.value / 100, rate = +rRate.value, ten = +rTen.value;
+      // Largest config (by area ≡ price) whose full EMI the rent already covers.
+      var covered = null;
+      UNITS.forEach(function (u) {
+        if (emiOf(priceOf(u.area) * (1 - dp), rate, ten) <= rent && (!covered || u.area > covered.area)) covered = u;
+      });
+      if (covered) {
+        // STATE B — "your rent already buys a home": drive the panel off `covered`,
+        // sync the dropdown to it (spec 2026-06-22-rent-owns-a-home-state).
+        if (+rUnit.value !== covered.area) rUnit.value = covered.area;
+        var price = priceOf(covered.area);
+        var emi = emiOf(price * (1 - dp), rate, ten);
+        var surplus = Math.round(rent - emi);
+        var bhk = covered.name.split("·").pop().trim();           // "Type 4 · 3 BHK" -> "3 BHK"
+        rPanel.classList.add("emi--owns");
+        $("rnt-head").textContent = "Your rent already buys a home";
+        $("rnt-topup").innerHTML = bhk + " · " + covered.area.toLocaleString("en-IN") +
+          " sft<small>your rent already covers this — ₹0 more</small>";
+        $("rnt-sub").textContent = surplus > 0 ? inr(surplus) + "/mo to spare after the EMI" : "";
+        $("rnt-emi").textContent = inr(emi);
+        $("rnt-rent2").textContent = inr(rent);
+        $("rnt-dpamt").textContent = crore(price * dp);
+        $("rnt-equity").textContent = crore(price);
+        $("rnt-msg").textContent = "Your " + inr(rent) + " rent already covers the full EMI on this home. " +
+          "You're paying for a home every month — it just isn't yours.";
+        $("rnt-dp-val").textContent = rDp.value + "% · " + crore(price * dp);
+      } else {
+        // STATE A — top-up: driven by the dropdown-selected unit (existing behaviour).
+        var price = priceOf(+rUnit.value);
+        var emi = emiOf(price * (1 - dp), rate, ten);
+        var top = emi - rent;
+        rPanel.classList.remove("emi--owns");
+        $("rnt-head").textContent = "Just a little more than rent";
+        $("rnt-topup").innerHTML = (top > 0 ? inr(top) : "₹0") + '<small>/mo more</small>';
+        $("rnt-sub").textContent = "on top of your " + inr(rent) + " rent — and the home is yours";
+        $("rnt-emi").textContent = inr(emi);
+        $("rnt-rent2").textContent = inr(rent);
+        $("rnt-dpamt").textContent = crore(price * dp);
+        $("rnt-equity").textContent = crore(price);
+        $("rnt-msg").textContent = "You already pay " + inr(rent) + " a month in rent. For about " +
+          inr(top) + " more, that money builds your own " + crore(price) + " asset — instead of zero equity.";
+        $("rnt-dp-val").textContent = rDp.value + "% · " + crore(price * dp);
+      }
       $("rnt-rent-val").textContent = inr(rent);
-      $("rnt-dp-val").textContent = rDp.value + "% · " + crore(price * dp);
       $("rnt-rate-val").textContent = (+rRate.value).toFixed(1) + "%";
       $("rnt-ten-val").textContent = rTen.value + " yrs";
       [rDp, rRate, rTen].forEach(fill);
