@@ -14,10 +14,15 @@ const json = (data: unknown, status = 200) =>
   });
 
 export const POST: APIRoute = async ({ request }) => {
-  let body: Record<string, string>;
+  let body: Record<string, unknown>;
   try {
-    body = await request.json();
+    body = (await request.json()) as Record<string, unknown>;
   } catch {
+    return json({ error: "invalid json" }, 400);
+  }
+  // A valid-JSON non-object (null / number / string / array) parses fine but
+  // would throw on property access below — reject it as a bad request.
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
     return json({ error: "invalid json" }, 400);
   }
 
