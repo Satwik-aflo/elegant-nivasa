@@ -42,7 +42,12 @@
   // Comparison content (Scoreboard + angle-lead) is now rendered at BUILD TIME
   // from src/data/comparison.ts (ADR-0002); this file is behaviour-only. The
   // canonical Angle key is read off the <body> for analytics + WhatsApp text.
-  var angleKey = document.body.getAttribute("data-angle") || "cost";
+  // Sub-sites set data-angle (cost|handover|yield); the homepage/privacy set
+  // data-page (home|legal). Fall through both so analytics labels each route
+  // correctly — never silently default homepage events to "cost".
+  var angleKey = document.body.getAttribute("data-angle")
+    || document.body.getAttribute("data-page")
+    || "home";
 
   /* =====================================================================
      NAV: scroll state + mobile toggle
