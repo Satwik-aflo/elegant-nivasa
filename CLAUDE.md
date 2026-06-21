@@ -79,9 +79,16 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
 ## 6. Phasing (Cutover)
 
 1. **Build** on the free `*.pages.dev` URL — production WordPress untouched, zero risk.
-2. **Cutover** — point `elegantnivasa.com` DNS at Cloudflare (change nameservers at the registrar;
-   verify Cloudflare imported existing DNS incl. **email/MX** first), add the custom domain in Pages.
-3. **Retire** WordPress / cancel Hostinger.
+2. **Cutover** — **DECIDED 2026-06-21: Hostinger-only / Pages path** (no GoDaddy access — see §7).
+   The site deploys as **Cloudflare Pages** (not a Worker — Workers can't take a custom domain
+   without moving nameservers to Cloudflare, which needs the GoDaddy registrar login we don't have).
+   Pages accepts an **external CNAME**, so DNS stays at Hostinger: add `CNAME www → <project>.pages.dev`
+   + an **apex forward** `elegantnivasa.com → www` in Hostinger, then add the custom domain in the
+   Pages project. **Email is untouched** (nameservers don't move) — zero email-downtime risk.
+   _(Original plan was a registrar nameserver move to Cloudflare; shelved with GoDaddy — revisit if
+   that access is recovered, see §7 future item.)_
+3. **Retire** WordPress hosting. _(NB: do **not** cancel Hostinger outright on this path — its DNS
+   zone + email/forwarders stay live. Only the WordPress site/plan is retired.)_
 
 ## 7. Open items (fill before cutover)
 
@@ -125,6 +132,15 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
   and the client has no credentials for that inbox until **2026-06-22**. _(Outbound/branded sending
   and the `reply_to: sales@e-infra.in` on the brochure email are already live — this only adds direct
   inbound + catch-all.)_ Needs an active Hostinger Email plan with a free mailbox slot.
+- [ ] **FUTURE — if GoDaddy access is recovered:** reconsider the domain/host setup. With the
+  registrar login we could (a) move nameservers to Cloudflare for a clean apex (no www-forward) +
+  domain-wide Cloudflare features, and/or (b) move the site back to a **Worker** custom domain
+  (Cloudflare's preferred long-term platform). Not urgent — the Pages-via-Hostinger path (§6) works
+  fully without it. Chase GoDaddy via whoever set up the domain (created 2024-01-22, privacy-protected).
+- [ ] **Custom-domain cutover (Pages path)** — in progress 2026-06-21. Steps: (1) deploy the site as
+  a **Pages** project (migrated from the Worker), re-bind D1 + re-set `RESEND_API_KEY`; (2) verify
+  form/email/D1 on the `*.pages.dev` URL; (3) Hostinger: `CNAME www → <project>.pages.dev` + apex
+  forward `elegantnivasa.com → www`; (4) add the custom domain in the Pages project, wait for cert.
 - [x] **Email/brochure → production go-live** — DONE 2026-06-21 (all 5 checklist steps complete:
   sending domain verified, `mailFrom` swapped, fresh prod key set, `--remote` migration applied,
   built + deployed + live test passed with `notified=1`).
