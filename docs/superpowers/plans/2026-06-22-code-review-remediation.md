@@ -8,6 +8,31 @@
 
 **Tech Stack:** Astro 6, `@astrojs/cloudflare` v13, Cloudflare D1, Resend, vanilla ES5-style IIFE JS, plain CSS.
 
+---
+
+## Execution status (updated 2026-06-22, branch `chore/homepage-launch`)
+
+Executed inline (not via subagents) and adapted to the live tree, which had moved on since this
+plan was written: **sub-sites are now parked** (`_cost.astro` / `_handover.astro` /
+`_rental-yield.astro`) for a **homepage-only first launch**, so the build prerenders **2 routes
+(`/`, `/privacy`) + `POST /api/lead`**, not 5. A pre-remediation **baseline commit** captured the
+session's homepage work (new hero/dialogs/privacy/brochure-prompt/parking) so each fix below is a
+clean, revertable step on top.
+
+- [x] **T1 — delete dead code** (`7eec1f1`). All 7 files removed; only ref was BaseLayout→global.css (dead-on-dead).
+- [x] **T2 — remove stale site.js blocks** (`43d7b15`). Confirmed the `[data-bar]` collision is real (`index.astro:163` `<span data-bar>`, no `.bar-fill`).
+- [x] **T3 — homepage analytics label** (`4a398a3`). `data-angle → data-page → "home"`.
+- [x] **T4 — harden `/api/lead`** (`086d905`). Verified `null→400`, honeypot→200, valid→200, invalid→422 against dev.
+- [x] **T5 — `aria-expanded` mobile nav** (`dab3a03`). Both headers + `site.js`.
+- [x] **T6 — Social/OG meta** (`5b74f7d`) — **adapted**: `site.url` set to the **workers.dev** serving origin (NOT `elegantnivasa.com`, which still serves WordPress and would 404 the preview image). Wired into **homepage + privacy only**; sub-site wiring deferred until they ship. Verified `og:image`/`og:url` resolve to the workers.dev origin in `dist`.
+- [ ] **T7 — standardise ₹6,999** — **DEFERRED**: only touches `comparison.ts` → sub-sites (parked). The homepage is already consistent at ₹6,999. Do with the sub-site launch.
+- **Elevated from Deferred §1 — abuse protection on `POST /api/lead`** (Turnstile / rate-limit): the homepage form is live on paid traffic; **do before scaling ad spend**, not necessarily before this first deploy.
+
+Verification cadence below was adapted: where steps expect "all 5 routes prerendered," that is now
+"2 routes (`/`, `/privacy`)" while sub-sites are parked.
+
+---
+
 ## Global Constraints
 
 These apply to **every** task. A task is not "done" until all of these pass.
@@ -35,9 +60,9 @@ The repo is currently on `main` (the default branch). Branch before making chang
 
 Run (from the repo root):
 ```bash
-cd "/Users/saimeda/Documents/Elegant Nivasa" && git checkout -b chore/code-review-remediation
+cd "/Users/saimeda/Documents/Elegant Nivasa" && git checkout -b chore/homepage-launch
 ```
-Expected: `Switched to a new branch 'chore/code-review-remediation'`
+Expected: `Switched to a new branch 'chore/homepage-launch'` _(actual branch used — this plan was folded into the homepage-launch branch alongside the session's prep work)._
 
 - [ ] **Step 2: Confirm a clean baseline build before touching anything**
 
@@ -588,7 +613,11 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ---
 
-## Task 7: Standardise the per-sft price figure (DECISION-GATED)
+## Task 7: Standardise the per-sft price figure (DECISION-GATED) — ⏸ DEFERRED
+
+> **Status (2026-06-22): deferred to the sub-site launch.** This only edits `comparison.ts`, which
+> feeds the Scoreboard + angle-leads on the **parked** sub-sites; the homepage already shows ₹6,999
+> consistently. Execute when `/cost` · `/handover` · `/rental-yield` are unparked.
 
 **Decision required before executing — default chosen below.** The site shows two prices for "the same home": the hero/marketing rate `₹6,999/sft` (`comparison.ts:181,185`; also the homepage and the `site.js` calculator `RATE = 6999`) and the Scoreboard/cost-lead comparison rate `₹7,000*` (`comparison.ts:52,64,195`). Both appear on the same sub-site page. `6,999 × 1,375 = ₹96.24 L ≈ ₹96.25 L`, so the totals are unaffected either way.
 
