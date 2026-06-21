@@ -118,6 +118,14 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
   `re_ZiCVqNvh…` (the one accidentally pasted on the command line) appeared in chat — revoke **both**
   at resend.com/api-keys. The live prod key (set via `wrangler secret put`, never pasted) is safe and
   stays.
+- [ ] **Inbound email for the branded domain** (so mail *to* `@elegantnivasa.com` is received, not
+  just sent). Plan (all Hostinger-side, since DNS/email live there): (1) create mailbox
+  `leads@elegantnivasa.com`, (2) Forwarders → **Create catch-all** → destination `leads@`, (3)
+  Forwarders → **Create a forwarder** `leads@` → `sales@e-infra.in` (external), "save copies" ON.
+  **Blocked (2026-06-21):** step 3 needs clicking a verification link sent to `sales@e-infra.in`,
+  and the client has no credentials for that inbox until **2026-06-22**. _(Outbound/branded sending
+  and the `reply_to: sales@e-infra.in` on the brochure email are already live — this only adds direct
+  inbound + catch-all.)_ Needs an active Hostinger Email plan with a free mailbox slot.
 - [x] **Email/brochure → production go-live** — DONE 2026-06-21 (all 5 checklist steps complete:
   sending domain verified, `mailFrom` swapped, fresh prod key set, `--remote` migration applied,
   built + deployed + live test passed with `notified=1`).
