@@ -121,6 +121,9 @@ export const POST: APIRoute = async ({ request }) => {
           body: JSON.stringify({
             from: site.mailFrom,
             to: [lead.email],
+            // Replies (the email invites "just reply") go to the monitored sales
+            // inbox, not the send-only leads@ address (which has no mailbox).
+            reply_to: site.leadEmailTo,
             subject: "Your Elegant Nivasa brochure",
             html:
               `<p>Hi${lead.name ? " " + lead.name : ""},</p>` +
