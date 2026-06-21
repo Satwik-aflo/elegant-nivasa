@@ -1,106 +1,384 @@
 ---
-import MainLayout from "../layouts/MainLayout.astro";
-import LeadForm from "../components/LeadForm.astro";
-import { site } from "../config/site";
+// MAIN SITE (homepage). Product/desire-first single-scroll page: hero ·
+// gallery · corridor test · car-free podium · location · possession/trust ·
+// floor plans · brochure + Lead form. Styled to match the three sub-sites.
+import AnalyticsScripts from "../components/AnalyticsScripts.astro";
 
-// Content is placeholder pending brochure/figure sign-off (CLAUDE.md §7).
-const highlights = [
-  ["4 acres", "Gated community"],
-  ["3 towers", "23 floors each"],
-  ["526", "2 & 3 BHK homes"],
-  ["100%", "Vastu compliant"],
+// Floor-plan plates (open — no gating). Config/saleable/facing read off each
+// plate; site.js wires the [data-gallery] lightbox.
+const plans = [
+  { n: 1, bhk: "3 BHK", sft: "1,700", face: "East" },
+  { n: 2, bhk: "3 BHK", sft: "1,380", face: "West" },
+  { n: 3, bhk: "3 BHK", sft: "2,206", face: "West" },
+  { n: 4, bhk: "3 BHK", sft: "1,830", face: "West" },
+  { n: 5, bhk: "2 BHK", sft: "1,372", face: "North" },
+  { n: 6, bhk: "3 BHK", sft: "1,830", face: "East" },
+].map((p) => ({
+  ...p,
+  img: `/assets/img/floorplans/type-${p.n}.png`,
+  alt: `Elegant Nivasa floor plan — ${p.bhk}, ${p.sft} sft, ${p.face} facing`,
+}));
+
+// Render gallery — asymmetric grid; wide/tall classes drive the layout.
+const gallery = [
+  { n: 2, cls: "wide" }, { n: 6, cls: "tall" }, { n: 3, cls: "" },
+  { n: 7, cls: "" }, { n: 9, cls: "wide" }, { n: 11, cls: "" },
+  { n: 12, cls: "" }, { n: 4, cls: "tall" }, { n: 8, cls: "wide" },
+  { n: 10, cls: "" },
+].map((g) => ({ ...g, img: `/assets/img/renders/render-${g.n}.jpg` }));
+
+// Amenities — the 8-level / 40,000+ sft clubhouse + outdoor amenities
+// (source: live site / Brochure.pdf). Static, zero-JS; each group renders a
+// chip cloud under a sub-heading.
+const clubAmenities = [
+  "Infinity pool", "Gym", "CrossFit", "Badminton", "Squash", "Yoga studio",
+  "Spa", "Banquet hall", "Business lounge", "Crèche",
+  "Library & indoor games", "Guest rooms", "Café & supermarket",
 ];
-const amenities = [
-  "5-level clubhouse", "Terrace swimming pool", "Crossfit arena",
-  "Badminton & squash", "Business lounge", "Yoga & meditation",
-  "Banquet hall", "Spa & salon", "Indoor games",
+const outdoorAmenities = [
+  "Landscaped parks", "Jogging track", "Tennis court", "Cricket net",
+  "Half basketball", "Skating rink", "Outdoor gym", "Senior seating",
+  "EV charging",
 ];
-const location = [
-  ["1 min", "Radial Road No. 7"], ["3 min", "ORR Exit No. 2"],
-  ["10 min", "Narayana Junior College"], ["20 min", "Lingampalli Railway Station"],
-];
+
+// Brochure: free, ungated download (soft WhatsApp capture is optional).
+const BROCHURE = "/assets/brochure/Elegant-Nivasa-Brochure.pdf";
+const PHONE = "9090366366"; // public sales line (shown on the live site)
+
+// Hero = full-bleed cinematic (variant B, chosen 2026-06-21). On mobile the
+// stat chips get a solid dark fill so the text reads over the render.
+const HERO_LEAD = "About <b>₹20 lakhs* less</b> than the branded launch next door — with measurably more space, light and air for every rupee.";
+const HERO_IMG = "/assets/img/renders/hero.png";
+const EINFRA_DARK = "/assets/img/brand/einfra-wordmark-dark.png";
 ---
-<MainLayout
-  title={`${site.name} — Premium 2 & 3 BHK at ${site.locality}, ${site.city}`}
-  description={`${site.name} by ${site.developer} — a 4-acre gated high-rise community at ${site.locality}, West Hyderabad. HMDA & RERA approved (${site.rera}). From ${site.startingPrice}.`}
->
-  <!-- HERO -->
-  <section class="section wrap" id="top">
-    <p class="eyebrow">High-rise lifestyle at {site.locality}</p>
-    <h1 style="max-width:18ch">Premium 2 &amp; 3 BHK homes, from {site.startingPrice}.</h1>
-    <p class="muted" style="max-width:58ch;font-size:1.2rem">
-      A 4-acre gated community by {site.developer} in {site.locality}, West Hyderabad —
-      HMDA &amp; RERA approved. Designed for the achiever in you.
-    </p>
-    <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.5rem">
-      <a class="btn btn--rust btn--lg" href="#enquire">Get the price sheet</a>
-      <a class="btn btn--ghost btn--lg" href="#project">Explore the project</a>
-    </div>
-  </section>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Elegant Nivasa, Tellapur — Room to Live Well | Premium 2 &amp; 3 BHK</title>
+<meta name="description" content="Premium 2 &amp; 3 BHK homes at Tellapur, West Hyderabad — three towers, 526 residences and a clubhouse on a 4-acre car-free podium community, two minutes from the ORR. For about ₹20 lakhs less than the branded launch next door. HMDA &amp; RERA approved." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/css/site.css" />
+<link rel="stylesheet" href="/assets/css/proto.css" />
+<AnalyticsScripts />
+</head>
+<body data-page="home">
 
-  <!-- HIGHLIGHTS -->
-  <section class="section" id="project" style="background:var(--cream)">
-    <div class="wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1.5rem">
-      {highlights.map(([big, small]) => (
-        <div class="reveal">
-          <div style="font-family:var(--serif);font-size:2.4rem;color:var(--rust);line-height:1">{big}</div>
-          <div class="muted">{small}</div>
-        </div>
-      ))}
-    </div>
-  </section>
+<!-- ============ HEADER ============ -->
+<header class="site-header">
+  <a class="brand" href="/" aria-label="Elegant Nivasa home">
+    <img src="/assets/img/brand/nivasa-logo.png" alt="Elegant Nivasa" />
+  </a>
+  <button class="nav-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
+  <nav class="nav">
+    <a href="#gallery">Gallery</a>
+    <a href="#corridor">The corridor</a>
+    <a href="#amenities">Amenities</a>
+    <a href="#plans">Floor plans</a>
+    <a href="#location">Location</a>
+    <a class="btn btn--gold" href="#brochure">Book a visit <span class="arr">→</span></a>
+  </nav>
+</header>
 
-  <!-- AMENITIES -->
-  <section class="section wrap" id="amenities">
-    <p class="eyebrow">Club @ Nivasa</p>
-    <h2>A five-level clubhouse, and then some.</h2>
-    <ul style="columns:2;gap:2rem;max-width:640px;margin-top:1rem;padding-left:1.1rem">
-      {amenities.map((a) => <li class="reveal">{a}</li>)}
-    </ul>
-  </section>
-
-  <!-- FLOOR PLANS / GALLERY (placeholders) -->
-  <section class="section" id="plans" style="background:var(--cream)">
-    <div class="wrap">
-      <p class="eyebrow">Floor plans &amp; gallery</p>
-      <h2>Six thoughtful configurations.</h2>
-      <p class="muted">2 &amp; 3 BHK · 1,375–2,205 sft super built-up. Renders and plans load here.</p>
-      <div id="gallery" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:1.5rem">
-        {[1,2,3,4].map((n) => (
-          <div class="reveal" style="aspect-ratio:4/3;background:#e8e0cd;border-radius:12px;display:grid;place-items:center;color:var(--muted)">Render {n}</div>
-        ))}
+<!-- ============ HERO — full-bleed cinematic (legibility prototype: ?leg=A..F) ============ -->
+<section class="hero hero--bleed">
+  <div class="hb-stage">
+    <img class="hb-bg" src={HERO_IMG} alt="Elegant Nivasa towers at Tellapur" fetchpriority="high" />
+    <div class="hb-scrim"></div>
+    <div class="wrap hb-inner">
+      <p class="eyebrow stagger s1">Tellapur · West Hyderabad</p>
+      <h1 class="display stagger s2">Room to live <em>well.</em></h1>
+      <p class="lead stagger s3" set:html={HERO_LEAD}></p>
+      <div class="hb-chips stagger s4">
+        <span class="hb-chip"><b>₹6,999</b>/sft*</span>
+        <span class="hb-chip">Possession <b>2027</b></span>
+        <span class="hb-chip">Corridors to <b>14 ft</b></span>
+      </div>
+      <div class="hero-cta stagger s4">
+        <a class="btn btn--gold btn--lg" href="#brochure">Book a visit <span class="arr">→</span></a>
+        <a class="btn btn--ghost btn--lg" href="#gallery">Take the tour ↓</a>
+      </div>
+      <div class="hero-rera stagger s5">
+        <span><b>HMDA &amp; RERA approved</b></span>
+        <span>RERA&nbsp;No.&nbsp;<b>P01100007243</b></span>
       </div>
     </div>
-  </section>
+    <div class="hd-figbadge"><span>A project by</span><img src={EINFRA_DARK} alt="E-Infra — Foundation on Values" /></div>
+  </div>
 
-  <!-- LOCATION -->
-  <section class="section wrap" id="location">
-    <p class="eyebrow">Location &amp; connectivity</p>
-    <h2>Minutes from the ORR.</h2>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.2rem;margin-top:1rem">
-      {location.map(([t, place]) => (
-        <div class="reveal">
-          <strong style="color:var(--rust)">{t}</strong> — {place}
-        </div>
+  <div class="wrap">
+    <div class="ribbon reveal">
+      <div class="cell"><div class="num"><span data-count="3">3</span></div><div class="lab">Towers · 23 floors each</div></div>
+      <div class="cell"><div class="num"><span data-count="526">526</span></div><div class="lab">2 &amp; 3 BHK residences</div></div>
+      <div class="cell"><div class="num"><span data-count="4">4</span>-Acre</div><div class="lab">Gated community</div></div>
+      <div class="cell"><div class="num">8-Level</div><div class="lab">40,000+ sft clubhouse</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GALLERY — the project, up front ============ -->
+<section class="section gallery" id="gallery">
+  <div class="wrap">
+    <div class="shead reveal center">
+      <p class="eyebrow eyebrow--center">A look around</p>
+      <h2 class="h2">Picture your mornings here.</h2>
+      <p class="lead" style="margin-inline:auto">Elevations, the podium deck, the clubhouse and the landscaped greens. Tap any image to enlarge.</p>
+    </div>
+    <div class="g-grid" data-gallery>
+      {gallery.map((g) => (
+        <figure class={`g-item ${g.cls}`}>
+          <img src={g.img} alt="Elegant Nivasa render" loading="lazy" />
+        </figure>
       ))}
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ENQUIRE -->
-  <section class="section" id="enquire" style="background:var(--navy);color:#fff">
-    <div class="wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start">
+<!-- ============ THE CORRIDOR TEST — intro band ============ -->
+<section class="section corridor-intro" id="corridor">
+  <div class="wrap center">
+    <div class="shead reveal">
+      <p class="eyebrow eyebrow--center">The difference you can feel</p>
+      <h2 class="h2">The corridor test</h2>
+      <p class="lead" style="margin-inline:auto">Same cheque, very different hallway. Scroll — and watch a cramped <b>6′6″</b> corridor open out to the Nivasa <b>14&nbsp;ft</b>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE CORRIDOR TEST — scroll animation ============ -->
+<section class="ct" data-corridor data-open="0">
+  <div class="ct-track" data-track>
+    <div class="ct-stage">
+      <div class="ct-bg"></div>
+      <div class="wall l"></div>
+      <div class="wall r"></div>
+      <div class="ct-logo" data-logo><img src="/assets/img/brand/nivasa-logo.png" alt="Elegant Nivasa" /></div>
+      <div class="ct-num" data-num>6′6″</div>
+      <p class="ct-eyebrow">keep scrolling</p>
+      <div class="ct-scrim"></div>
+      <div class="ct-hud">
+        <p class="tag" data-tag>A typical branded-builder corridor</p>
+        <p class="msg" data-msg>Two people pass shoulder-to-shoulder. A shoe rack, and the hallway is blocked.</p>
+      </div>
+      <div class="ct-bar"><span data-bar></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE CAR-FREE PODIUM — safe haven ============ -->
+<section class="section value podium" id="podium">
+  <div class="wrap value-inner">
+    <div class="shead center reveal">
+      <p class="eyebrow eyebrow--center">The safe haven we built on purpose</p>
+      <p class="podium-num">0</p>
+      <h2 class="h2">cars on the podium. <em class="podium-ever">Ever.</em></h2>
+      <p class="lead" style="margin-inline:auto">Every vehicle parks <b>below</b> the deck — so the only thing moving across the podium is people. Your children walk to the play area without watching for traffic.</p>
+    </div>
+    <div class="podium-stats reveal">
+      <div class="ps-cell"><span class="ps-n">100%</span><span class="ps-l">of the podium is pedestrian-only</span></div>
+      <div class="ps-cell"><span class="ps-n">~1,100</span><span class="ps-l">parking spaces, across 5 levels below the deck</span></div>
+      <div class="ps-cell"><span class="ps-n">4 acres</span><span class="ps-l">to roam, without watching for a car</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AMENITIES — 8-level clubhouse + outdoors ============ -->
+<!-- ============ AMENITIES — 8-level clubhouse + outdoor (render-14 feature) ============ -->
+<section class="section am" id="amenities">
+  <div class="wrap am-feature">
+    <div class="am-feature-img reveal" style="background-image:url(/assets/img/renders/render-14.jpg)" role="img" aria-label="Club @ Nivasa — the 8-level clubhouse">
+      <div class="am-figbadge">
+        <span><b>8</b> levels</span><span><b>40,000+</b> sft</span><span><b>4</b> acres</span>
+      </div>
+    </div>
+    <div class="am-feature-panel reveal d1">
+      <p class="eyebrow">Room to do everything</p>
+      <h2 class="h2">An <em>8-level</em> clubhouse, and four acres around it.</h2>
+      <p class="lead">Over <b>40,000 sft</b> of indoor clubhouse, wrapped by a car-free podium of parks, courts and tracks — so the day-to-day, from a morning swim to the kids&rsquo; evening play, never leaves home.</p>
+      <div class="am-grid">
+        <div class="am-group">
+          <h3 class="am-gh"><span class="am-gh-k">Indoors</span>The 8-level clubhouse</h3>
+          <ul class="am-chips">
+            {clubAmenities.map((a) => <li class="am-chip">{a}</li>)}
+          </ul>
+        </div>
+        <div class="am-group">
+          <h3 class="am-gh"><span class="am-gh-k">Outdoors</span>Across the podium &amp; grounds</h3>
+          <ul class="am-chips">
+            {outdoorAmenities.map((a) => <li class="am-chip am-chip--out">{a}</li>)}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LOCATION & CONNECTIVITY ============ -->
+<section class="section connect" id="location">
+  <div class="wrap">
+    <div class="shead reveal center">
+      <p class="eyebrow eyebrow--center">Where it sits</p>
+      <h2 class="h2">Two minutes to the ORR.<br><em>The whole city follows.</em></h2>
+      <p class="lead" style="margin-inline:auto">Tellapur, West Hyderabad — off a 100&nbsp;ft masterplan road, a two-minute drive from ORR Exit&nbsp;2. The Financial District, Gachibowli and the airport are all an easy run from your door.</p>
+    </div>
+    <div class="cmap">
+      <svg data-citymap viewBox="0 0 760 600" role="img" aria-label="Map of drive times from Elegant Nivasa, Tellapur"></svg>
+    </div>
+    <p class="cmap-cap">Marker positions to true bearing &amp; scale (OpenStreetMap data); ORR&nbsp;Exit&nbsp;2 location indicative.</p>
+    <p class="conn-note reveal">Access via a <b>100&nbsp;ft masterplan road</b> — no narrow approach, no bottleneck at the gate.</p>
+  </div>
+</section>
+
+<!-- ============ POSSESSION / TRUST strip ============ -->
+<section class="section trust trust--big">
+  <div class="wrap tg-grid">
+    <div class="tg-figure reveal">
+      <div class="tg-ring" style="--p:78">
+        <span class="tg-pct">78<small>%</small></span>
+        <span class="tg-cap">structure complete</span>
+      </div>
+    </div>
+    <div class="tg-copy reveal d1">
+      <p class="eyebrow">On time, on record</p>
+      <h2>Not a launch render.<br>A building you can <em>visit.</em><br>Now find your floor.</h2>
+      <p>Possession is near and the structure is well underway. Study the floor plans just below, then come walk those very floors in person.</p>
+      <div class="tg-meta">
+        <div><b>2027</b><span>Possession</span></div>
+        <div><b>RERA</b><span>P01100007243</span></div>
+        <div><b>HMDA</b><span>&amp; TS-RERA approved</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FLOOR PLANS (open · no gate) ============ -->
+<section class="section plans" id="plans">
+  <div class="wrap">
+    <div class="shead reveal center">
+      <p class="eyebrow eyebrow--center">Floor plans</p>
+      <h2 class="h2">Six thoughtful configurations.</h2>
+      <p class="lead" style="margin-inline:auto">2 &amp; 3 BHK homes, 1,372&ndash;2,206 sft saleable. Tap any plate to enlarge &mdash; open to view, no form, no gate.</p>
+    </div>
+    <div class="fp-grid" data-gallery>
+      {plans.map((p) => (
+        <figure class="fp-card">
+          <img src={p.img} alt={p.alt} loading="lazy" />
+          <figcaption>
+            <span class="fp-meta"><b>{p.bhk} &middot; {p.sft} sft</b><span class="fp-face">{p.face} facing</span></span>
+            <span class="fp-zoom" aria-hidden="true">&#10530; Enlarge</span>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONFIDENCE CROSS-SELL — on-page entry to the 3 sub-sites ============ -->
+<section class="section xs" id="compare">
+  <div class="wrap">
+    <div class="shead reveal center">
+      <p class="eyebrow eyebrow--center">Still weighing it up?</p>
+      <h2 class="h2">See us <em>head-to-head</em> with the launch next door.</h2>
+    </div>
+    <div class="xs-grid">
+      <a class="xs-card reveal" href="/cost">
+        <span class="xs-fig">₹20.6&nbsp;L<small>* less</small></span>
+        <span class="xs-body"><span class="xs-k">Cost</span><span class="xs-h">Pay less per sft</span></span>
+        <span class="xs-go">→</span>
+      </a>
+      <a class="xs-card reveal d1" href="/handover">
+        <span class="xs-fig">2027<small>not 2031</small></span>
+        <span class="xs-body"><span class="xs-k">Handover</span><span class="xs-h">Move in years sooner</span></span>
+        <span class="xs-go">→</span>
+      </a>
+      <a class="xs-card reveal d2" href="/rental-yield">
+        <span class="xs-fig">₹16.8&nbsp;L<small>* rent</small></span>
+        <span class="xs-body"><span class="xs-k">Rental yield</span><span class="xs-h">Earn while they wait</span></span>
+        <span class="xs-go">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BROCHURE (free download + optional soft capture) ============ -->
+<section class="section brochure" id="brochure">
+  <div class="wrap brochure-inner">
+    <div class="br-copy reveal">
+      <p class="eyebrow" style="color:#e7b87f">The full brochure</p>
+      <h2 class="h2" style="color:#fff">Everything, in one PDF.</h2>
+      <p class="lead" style="color:#cdd2e6;max-width:42ch">Master plan, all six unit plans, amenities, specifications and the location map — open and ungated, yours to keep.</p>
+      <a class="btn btn--gold btn--lg" href={BROCHURE} download>Download brochure (PDF) <span class="arr">↓</span></a>
+      <form class="br-email" data-leadform data-intent="brochure" novalidate>
+        <p class="br-email-note">Prefer it in your inbox? Pop in your email and we&rsquo;ll send the link.</p>
+        <div class="br-email-row">
+          <div class="form-field"><input name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@email.com" /><span class="form-err">Enter a valid email</span></div>
+          <button class="btn btn--gold" type="submit">Email it to me <span class="arr">→</span></button>
+        </div>
+      </form>
+      <div class="form-success">
+        <div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <h3 style="color:#fff">On its way!</h3>
+        <p class="muted" style="margin-top:6px;color:#cdd2e6">We&rsquo;re emailing your brochure now. Can&rsquo;t wait? <a href={BROCHURE} download style="color:#e7b87f;text-decoration:underline">Download it instantly ↓</a></p>
+      </div>
+    </div>
+    <div class="br-soft reveal d1">
+      <form class="br-form" data-leadform novalidate>
+        <h3>Book your site visit</h3>
+        <p class="br-soft-note">Leave your name and number — a senior sales lead calls you back with availability, pricing and a visit slot. No call-centre, no spam.</p>
+        <div class="form-field"><input name="name" type="text" placeholder="Your name" /><span class="form-err">Enter your name</span></div>
+        <div class="form-field"><input name="phone" type="tel" inputmode="numeric" placeholder="10-digit mobile" /><span class="form-err">Valid mobile please</span></div>
+        <button class="btn btn--teal btn--block" type="submit">Request a callback <span class="arr">→</span></button>
+      </form>
+      <div class="form-success">
+        <div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <h3 style="color:var(--navy)">Thanks, <span data-name>there</span>!</h3>
+        <p class="muted" style="margin-top:6px">A senior sales lead will call you shortly.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <img src="/assets/img/brand/nivasa-logo.png" alt="Elegant Nivasa" />
+        <p style="max-width:36ch">High-rise lifestyle at Tellapur. Three towers, 526 residences and an 8-level clubhouse on a 4-acre gated community.</p>
+        <div class="foot-rera">RERA No. <b>P01100007243</b> · HMDA &amp; TS-RERA approved</div>
+        <div class="foot-dev">
+          <span>Developed by</span>
+          <img src="/assets/img/brand/einfra-wordmark-dark.png" alt="E-Infra — Foundation on Values" />
+        </div>
+      </div>
       <div>
-        <p class="eyebrow" style="color:#e7b87f">Enquire</p>
-        <h2 style="color:#fff">Get the price sheet &amp; brochure.</h2>
-        <p style="color:#cdd2e6;max-width:42ch">
-          Drop your details and a senior sales lead reaches out — the brochure lands
-          on your WhatsApp. No call-centre, no spam.
-        </p>
+        <h4>Explore</h4>
+        <a href="#corridor">The corridor test</a><a href="#plans">Floor plans</a><a href="/cost">Cost comparison</a><a href="/handover">Handover comparison</a><a href="/rental-yield">Rental yield</a>
       </div>
-      <div style="background:var(--paper);color:var(--ink);padding:1.8rem;border-radius:var(--radius)">
-        <LeadForm />
+      <div>
+        <h4>Visit / Contact</h4>
+        <a href="#brochure">Book a site visit</a><a href={BROCHURE} download>Download brochure</a>
+        <p style="margin-top:14px;color:rgba(255,255,255,.6);font-size:.9rem">Site address: Tellapur, Hyderabad, Telangana — near ORR Exit&nbsp;2.</p>
       </div>
     </div>
-  </section>
+    <div class="foot-bottom">
+      <span>© <span data-year>2026</span> Elegant Nivasa · E-Infra. All rights reserved.</span>
+      <span>Tellapur, Hyderabad</span>
+    </div>
+    <p class="foot-disclaimer">Disclaimer: This is a marketing page. Figures marked * — and all prices (from ₹6,999/sft), comparative figures, corridor &amp; possession details and images — are indicative, for representation only, and subject to change without notice. Comparison with &ldquo;other premium builders&rdquo; is illustrative of the micro-market and does not reference any specific developer. Floor areas are super built-up. Please verify all details with our authorised sales team and the RERA filing before purchase.</p>
+  </div>
+</footer>
 
-</MainLayout>
+<!-- ============ STICKY MOBILE CTA (phones only) ============ -->
+<div class="stickybar">
+  <a class="btn btn--ghost btn--calls" href={`tel:${PHONE}`} aria-label="Call sales">Call</a>
+  <a class="btn btn--gold" href="#brochure">Book a visit <span class="arr">→</span></a>
+</div>
+
+<script is:inline src="/assets/js/site.js"></script>
+<script is:inline src="/assets/js/proto.js"></script>
+</body>
+</html>

@@ -26,19 +26,27 @@ export const POST: APIRoute = async ({ request }) => {
 
   const name = (body.name ?? "").toString().trim();
   const phone = (body.phone ?? "").toString().trim();
-  if (!name || !/^[6-9]\d{9}$/.test(phone)) {
+  const email = (body.email ?? "").toString().trim();
+  // intent="brochure" → email-only soft capture; default "lead" → name + phone.
+  const intent = body.intent === "brochure" ? "brochure" : "lead";
+  const isEmail = (e: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
+
+  if (intent === "brochure") {
+    if (!isEmail(email)) return json({ error: "validation" }, 422);
+  } else if (!name || !/^[6-9]\d{9}$/.test(phone)) {
     return json({ error: "validation" }, 422);
   }
 
   const lead = {
-    name,
+    name, // "" allowed for brochure intent (phone NOT NULL → stored as "")
     phone,
-    email: (body.email ?? "").toString().trim() || null,
+    email: email || null,
     unit: (body.unit ?? "").toString().trim() || null,
     message: (body.message ?? "").toString().trim() || null,
     source_page: (body.source_page ?? "").toString().slice(0, 200),
     utm: (body.utm ?? "").toString().slice(0, 500),
     user_agent: request.headers.get("user-agent") ?? "",
+    intent,
   };
 
   const DB = (env as any)?.DB;
@@ -49,12 +57,12 @@ export const POST: APIRoute = async ({ request }) => {
   if (DB) {
     try {
       const res = await DB.prepare(
-        `INSERT INTO leads (name, phone, email, unit, message, source_page, utm, user_agent)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO leads (name, phone, email, unit, message, source_page, utm, user_agent, intent)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
         .bind(
           lead.name, lead.phone, lead.email, lead.unit,
-          lead.message, lead.source_page, lead.utm, lead.user_agent
+          lead.message, lead.source_page, lead.utm, lead.user_agent, lead.intent
         )
         .run();
       id = res.meta?.last_row_id ?? null;
@@ -65,9 +73,16 @@ export const POST: APIRoute = async ({ request }) => {
     console.warn("DB binding missing (dev?) — lead not persisted:", lead);
   }
 
-  // 2) notify sales (best-effort; failure never blocks the user)
+  // 2) emails (best-effort; failure never blocks the user). All gated on
+  //    RESEND_API_KEY — until Resend is wired (CLAUDE.md §7) this is a no-op,
+  //    so the feature ships capture-first (D1 row + the direct download cover it).
   if (RESEND_API_KEY) {
+    // 2a) notify sales for every submission
     try {
+      const subject =
+        intent === "brochure"
+          ? `New brochure request: ${lead.email}`
+          : `New lead: ${lead.name} (${lead.phone})`;
       const r = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -75,11 +90,11 @@ export const POST: APIRoute = async ({ request }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Elegant Nivasa <leads@elegantnivasa.com>",
+          from: site.mailFrom,
           to: [site.leadEmailTo],
-          subject: `New lead: ${lead.name} (${lead.phone})`,
+          subject,
           text:
-            `Name: ${lead.name}\nPhone: ${lead.phone}\n` +
+            `Intent: ${intent}\nName: ${lead.name || "-"}\nPhone: ${lead.phone || "-"}\n` +
             `Email: ${lead.email ?? "-"}\nUnit: ${lead.unit ?? "-"}\n` +
             `Message: ${lead.message ?? "-"}\nPage: ${lead.source_page}\nUTM: ${lead.utm}`,
         }),
@@ -89,6 +104,36 @@ export const POST: APIRoute = async ({ request }) => {
       }
     } catch (err) {
       console.error("Resend notify failed:", err);
+    }
+
+    // 2b) brochure intent → email the visitor the brochure LINK (not the file).
+    //     Absolute URL derived from the request origin, so no extra config.
+    if (intent === "brochure" && lead.email) {
+      try {
+        const link =
+          new URL(request.url).origin + "/assets/brochure/Elegant-Nivasa-Brochure.pdf";
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: site.mailFrom,
+            to: [lead.email],
+            subject: "Your Elegant Nivasa brochure",
+            html:
+              `<p>Hi${lead.name ? " " + lead.name : ""},</p>` +
+              `<p>Thanks for your interest in <b>Elegant Nivasa</b>, Tellapur. Here is the full ` +
+              `brochure — master plan, all unit plans, amenities and specifications:</p>` +
+              `<p><a href="${link}">Download the Elegant Nivasa brochure (PDF)</a></p>` +
+              `<p>Prefer to talk? Just reply to this email and a senior sales lead will help you.</p>` +
+              `<p>— Team Elegant Nivasa · E-Infra</p>`,
+          }),
+        });
+      } catch (err) {
+        console.error("Resend brochure email failed:", err);
+      }
     }
   }
 

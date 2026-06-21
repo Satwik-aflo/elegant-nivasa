@@ -9,6 +9,11 @@ export const site = {
   rera: "P01100007243",
   startingPrice: "₹96.2 L",
   leadEmailTo: "sales@e-infra.in",
+  // Resend "from" address. PROD: elegantnivasa.com is a verified Resend sending
+  // domain (DNS records added in Hostinger, verified 2026-06-21), so we send as
+  // a branded sender below — delivers to ANY recipient (no resend.dev test-mode
+  // limits). Requires the prod RESEND_API_KEY secret to be set (CLAUDE.md §7).
+  mailFrom: "Elegant Nivasa <leads@elegantnivasa.com>",
 
   // Two Sales reps — each sub-site shows BOTH as cards (one rep per card),
   // not a single round-robin button (decision 2026-06-20; see CLAUDE.md §3).
@@ -18,14 +23,14 @@ export const site = {
   // Numbers are REAL (provided 2026-06-20). Per-rep `closed`/`homes` stats are
   // still STUB placeholders — confirm with client before publishing (§7).
   reps: [
-    { name: "Bharat", wa: "918712618996", initials: "BH", avatar: "av-b", closed: "₹41 Cr", homes: "34" },
-    { name: "Satish", wa: "919550488200", initials: "ST", avatar: "av-s", closed: "₹33 Cr", homes: "28" },
+    { name: "Bharat", wa: "918712618996", initials: "BH", avatar: "av-b", closed: "₹41 Cr*", homes: "34" },
+    { name: "Satish", wa: "919550488200", initials: "ST", avatar: "av-s", closed: "₹33 Cr*", homes: "28" },
   ],
 
   // Analytics — STUB ids. Empty string disables the snippet (safe for dev).
   analytics: {
-    clarityId: "",   // Microsoft Clarity project id
-    metaPixelId: "", // Meta Pixel id
+    clarityId: "xah4dbk2kt",   // Microsoft Clarity project id (live 2026-06-21)
+    metaPixelId: "",           // Meta Pixel id
   },
 } as const;
 

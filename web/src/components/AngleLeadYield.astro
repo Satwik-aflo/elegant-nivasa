@@ -1,7 +1,7 @@
 ---
-// Bespoke angle-lead block for /rental-yield — the earnings build-up (ADR-0002 B2).
-// Content/figures come from the single source; layout lives here. The bars reuse
-// site.js's [data-bar] behaviour (animates .bar-fill width on scroll).
+// Bespoke angle-lead block for /rental-yield — the earnings build-up (ADR-0002 B2),
+// shown as a horizontal bar graph: bar length is proportional to rent collected
+// by that year. Fills grow when the card reveals (.in) — no [data-bar] needed.
 import { ANGLES } from "../data/comparison.ts";
 const d = ANGLES.yield.lead;
 if (d.kind !== "yield") throw new Error("yield angle-lead expected");
@@ -14,12 +14,12 @@ if (d.kind !== "yield") throw new Error("yield angle-lead expected");
       <p class="lead">{d.sub}</p>
     </div>
     <div class="al-build reveal d1">
-      <ol class="yl-steps">
+      <ol class="yl-chart">
         {d.steps.map((s) => (
-          <li class="yl-step">
-            <span class="yl-year">{s.year}</span>
-            <span class="yl-track" data-bar={s.pct}><span class="bar-fill us"></span></span>
-            <span class="yl-amt">{s.amount}</span>
+          <li class="yl-row">
+            <span class="yl-yr">{s.year}</span>
+            <span class="yl-track"><span class="yl-fill" style={`--w:${s.pct}%`}></span></span>
+            <span class="yl-val">{s.amount}</span>
           </li>
         ))}
       </ol>

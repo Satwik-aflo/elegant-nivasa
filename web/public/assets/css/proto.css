@@ -1,0 +1,496 @@
+/* =========================================================================
+   ELEGANT NIVASA — homepage prototype styles
+   Layered on top of site.css (tokens, header, buttons, hero, footer).
+   Star: "The corridor test" — navy walls part, a cream gap grows from a
+   cramped 6'6" to the full Nivasa width, and the logo breaks out at 8 ft.
+   ========================================================================= */
+
+/* ---------- hero scroll cue ---------- */
+.scroll-cue {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  margin-top: clamp(34px, 5vw, 56px);
+  font-size: .72rem; letter-spacing: .24em; text-transform: uppercase;
+  font-weight: 700; color: var(--muted);
+}
+.scroll-cue .dash { width: 1.5px; height: 46px; background: linear-gradient(var(--teal), transparent);
+  position: relative; overflow: hidden; }
+.scroll-cue .dash::after { content:""; position:absolute; inset:0; background: var(--teal);
+  animation: cueRun 1.8s var(--ease) infinite; }
+@keyframes cueRun { 0%{transform:translateY(-100%)} 60%,100%{transform:translateY(100%)} }
+
+/* ---------- tighter section rhythm (homepage only; site.css default is
+   clamp(64px,9vw,130px)). Cuts vertical scroll, esp. on mobile. ---------- */
+.section { padding-block: clamp(36px, 5vw, 92px); }
+
+/* =====================================================================
+   GALLERY — the dream, up front. Asymmetric grid, click to enlarge.
+   (site.js wires the [data-gallery] lightbox)
+   ===================================================================== */
+.gallery { background: var(--cream); }
+.g-grid { display: grid; grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: clamp(140px, 15vw, 220px); gap: clamp(10px, 1.2vw, 16px);
+  margin-top: clamp(30px, 4vw, 48px); }
+.g-item { position: relative; margin: 0; overflow: hidden; border-radius: var(--radius-lg);
+  cursor: zoom-in; box-shadow: var(--shadow-sm); }
+.g-item img { width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .6s var(--ease); }
+.g-item:hover img { transform: scale(1.06); }
+.g-item.wide { grid-column: span 2; }
+.g-item.tall { grid-row: span 2; }
+.g-item::after { content: "\2922"; position: absolute; right: 12px; bottom: 10px;
+  width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%;
+  background: rgba(7,11,31,.55); color: #fff; font-size: .9rem; opacity: 0;
+  transition: opacity .3s var(--ease); }
+.g-item:hover::after { opacity: 1; }
+@media (max-width: 760px){ .g-grid { grid-template-columns: repeat(2, 1fr); }
+  .g-item.wide { grid-column: span 2; } .g-item.tall { grid-row: span 1; } }
+
+/* =====================================================================
+   THE CORRIDOR TEST
+   ===================================================================== */
+/* tighten the hero→intro gap (page-specific; only this page loads proto.css) */
+/* lift the hero up (was padding-top up to 180px) and cap the 4/5 portrait
+   render so it isn't cut off below the fold on load */
+.hero { padding-top: clamp(104px, 12vw, 132px); padding-bottom: clamp(16px, 2.5vw, 34px); }
+.hero-figure .frame { max-height: calc(100svh - 158px); }
+.corridor-intro { background: var(--cream); padding-block: clamp(8px, 1.5vw, 22px) clamp(28px, 4vw, 52px); }
+.corridor-intro .shead { max-width: 560px; margin-inline: auto; }
+.corridor-intro .h2 { font-size: clamp(1.9rem, 3.4vw, 2.8rem); }
+.corridor-intro .lead { max-width: 38ch; font-size: clamp(1rem, 1.4vw, 1.15rem); }
+
+.ct { --g: 2.4; --wall-top: #0a0c18; position: relative; background: #070b1f; }
+.ct-track { height: 360vh; }                         /* scroll runway */
+.ct-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+/* shorter runway on phones — 360vh is ~3.6 screens of scroll-jack on mobile;
+   progress is measured from the track's own height (proto.js) so this just
+   compresses the same reveal into less scrolling. */
+@media (max-width: 760px){ .ct-track { height: 160vh; } }
+
+/* the bright Nivasa gap sits behind the walls */
+.ct-bg { position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, var(--cream-2), var(--cream)); }
+
+/* two navy walls — ramp to full Nivasa navy by 8 ft, slide off as it opens */
+.ct .wall { position: absolute; top: 0; bottom: 0; z-index: 3;
+  background: linear-gradient(168deg, var(--wall-top), #06080f 92%); }
+.ct .wall.l { left: 0;  width: calc(50vw - var(--g) * 1vw); box-shadow: inset -1px 0 0 rgba(199,154,69,.32); }
+.ct .wall.r { right: 0; width: calc(50vw - var(--g) * 1vw); box-shadow: inset  1px 0 0 rgba(199,154,69,.32); }
+
+/* live width read-out — blends dark on cream, light on navy */
+.ct-num { position: absolute; inset: 0; display: grid; place-items: center; z-index: 5; pointer-events: none;
+  font-family: var(--font-display); font-weight: 430; font-size: clamp(3rem, 12vw, 9.5rem);
+  letter-spacing: -.02em; color: #fff; mix-blend-mode: difference; font-variant-numeric: tabular-nums;
+  transition: opacity .5s var(--ease), transform .6s var(--ease); }
+.ct[data-open="1"] .ct-num { opacity: 0; transform: scale(1.12); }
+
+/* logo breaks out once the corridor opens at 8 ft */
+.ct-logo { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; pointer-events: none;
+  opacity: 0; transform: scale(.5); filter: blur(6px);
+  transition: opacity .5s var(--ease), transform .75s cubic-bezier(.18,1.5,.32,1), filter .5s; }
+.ct-logo img { width: min(44vw, 540px); }
+.ct[data-open="1"] .ct-logo { opacity: 1; transform: scale(1); filter: none; }
+
+.ct-eyebrow { position: absolute; top: 6vh; left: 0; right: 0; text-align: center; z-index: 6;
+  font-size: .72rem; letter-spacing: .28em; text-transform: uppercase; font-weight: 700;
+  color: #fff; mix-blend-mode: difference; }
+
+.ct-scrim { position: absolute; left: 0; right: 0; bottom: 0; height: 48vh; z-index: 4; pointer-events: none;
+  background: linear-gradient(0deg, rgba(0,0,0,.84), rgba(0,0,0,.28) 52%, transparent); }
+.ct-hud { position: absolute; left: 0; right: 0; bottom: 7vh; z-index: 6; text-align: center; padding-inline: 7vw;
+  text-shadow: 0 2px 22px rgba(0,0,0,.7); }
+.ct-hud .tag { font-size: 1rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 800;
+  color: rgba(255,255,255,.85); margin-bottom: 9px; text-shadow: 0 2px 18px rgba(0,0,0,.9);
+  transition: color .4s var(--ease); }
+.ct[data-open="1"] .ct-hud .tag { color: #edc266; }
+.ct-hud .msg { max-width: 34ch; margin: 0 auto; color: #fff;
+  font-size: clamp(1.35rem, 2.6vw, 2.15rem); font-weight: 700; line-height: 1.28;
+  transition: opacity .35s var(--ease); }
+.ct-hud .msg b { color: var(--gold); }
+
+.ct-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; z-index: 7; background: rgba(255,255,255,.12); }
+.ct-bar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--teal), var(--gold)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ct-track { height: auto; }
+  .ct-stage { position: static; height: 86vh; }
+  .ct { --g: 46; }
+  .ct-logo { opacity: 1; transform: none; filter: none; }
+  .ct-num { opacity: 0; }
+}
+
+/* =====================================================================
+   LOCATION & CONNECTIVITY — drive-times off the ORR
+   ===================================================================== */
+/* light "paper map" — true positional drive-time map (rendered by proto.js).
+   Light palette so it doesn't collide with the navy podium directly above. */
+.connect { background: var(--paper); border-top: 1px solid var(--line-soft); }
+.cmap { position: relative; margin: clamp(24px, 3vw, 40px) auto 0; max-width: 760px; }
+.cmap svg { width: 100%; height: auto; display: block; overflow: visible; }
+.cm-grid { stroke: rgba(22,32,74,.06); stroke-width: 1; }
+.cm-orr { fill: none; stroke: rgba(199,154,69,.6); stroke-width: 7; stroke-linecap: round; }
+.cm-orr-lab { fill: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: .18em; }
+.cm-road { stroke: rgba(22,32,74,.24); stroke-width: 1.5; stroke-dasharray: 1 6; stroke-linecap: round; }
+.cm-pin { fill: var(--navy); stroke: #fff; stroke-width: 2.5; }
+.cm-pin.air { fill: var(--gold); }
+.cm-time { fill: var(--navy); font-family: var(--font-display); font-weight: 400; font-size: 19px; }
+.cm-time tspan { font-family: var(--font-body); font-weight: 600; font-size: 10px; fill: var(--teal); }
+.cm-name { fill: var(--ink-soft); font-size: 11.5px; font-weight: 600; }
+.cm-o-dot { fill: var(--gold); stroke: #fff; stroke-width: 2; }
+.cm-o-pulse { fill: none; stroke: var(--gold); stroke-width: 2; transform-box: fill-box; transform-origin: center;
+  animation: cmPulse 3s var(--ease) infinite; }
+@keyframes cmPulse { 0% { opacity: .7; transform: scale(.5); } 100% { opacity: 0; transform: scale(3); } }
+.cm-o-lab { fill: var(--navy); font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+.cm-compass-n { stroke: rgba(22,32,74,.4); stroke-width: 1.5; fill: rgba(22,32,74,.4); }
+.cm-compass { fill: var(--muted); font-size: 12px; font-weight: 800; }
+.cmap-cap { text-align: center; margin-top: 14px; font-size: .82rem; color: var(--muted); }
+.conn-note { text-align: center; margin-top: clamp(20px, 2.4vw, 30px);
+  color: var(--muted); font-size: .98rem; }
+.conn-note b { color: var(--navy); }
+.cm-edge-arrow { fill: var(--gold); }
+/* Mobile legibility is handled in proto.js: the map re-fits its viewBox to the
+   near cluster (labels spread out) and the far airport becomes an edge marker —
+   so nothing has to shrink. */
+@media (prefers-reduced-motion: reduce) { .cm-o-pulse { animation: none; opacity: 0; } }
+
+/* =====================================================================
+   FLOOR PLANS — open grid, click-to-enlarge (site.js [data-gallery])
+   ===================================================================== */
+.plans { background: var(--cream); }
+.fp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(14px, 1.8vw, 22px);
+  margin-top: clamp(30px, 4vw, 50px); }
+.fp-card { position: relative; margin: 0; cursor: zoom-in; background: #fff;
+  border: 1px solid var(--line-soft); border-radius: var(--radius-lg); overflow: hidden;
+  box-shadow: var(--shadow-sm); transition: transform .4s var(--ease), box-shadow .4s var(--ease); }
+.fp-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+/* square aspect reserves height before the lazy plate loads — no collapse, no
+   layout shift, and lazy-loading fires reliably as the grid scrolls in */
+.fp-card img { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; background: #fff; }
+.fp-card figcaption { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 13px 16px; color: var(--navy); border-top: 1px solid var(--line-soft); }
+.fp-card .fp-meta { display: flex; flex-direction: column; gap: 1px; }
+.fp-card .fp-meta b { font-weight: 750; font-size: 1rem; }
+.fp-card .fp-face { font-size: .74rem; font-weight: 600; color: var(--muted); letter-spacing: .015em; }
+.fp-card .fp-zoom { font-size: .76rem; font-weight: 700; letter-spacing: .04em; color: var(--teal);
+  opacity: 0; transform: translateX(-4px); transition: opacity .35s var(--ease), transform .35s var(--ease); }
+.fp-card:hover .fp-zoom { opacity: 1; transform: none; }
+@media (max-width: 900px){ .fp-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px){ .fp-grid { grid-template-columns: 1fr; } }
+
+/* =====================================================================
+   POSSESSION / TRUST — the "will it get delivered?" reassurance band
+   ===================================================================== */
+.trust { background: var(--navy); color: #fff; }
+.trust-grid { display: grid; grid-template-columns: 1.2fr repeat(3, 1fr);
+  gap: clamp(20px, 3vw, 44px); align-items: center; }
+.trust-lead .eyebrow { color: var(--gold); }
+.trust-lead h2 { font-family: var(--font-display); font-weight: 400; color: #fff;
+  font-size: clamp(1.7rem, 3vw, 2.4rem); line-height: 1.1; }
+.trust-lead p { color: rgba(255,255,255,.72); margin-top: 8px; max-width: 34ch; font-size: .96rem; }
+.trust-cell { text-align: center; padding: clamp(14px, 1.6vw, 20px) 0;
+  border-left: 1px solid rgba(255,255,255,.14); }
+.trust-n { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+  color: #fff; line-height: 1; }
+.trust-l { font-size: .82rem; color: rgba(255,255,255,.66); margin-top: 8px; line-height: 1.4; }
+@media (max-width: 820px){ .trust-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .trust-lead { grid-column: 1 / -1; }
+  .trust-cell:nth-child(2) { border-left: 0; } }
+
+/* Dominant progress ring — the 78% structure-complete is the hero element */
+.trust--big .tg-grid { display: grid; grid-template-columns: auto 1fr;
+  gap: clamp(28px, 5vw, 72px); align-items: center; }
+.trust--big .tg-ring { position: relative; width: clamp(190px, 22vw, 290px); aspect-ratio: 1;
+  border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  background: conic-gradient(var(--gold) calc(var(--p) * 1%), rgba(255,255,255,.14) 0);
+  box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+.trust--big .tg-ring::before { content: ""; position: absolute; inset: clamp(12px, 1.6vw, 18px);
+  border-radius: 50%; background: var(--navy); }
+.trust--big .tg-pct, .trust--big .tg-cap { position: relative; z-index: 1; }
+.trust--big .tg-pct { font-family: var(--font-display); font-weight: 400; color: #fff;
+  font-size: clamp(3rem, 7vw, 5rem); line-height: 1; }
+.trust--big .tg-pct small { font-size: .4em; color: var(--gold); }
+/* "structure complete" — a clear gold label; capped width so it wraps to two
+   lines and stays inside the ring's inner circle (never over the gold arc) */
+.trust--big .tg-cap { display: block; max-width: 9ch; margin: 10px auto 0;
+  color: var(--gold); font-weight: 700; line-height: 1.28;
+  font-size: clamp(.74rem, 1vw, .92rem); letter-spacing: .1em; text-transform: uppercase; }
+.trust--big .eyebrow { color: var(--gold); }
+.trust--big .tg-copy h2 { font-family: var(--font-display); font-weight: 400; color: #fff;
+  font-size: clamp(1.9rem, 3.6vw, 2.8rem); line-height: 1.06; }
+.trust--big .tg-copy h2 em { font-style: italic; color: var(--gold); }
+.trust--big .tg-copy p { color: rgba(255,255,255,.78); margin-top: 12px; max-width: 48ch; }
+.trust--big .tg-meta { display: flex; flex-wrap: wrap; gap: 10px clamp(24px, 4vw, 44px);
+  margin-top: clamp(18px, 2.4vw, 26px); padding-top: clamp(16px, 2vw, 22px);
+  border-top: 1px solid rgba(255,255,255,.16); }
+.trust--big .tg-meta b { font-family: var(--font-display); font-weight: 400; color: #fff;
+  font-size: 1.4rem; margin-right: 8px; }
+.trust--big .tg-meta span { color: rgba(255,255,255,.66); font-size: .9rem; }
+.trust--big .tg-meta div { display: flex; align-items: baseline; }
+@media (max-width: 760px){ .trust--big .tg-grid { grid-template-columns: 1fr; justify-items: center;
+  text-align: center; } .trust--big .tg-meta { justify-content: center; } }
+
+/* =====================================================================
+   BROCHURE — dark navy band · free download + optional soft capture
+   ===================================================================== */
+.brochure { background: var(--navy); color: #fff; }
+.brochure-inner { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(28px, 5vw, 72px); align-items: center; }
+.br-copy .btn { margin-top: clamp(20px, 2.4vw, 30px); }
+.btn--gold { background: var(--gold); color: #1a1408; border: 0; }
+.btn--gold:hover { filter: brightness(1.06); }
+/* header CTA — squared/architectural gold button (nav forces white text in
+   site.css, so re-assert dark text). Scoped to .nav so the brochure-download
+   gold button keeps its rounded pill style. */
+.nav .btn--gold { color: #1a1408; border-radius: 6px; text-transform: uppercase;
+  letter-spacing: .09em; font-weight: 700; font-size: .82rem; padding: .95em 1.5em; }
+.nav .btn--gold .arr { font-weight: 400; }
+.br-soft { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.16);
+  border-radius: var(--radius-lg); padding: clamp(22px, 2.6vw, 32px); }
+.br-soft h3 { color: #fff; font-family: var(--font-display); font-size: 1.45rem; }
+.br-soft-note { color: rgba(255,255,255,.66); font-size: .92rem; margin: 6px 0 16px; }
+.br-form .form-field { margin-bottom: 12px; }
+.br-form .form-field input { width: 100%; }
+/* inline "email me the brochure" capture under the download button */
+.br-email { margin-top: 22px; max-width: 480px; }
+.br-email-note { color: rgba(255,255,255,.7); font-size: .92rem; margin: 0 0 10px; }
+.br-email-row { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; }
+.br-email-row .form-field { flex: 1 1 220px; margin-bottom: 0; }
+.br-email-row .form-field input { width: 100%; height: 100%; }
+/* match the input: square the pill, drop the inherited .br-copy margin, equal height */
+.br-email-row .btn { margin-top: 0; border-radius: 10px; padding-top: 0; padding-bottom: 0;
+  min-height: 50px; white-space: nowrap; flex: 0 0 auto; }
+/* inputs sit on white cards inside the dark section — force dark text (else it inherits white) */
+.brochure .form-field input { color: var(--navy); }
+.brochure .form-success { text-align: left; padding: 8px 0; }
+@media (max-width: 520px){
+  .br-email-row .btn { width: 100%; justify-content: center; padding-top: .9em; padding-bottom: .9em; }
+}
+@media (max-width: 820px){ .brochure-inner { grid-template-columns: 1fr; } }
+
+/* =====================================================================
+   ENQUIRE — separate, minimal contact card (name + phone)
+   ===================================================================== */
+.contact { background: var(--cream-2); }
+.contact-card { max-width: 440px; margin: clamp(30px, 4vw, 48px) auto 0;
+  background: #fff; border: 1px solid var(--line-soft); border-radius: var(--radius-lg);
+  padding: clamp(24px, 3vw, 38px); box-shadow: var(--shadow-md); text-align: left; }
+.contact-form .form-field { margin-bottom: 14px; }
+.contact-form .form-field input { width: 100%; }
+.contact-form .btn { margin-top: 6px; }
+
+/* =====================================================================
+   THE CAR-FREE PODIUM — "0 cars on the podium. Ever." (safe haven)
+   Built on the brand's dark .value section (navy + teal glow, light-teal
+   eyebrow, white serif headline) so it reads as part of the system.
+   ===================================================================== */
+.podium .podium-num { font-family: var(--font-display); font-weight: 300; line-height: .82;
+  font-size: clamp(5rem, 13vw, 11rem); color: var(--gold); margin: 4px 0 2px;
+  text-shadow: 0 22px 60px rgba(0,0,0,.4); }
+.podium .h2 { font-size: clamp(2rem, 4.4vw, 3.3rem); text-wrap: balance; }
+.podium .podium-ever { font-style: italic; color: var(--gold); }
+.podium .lead { max-width: 52ch; }
+.podium .lead b { color: #fff; }
+
+/* stat row — echoes the hero ribbon's serif-number + muted-label rhythm,
+   themed for the dark section */
+.podium-stats { display: grid; grid-template-columns: repeat(3, 1fr);
+  max-width: 900px; margin: clamp(40px, 5vw, 66px) auto 0;
+  border-top: 1px solid rgba(255,255,255,.18); border-bottom: 1px solid rgba(255,255,255,.18); }
+.ps-cell { display: flex; flex-direction: column; gap: 9px; text-align: center;
+  padding: clamp(22px, 2.6vw, 32px) clamp(14px, 2vw, 26px);
+  border-left: 1px solid rgba(255,255,255,.12); }
+.ps-cell:first-child { border-left: 0; }
+.ps-n { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.7rem, 3vw, 2.5rem);
+  color: #fff; line-height: 1; letter-spacing: -.01em; }
+.ps-l { font-size: .86rem; color: rgba(255,255,255,.66); line-height: 1.45; }
+
+@media (max-width: 760px){
+  .podium-stats { grid-template-columns: 1fr; max-width: 440px; }
+  .ps-cell { border-left: 0; border-top: 1px solid rgba(255,255,255,.12); }
+  .ps-cell:first-child { border-top: 0; }
+}
+
+/* =====================================================================
+   AMENITIES — 8-level clubhouse + outdoor amenities (.am-* prefix)
+   Light cream band; serif figure row, then two chip-cloud groups
+   (indoors = gold accent, outdoors = teal accent).
+   ===================================================================== */
+.am { background: var(--cream); }
+.am .h2 em { font-style: italic; color: var(--teal); }
+.am .lead { max-width: 58ch; }
+.am .lead b { color: var(--navy); }
+
+/* serif figure row — echoes the hero ribbon / podium-stats rhythm */
+.am-figures { display: grid; grid-template-columns: repeat(3, 1fr);
+  max-width: 760px; margin: 0 auto clamp(36px, 5vw, 56px);
+  border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+.am-fig { display: flex; flex-direction: column; gap: 8px; text-align: center;
+  padding: clamp(20px, 2.4vw, 30px) clamp(12px, 2vw, 24px);
+  border-left: 1px solid var(--line-soft); }
+.am-fig:first-child { border-left: 0; }
+.am-fig-n { font-family: var(--font-display); font-weight: 400; line-height: 1;
+  font-size: clamp(2rem, 4vw, 3rem); color: var(--navy); letter-spacing: -.01em; }
+.am-fig-n small { font-size: .38em; color: var(--gold); font-weight: 700;
+  letter-spacing: .02em; margin-left: 2px; }
+.am-fig-l { font-size: .86rem; color: var(--muted); line-height: 1.4; }
+
+/* two amenity groups side by side */
+.am-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 3.5vw, 48px);
+  align-items: start; }
+.am-gh { display: flex; flex-direction: column; gap: 6px;
+  font-family: var(--font-display); font-weight: 450; color: var(--navy);
+  font-size: clamp(1.3rem, 2.4vw, 1.8rem); line-height: 1.1;
+  margin-bottom: clamp(16px, 2vw, 22px);
+  padding-bottom: clamp(12px, 1.6vw, 18px); border-bottom: 1px solid var(--line-soft); }
+.am-gh-k { font-family: var(--font-body); font-weight: 700; font-size: .72rem;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--teal); }
+
+/* chip cloud — static, reuses the brand pill look without colliding with .chip */
+.am-chips { list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 10px; }
+.am-chip { display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; background: #fff; border: 1px solid var(--line-soft);
+  border-radius: 100px; font-size: .92rem; font-weight: 550; color: var(--ink-soft);
+  box-shadow: var(--shadow-sm); transition: transform .3s var(--ease), box-shadow .3s var(--ease); }
+.am-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold); flex: 0 0 auto; }
+.am-chip--out::before { background: var(--teal); }
+.am-chip:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+@media (max-width: 760px){
+  .am-figures { grid-template-columns: 1fr; max-width: 380px; }
+  .am-fig { border-left: 0; border-top: 1px solid var(--line-soft); }
+  .am-fig:first-child { border-top: 0; }
+  .am-grid { grid-template-columns: 1fr; }
+}
+
+/* =====================================================================
+   CONFIDENCE CROSS-SELL — on-page entry to the 3 sub-sites (.xs-* prefix)
+   Cream band of three angle cards (cost / handover / rental yield); each
+   teases its figure and links to the matching sub-site comparison.
+   ===================================================================== */
+.xs { background: var(--cream-2); padding-block: clamp(30px, 4vw, 64px); }
+.xs .h2 { font-size: clamp(1.45rem, 3vw, 2.1rem); }
+.xs .h2 em { font-style: italic; color: var(--teal); }
+.xs .shead { margin-bottom: clamp(18px, 2.6vw, 28px); }
+
+/* compact horizontal cards: figure · label · arrow (low-height, esp. mobile) */
+.xs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(12px, 1.6vw, 18px); }
+.xs-card { display: flex; align-items: center; gap: 14px;
+  padding: clamp(14px, 1.7vw, 20px) clamp(16px, 1.9vw, 22px);
+  background: #fff; border: 1px solid var(--line-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm); color: var(--ink-soft);
+  transition: transform .35s var(--ease), box-shadow .35s var(--ease), border-color .35s var(--ease); }
+.xs-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--line); }
+.xs-fig { flex: 0 0 auto; font-family: var(--font-display); font-weight: 400; line-height: 1;
+  font-size: clamp(1.4rem, 2.2vw, 1.9rem); color: var(--navy); letter-spacing: -.01em; white-space: nowrap; }
+.xs-fig small { display: block; font-size: .34em; font-weight: 700; color: var(--gold);
+  letter-spacing: .12em; text-transform: uppercase; margin-top: 4px; }
+.xs-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.xs-k { font-family: var(--font-body); font-weight: 700; font-size: .64rem;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--teal); }
+.xs-h { font-family: var(--font-body); font-weight: 600; font-size: .92rem; line-height: 1.25; color: var(--navy); }
+.xs-go { flex: 0 0 auto; color: var(--teal); font-weight: 700; font-size: 1.15rem;
+  transition: transform .3s var(--ease); }
+.xs-card:hover .xs-go { transform: translateX(4px); }
+
+@media (max-width: 880px){
+  .xs-grid { grid-template-columns: 1fr; max-width: 460px; margin-inline: auto; gap: 10px; }
+}
+
+/* =====================================================================
+   STICKY MOBILE CTA — keep Call / Book a visit in reach on phones
+   ===================================================================== */
+.stickybar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+  display: none; gap: 10px; padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+  background: rgba(255,255,255,.92); backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line-soft); box-shadow: 0 -6px 24px rgba(7,11,31,.1); }
+.stickybar .btn { flex: 1; justify-content: center; }
+.stickybar .btn--calls { flex: 0 0 auto; }
+@media (max-width: 760px){ .stickybar { display: flex; } body { padding-bottom: 76px; } }
+
+/* footer developer credit — E-Infra wordmark (black artwork) rendered white
+   so it reads on the navy footer. Swap for a supplied white logo before launch. */
+.foot-dev { display: flex; align-items: center; gap: 12px; margin-top: 20px; }
+.foot-dev span { color: rgba(255,255,255,.5); font-size: .8rem; letter-spacing: .04em;
+  text-transform: uppercase; }
+/* override .foot-brand img's white filter (site.css) so the E-Infra gold mark shows */
+.foot-dev img { height: 30px; width: auto; filter: none; }
+
+/* hero developer credit — solid navy E-Infra stamp pinned to the render,
+   white wordmark so it reads on any part of the image */
+.hd-figbadge { position: absolute; left: 16px; bottom: 16px; z-index: 4;
+  display: flex; align-items: center; gap: 10px; padding: 11px 16px;
+  background: rgba(11,17,40,.92); backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 12px; box-shadow: var(--shadow-md); }
+.hd-figbadge span { font-size: .62rem; letter-spacing: .14em; text-transform: uppercase;
+  font-weight: 700; color: rgba(255,255,255,.6); }
+.hd-figbadge img { height: 26px; width: auto; }
+
+/* ---- HERO: full-bleed cinematic (chosen variant B) ---- */
+.hero--bleed { padding-top: 0; }
+.hb-stage { position: relative; min-height: 92svh; display: flex; align-items: flex-end;
+  overflow: hidden; color: #fff; }
+.hb-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+/* layered scrim — heavy on the left (where the copy sits) so gold/white stay
+   legible over bright parts of the render, plus a bottom fade */
+.hb-scrim { position: absolute; inset: 0; z-index: 1; background:
+  linear-gradient(95deg, rgba(7,11,31,.85) 0%, rgba(7,11,31,.62) 34%, rgba(7,11,31,.2) 62%, transparent 82%),
+  linear-gradient(180deg, rgba(7,11,31,.4) 0%, rgba(7,11,31,.15) 30%, rgba(7,11,31,.6) 100%); }
+.hb-inner { position: relative; z-index: 2; padding-block: clamp(120px,16vh,176px) clamp(40px,7vh,84px); }
+.hb-inner .eyebrow { color: var(--gold); }
+.hb-inner .display { color: #fff; text-shadow: 0 2px 30px rgba(0,0,0,.45); }
+.hb-inner .display em { color: var(--gold); }
+.hb-inner .lead { color: rgba(255,255,255,.9); max-width: 54ch; text-shadow: 0 1px 14px rgba(0,0,0,.5); }
+.hb-inner .lead b { color: #fff; }
+.hb-inner .hero-rera { color: rgba(255,255,255,.78); }
+.hb-inner .hero-rera b { color: #fff; }
+.hb-chips { display: flex; flex-wrap: wrap; gap: 10px; margin: clamp(18px,2.4vw,26px) 0; }
+.hb-chip { padding: 9px 16px; border: 1px solid rgba(255,255,255,.25); border-radius: 100px;
+  background: rgba(255,255,255,.08); backdrop-filter: blur(6px); font-size: .95rem;
+  color: rgba(255,255,255,.85); }
+.hb-chip b { color: var(--gold); font-family: var(--font-display); font-weight: 400; font-size: 1.12rem; }
+/* ghost button on the dark bleed needs light text/border (default is navy) */
+.hb-inner .btn--ghost { --fg: #fff; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.5); }
+.hb-inner .btn--ghost:hover { box-shadow: inset 0 0 0 1.5px #fff; }
+/* hero CTAs are a touch chunky — trim them down (smaller still on mobile) */
+.hb-inner .hero-cta .btn { padding: .82em 1.5em; font-size: .98rem; }
+@media (max-width: 760px){ .hb-inner .hero-cta .btn { padding: .72em 1.3em; font-size: .9rem; } }
+.hero--bleed .hd-figbadge { left: auto; right: 16px; bottom: 16px; }
+/* header sits over the dark render on the bleed hero — light logo + links +
+   a soft top scrim until the user scrolls (then it reverts to frosted cream) */
+body:has(.hero--bleed) .site-header:not(.scrolled) {
+  background: linear-gradient(180deg, rgba(7,11,31,.55), transparent); }
+body:has(.hero--bleed) .site-header:not(.scrolled) .nav a:not(.btn) { color: #fff; }
+body:has(.hero--bleed) .site-header:not(.scrolled) .brand img { filter: brightness(0) invert(1); }
+body:has(.hero--bleed) .site-header:not(.scrolled) .nav-toggle span { background: #fff; }
+/* mobile — the badge was overlapping the RERA line; centre it at the bottom and
+   give the copy room to clear it */
+@media (max-width: 760px){
+  .hero--bleed .hd-figbadge { left: 50%; right: auto; transform: translateX(-50%); }
+  .hb-inner { padding-bottom: 92px; }
+}
+
+/* mobile — solid chips so the stat text reads over the render (chosen treatment) */
+@media (max-width: 760px){
+  .hb-chip { background: rgba(11,17,40,.66); border-color: rgba(255,255,255,.32); color: #fff; }
+}
+
+/* =====================================================================
+   AMENITIES feature layout — render-14 clubhouse card beside the content
+   panel (folded from the chosen prototype variant C, 2026-06-21).
+   ===================================================================== */
+.am-feature { display: grid; grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 3.5vw, 52px); align-items: stretch; }
+.am-feature-img { position: relative; border-radius: var(--radius-lg); min-height: 400px;
+  background-size: cover; background-position: center; box-shadow: var(--shadow-md); overflow: hidden; }
+.am-figbadge { position: absolute; left: 14px; right: 14px; bottom: 14px; display: flex;
+  justify-content: space-around; gap: 10px; background: rgba(11,16,40,.66); color: #fff;
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); border-radius: 12px;
+  padding: 12px 14px; font-size: .82rem; }
+.am-figbadge b { font-family: var(--font-display); font-weight: 400; font-size: 1.25rem; color: var(--gold); }
+.am-feature-panel { display: flex; flex-direction: column; justify-content: center; }
+.am-feature-panel .am-grid { grid-template-columns: 1fr; gap: clamp(18px, 2.5vw, 26px); margin-top: 20px; }
+@media (max-width: 820px){
+  .am-feature { grid-template-columns: 1fr; }
+  .am-feature-img { min-height: 240px; order: -1; }
+}

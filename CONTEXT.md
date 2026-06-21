@@ -49,3 +49,24 @@ _Avoid_: goal, signup, win
 The moment the root domain is pointed at the new build and the legacy WordPress site is
 retired. Distinct from the staging period before it (which is not "coexistence").
 _Avoid_: go-live, launch, migration
+
+**Angle**:
+The single dimension along which a **sub-site** argues Elegant Nivasa beats the **Nearby
+builder** — one of exactly three: **Cost**, **Handover**, **Rental-yield**. The public path is
+`/cost`, `/handover`, `/rental-yield`, but the canonical key used throughout the content/code is
+the short form: `cost` · `handover` · `yield` (so `/rental-yield` maps to the `yield` key).
+_Avoid_: variant, category, theme
+
+**Scoreboard**:
+The full, cross-angle comparison shown on every sub-site — the complete set of points
+(grouped by **Comparative**) plus the running win/tie/behind tally and the total-advantage
+maths. The same scoreboard appears on all three sub-sites; only what *leads* the page changes
+by Angle.
+_Avoid_: table, chart, matrix, the comparison (too vague)
+
+**Comparative**:
+One thematic grouping of scoreboard points — **Cost**, **Product**, or **Yield**. (Note:
+Comparatives are the three groups *inside* the Scoreboard; Angles are the three sub-sites. They
+overlap in name for Cost/Yield but are not the same thing — Product is a Comparative with no
+sub-site.)
+_Avoid_: group, section, bucket, conflating Comparative with Angle

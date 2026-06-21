@@ -3,6 +3,10 @@ dist/
 # generated types
 .astro/
 worker-configuration.d.ts
+# wrangler local state (local D1 sqlite, cache) — never commit
+.wrangler/
+# agent tooling state
+.agents/
 
 # dependencies
 node_modules/
@@ -17,6 +21,8 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
+# wrangler local secrets (RESEND_API_KEY etc.) — never commit
+.dev.vars
 
 # macOS-specific files
 .DS_Store

@@ -150,7 +150,7 @@ export interface HandoverLead extends LeadHead {
 export interface YieldStep {
   year: string;
   amount: string;
-  /** Bar fill %, animated on scroll by site.js ([data-bar]). */
+  /** Bar length as a % of the 2032 total — drives the horizontal bar graph. */
   pct: number;
 }
 export interface YieldLead extends LeadHead {
@@ -176,9 +176,9 @@ export const ANGLES: Record<Angle, AngleContent> = {
   cost: {
     angle: "cost",
     hero: {
-      eyebrow: "The cost question · Tellapur",
-      headline: "Same Tellapur.<br>A <em>lighter</em> cheque.",
-      lead: "For the very same 1,375 sft on the same side of Hyderabad, other premium builders are asking up to <b>₹20.6 lakh* more</b>. Elegant Nivasa starts at just <b>₹6,999 / sft*</b> — three towers of refined high-rise living at Tellapur.",
+      eyebrow: "The cost question · Tellapur, West Hyderabad",
+      headline: "Save <em>₹20.6 lakh*</em><br>on the same Tellapur home.",
+      lead: "Same 1,375 sft 3 BHK, same ORR corridor. Branded launches near the Financial District ask around <b>₹1.17 crore*</b> (₹8,500/sft*). At Elegant Nivasa, Tellapur it’s about <b>₹96 lakh*</b> (₹6,999/sft*) — you pocket <b>₹20.6 lakh*</b>.",
       ctaPrimary: "Get the price sheet",
       ctaSecondary: "See the difference",
       badges: [
@@ -202,9 +202,9 @@ export const ANGLES: Record<Angle, AngleContent> = {
   handover: {
     angle: "handover",
     hero: {
-      eyebrow: "The handover question · Tellapur",
-      headline: "When does the<br>asset <em>start working?</em>",
-      lead: "An asset only works once it&rsquo;s yours. Elegant Nivasa hands over in <b>June 2027</b> — already <b>78% structure-complete</b> — while comparable launches are still years away. Earlier possession means earlier productivity.",
+      eyebrow: "The possession question · Tellapur, West Hyderabad",
+      headline: "Your keys in 2027.<br>Theirs in <em>2031</em>.",
+      lead: "Branded launches near the Financial District are still sold off a brochure, with RERA possession around <b>2031</b>. Elegant Nivasa is already <b>78% built</b> and hands over <b>June 2027</b> — your keys, and your rent, a full four years sooner.",
       ctaPrimary: "Book a site visit",
       ctaSecondary: "See the timeline",
       badges: [
@@ -246,21 +246,21 @@ export const ANGLES: Record<Angle, AngleContent> = {
   yield: {
     angle: "yield",
     hero: {
-      eyebrow: "The yield question · Tellapur",
-      headline: "Cashflow starts<br>with <em>possession</em>.",
-      lead: "Every year you wait is a year of rent you never collect. Own at Elegant Nivasa and your asset starts earning from <b>2028</b> — a potential <b>₹16.8 lakh*</b> of rental income that others lose simply by buying later.",
+      eyebrow: "The rental-yield question · Tellapur, West Hyderabad",
+      headline: "Collect <em>₹16.8 lakh*</em> rent<br>while they’re still building.",
+      lead: "Possession in 2027 puts your Tellapur 3 BHK on rent from <b>2028</b> — to the IT crowd from Gachibowli and the Financial District. By 2032 that’s <b>₹16.8 lakh*</b> in your account. A still-under-construction branded launch has collected <b>₹0</b>.",
       ctaPrimary: "Start earning sooner",
       ctaSecondary: "See the yield timeline",
       badges: [
         { pos: "tl", k: "Rent starts", v: "2028" },
-        { pos: "br", k: "Income you&rsquo;d miss", v: "₹16.8 L*" },
+        { pos: "br", k: "Income you’d miss", v: "₹16.8 L*" },
       ],
     },
     lead: {
       kind: "yield",
       eyebrow: "The earnings build-up",
       headline: "Rent collected, year after year — while they build.",
-      sub: `Possession in 2027 means rent from 2028. By 2032 that&rsquo;s a potential ₹16.8 lakh* in the bank — money ${THEM} simply can&rsquo;t collect yet.`,
+      sub: `Possession in 2027 means rent from 2028. By 2032 that’s a potential ₹16.8 lakh* in the bank — money ${THEM} simply can’t collect yet.`,
       steps: [
         { year: "2028", amount: "₹3.4 L*", pct: 20 },
         { year: "2029", amount: "₹6.7 L*", pct: 40 },
