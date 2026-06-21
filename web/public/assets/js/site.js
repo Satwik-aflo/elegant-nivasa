@@ -75,18 +75,6 @@
   document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
 
   /* =====================================================================
-     COMPARISON BARS (animate width on view)
-     ===================================================================== */
-  document.querySelectorAll("[data-bar]").forEach(function (track) {
-    var fill = track.querySelector(".bar-fill");
-    var pct = track.getAttribute("data-bar");
-    var bo = new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (e.isIntersecting) { fill.style.width = pct + "%"; bo.unobserve(e.target); } });
-    }, { threshold: 0.4 });
-    bo.observe(track);
-  });
-
-  /* =====================================================================
      COUNT-UP for hero ribbon / facts
      ===================================================================== */
   document.querySelectorAll("[data-count]").forEach(function (el) {
@@ -108,39 +96,6 @@
     }, { threshold: 0.5 });
     co.observe(el);
   });
-
-  /* =====================================================================
-     FLOOR PLAN explorer
-     ===================================================================== */
-  var fp = document.querySelector("[data-floorplans]");
-  if (fp) {
-    var tabsWrap = fp.querySelector(".fp-tabs");
-    var stage = fp.querySelector(".fp-stage");
-    UNITS.forEach(function (u, i) {
-      var b = document.createElement("button");
-      b.className = "fp-tab" + (i === 0 ? " active" : "");
-      b.innerHTML = '<span><span class="ttl">' + u.name + '</span><span class="sub">' + u.facing +
-        ' facing · ' + u.area + ' sft</span></span><span class="sz">' + crore(priceOf(u.area)) + '</span>';
-      b.addEventListener("click", function () {
-        tabsWrap.querySelectorAll(".fp-tab").forEach(function (t) { t.classList.remove("active"); });
-        b.classList.add("active"); renderPlan(u);
-      });
-      tabsWrap.appendChild(b);
-    });
-    function renderPlan(u) {
-      stage.innerHTML =
-        '<div class="fp-stage-head">' +
-          '<h3>' + u.name + '</h3>' +
-          '<span class="badge">' + u.facing + ' Facing</span>' +
-          '<span class="badge">' + u.area + ' sft (SBA)</span>' +
-          '<span class="price">' + crore(priceOf(u.area)) + '<small>Indicative · @ ₹' + RATE.toLocaleString("en-IN") + '/sft</small></span>' +
-        '</div>' +
-        '<div class="fp-img" data-zoom="' + u.img + '"><img src="' + u.img + '" alt="' + u.name + ' floor plan" loading="lazy"></div>' +
-        '<p class="muted" style="margin-top:14px;font-size:.92rem">' + u.rooms + '</p>';
-      stage.querySelector(".fp-img").addEventListener("click", function () { openLightbox([u.img], 0); });
-    }
-    renderPlan(UNITS[0]);
-  }
 
   /* =====================================================================
      CALCULATOR — tabbed: (1) affordability/eligibility from income,
