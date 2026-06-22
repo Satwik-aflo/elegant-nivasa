@@ -1,15 +1,13 @@
 ---
 import SubSiteLayout from "../layouts/SubSiteLayout.astro";
 import { ANGLES } from "../data/comparison.ts";
-// Hero words + numbers come from the single source (ADR-0002); this page owns
-// the hero layout + which render image.
-const h = ANGLES.cost.hero;
+const h = ANGLES.yield.hero;
 ---
 <SubSiteLayout
-  title="Elegant Nivasa, Tellapur — Same Address. Lighter Cheque. | 3 BHK from ₹6,999/sft"
-  description="Premium 2 & 3 BHK homes at Tellapur, Hyderabad from ₹6,999/sft. The same Tellapur address for up to ₹20.6L less. 3 towers · 23 floors · 526 homes on 4 acres. HMDA & RERA approved."
-  angle="cost"
-  adSet="Ad Set 01 (Cost)"
+  title="Elegant Nivasa, Tellapur — Cashflow Starts With Possession | Earn ₹16.8L Sooner"
+  description="Own at Tellapur and your asset starts earning from 2028 — a potential ₹16.8L of rental income others miss by waiting. Premium 2 & 3 BHK from ₹6,999/sft. HMDA & RERA approved."
+  angle="yield"
+  adSet="Ad Set 02 (Rental Yield)"
 >
   <section class="hero">
     <div class="wrap hero-grid">
@@ -18,20 +16,20 @@ const h = ANGLES.cost.hero;
         <h1 class="display stagger s2" set:html={h.headline}></h1>
         <p class="lead stagger s3" set:html={h.lead}></p>
         <div class="hero-cta stagger s4">
-          <a class="btn btn--lg" href="#enquire">{h.ctaPrimary} <span class="arr">→</span></a>
+          <a class="btn btn--lg" href="#enquire">{h.ctaPrimary}</a>
           <a class="btn btn--ghost btn--lg" href="#value">{h.ctaSecondary}</a>
         </div>
         <div class="hero-rera stagger s5">
           <span><b>HMDA &amp; RERA approved</b></span>
           <span>RERA&nbsp;No.&nbsp;<b>P01100007243</b></span>
-          <span>A project by <b>E-Infra</b></span>
         </div>
       </div>
       <div class="hero-figure stagger">
-        <div class="frame"><img src="/assets/img/renders/render-21.png" alt="Elegant Nivasa twin towers at dusk" fetchpriority="high" /></div>
+        <div class="frame"><img src="/assets/img/renders/render-16.jpg" alt="Elegant Nivasa towers lit at night" fetchpriority="high" /></div>
         {h.badges.map((b) => (
           <div class={`hero-badge ${b.pos}`}><span class="k">{b.k}</span><span class="v" set:html={b.v}></span></div>
         ))}
+        <div class="hero-figbadge"><span>A project by</span><img src="/assets/img/brand/einfra-wordmark-dark.png" alt="E-Infra — Foundation on Values" /></div>
       </div>
     </div>
     <div class="wrap">

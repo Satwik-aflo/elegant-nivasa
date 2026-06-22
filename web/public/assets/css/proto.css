@@ -228,14 +228,11 @@
 @media (max-width: 760px){ .trust--big .tg-grid { grid-template-columns: 1fr; justify-items: center;
   text-align: center; } .trust--big .tg-meta { justify-content: center; } }
 
-/* ---------- gold button (used across hero, sticky CTA, dialog, trust) ---------- */
-.btn--gold { background: var(--gold); color: #1a1408; border: 0; }
-.btn--gold:hover { filter: brightness(1.06); }
+/* base .btn--gold moved to shared site.css (used by sub-sites too). */
 /* header CTA — squared/architectural gold button (nav forces white text in
    site.css, so re-assert dark text). */
 .nav .btn--gold { color: #1a1408; border-radius: 6px; text-transform: uppercase;
   letter-spacing: .09em; font-weight: 700; font-size: .82rem; padding: .95em 1.5em; }
-.nav .btn--gold .arr { font-weight: 400; }
 /* "See it all in the brochure" CTA in the trust section */
 .trust--big .tg-brochure { margin-top: clamp(20px, 2.6vw, 30px); }
 
@@ -370,79 +367,13 @@
   .xs-grid { grid-template-columns: 1fr; max-width: 460px; margin-inline: auto; gap: 10px; }
 }
 
-/* =====================================================================
-   STICKY MOBILE CTA — keep Call / Book a visit in reach on phones
-   ===================================================================== */
-/* Sticky CTA — floating card (chosen 2026-06-21). A lifted rounded panel with an
-   urgency line above an icon Call + icon WhatsApp + a primary "Book a site visit"
-   that opens the dialog. Phones only (≤760px). */
-.stickybar { position: fixed; left: 12px; right: 12px; z-index: 60;
-  bottom: calc(12px + env(safe-area-inset-bottom));
-  display: none; flex-direction: column; gap: 8px;
-  padding: 12px; border-radius: 18px; border: 1px solid var(--line);
-  background: rgba(255,255,255,.98); backdrop-filter: blur(12px);
-  box-shadow: 0 16px 44px rgba(7,11,31,.24); }
-.sb-msg { margin: 0; text-align: center; font-size: .82rem; color: var(--ink-soft); }
-.sb-msg b { color: var(--navy); }
-.sb-actions { display: flex; gap: 10px; align-items: stretch; }
-.sb-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  height: 50px; border-radius: 12px; font-weight: 600; font-size: .98rem; cursor: pointer;
-  border: 1px solid transparent; text-decoration: none; -webkit-tap-highlight-color: transparent; }
-.sb-btn svg { width: 20px; height: 20px; flex: 0 0 auto; }
-/* Call + WhatsApp are icon-only squares; Book is the primary, fills the row */
-.sb-call, .sb-wa { width: 50px; flex: 0 0 auto; background: var(--cream-2); border-color: var(--line); }
-.sb-call { color: var(--navy); }
-.sb-wa { color: #128c7e; }
-.sb-call span, .sb-wa span { display: none; }
-.sb-book { flex: 1; background: var(--gold); color: #1c1407; border: none; }
-@media (max-width: 760px){
-  .stickybar { display: flex; }
-  body { padding-bottom: calc(136px + env(safe-area-inset-bottom)); }
-}
+/* Sticky CTA styles moved to the shared site.css (now used by the sub-sites
+   too, not just this homepage). The homepage's .stickybar markup stays below
+   in index.astro; the styling comes from site.css. */
 
-/* Desktop (≥761px): slim full-width announcement bar — urgency message left,
-   Call / WhatsApp / Book right. Pushes page content up so it never covers the footer. */
-@media (min-width: 761px){
-  .stickybar { display: flex; flex-direction: row; align-items: center;
-    justify-content: space-between; left: 0; right: 0; bottom: 0; width: auto; gap: 24px;
-    border: none; border-top: 1px solid var(--line); border-radius: 0;
-    padding: 10px clamp(20px,5vw,60px); box-shadow: 0 -6px 24px rgba(7,11,31,.1); }
-  .stickybar .sb-msg { display: block; text-align: left; font-size: .98rem; }
-  .stickybar .sb-btn { height: 44px; }
-  .stickybar .sb-call, .stickybar .sb-wa { width: 44px; }
-  .stickybar .sb-book { padding: 0 22px; }
-  body { padding-bottom: 72px; }
-}
+/* .bookdlg styles moved to shared site.css (sub-sites use the dialog too). */
 
-/* ===== BOOK-A-VISIT DIALOG (opens in place; all "Book a visit" triggers) ===== */
-.bookdlg { border: none; padding: 0; width: calc(100% - 32px); max-width: 430px;
-  background: transparent; margin: auto; }  /* margin:auto restores modal centring (global `* { margin:0 }` kills it) */
-.bookdlg::backdrop { background: rgba(7,11,31,.55); -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px); }
-.bookdlg-card { position: relative; background: var(--cream-2); border-radius: 18px;
-  padding: clamp(24px,6vw,34px); box-shadow: 0 30px 80px rgba(7,11,31,.4); }
-.bookdlg-x { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border: none;
-  background: rgba(7,11,31,.06); border-radius: 50%; cursor: pointer; display: grid; place-items: center;
-  color: var(--navy); }
-.bookdlg-x svg { width: 18px; height: 18px; }
-.bookdlg-head .eyebrow { color: var(--gold); }
-.bookdlg-head h3 { font-family: var(--font-display); font-weight: 470; font-size: 1.5rem;
-  color: var(--navy); margin: .25em 0 .15em; }
-.bookdlg-sub { color: var(--ink-soft); font-size: .92rem; margin: 0 0 20px; line-height: 1.5; }
-.bookdlg-phone { display: flex; flex-wrap: wrap; align-items: stretch; }
-.bookdlg-cc { display: flex; align-items: center; padding: 0 13px; font-weight: 600; color: var(--navy);
-  background: var(--cream); border: 1px solid var(--line); border-right: none; border-radius: 10px 0 0 10px; }
-.bookdlg-phone input { flex: 1; width: auto; border-radius: 0 10px 10px 0; }
-.bookdlg-phone .form-err { flex-basis: 100%; }
-.bookdlg-fine { font-size: .72rem; color: var(--ink-soft); text-align: center; margin: 12px 0 0; }
-
-/* footer developer credit — E-Infra wordmark (black artwork) rendered white
-   so it reads on the navy footer. Swap for a supplied white logo before launch. */
-.foot-dev { display: flex; align-items: center; gap: 12px; margin-top: 20px; }
-.foot-dev span { color: rgba(255,255,255,.5); font-size: .8rem; letter-spacing: .04em;
-  text-transform: uppercase; }
-/* override .foot-brand img's white filter (site.css) so the E-Infra gold mark shows */
-.foot-dev img { height: 30px; width: auto; filter: none; }
+/* .foot-dev developer credit moved to shared site.css (sub-sites use it too). */
 
 /* hero developer credit — solid navy E-Infra stamp pinned to the render,
    white wordmark so it reads on any part of the image */
@@ -476,9 +407,13 @@
 /* ghost button on the dark bleed needs light text/border (default is navy) */
 .hb-inner .btn--ghost { --fg: #fff; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.5); }
 .hb-inner .btn--ghost:hover { box-shadow: inset 0 0 0 1.5px #fff; }
-/* hero CTAs are a touch chunky — trim them down (smaller still on mobile) */
-.hb-inner .hero-cta .btn { padding: .82em 1.5em; font-size: .98rem; }
-@media (max-width: 760px){ .hb-inner .hero-cta .btn { padding: .72em 1.3em; font-size: .9rem; } }
+/* hero CTAs are a touch chunky — trim them down a hair on desktop */
+.hb-inner .hero-cta .btn { padding: .9em 1.6em; }
+/* phones: stack full-width so each is a big, easy thumb target */
+@media (max-width: 600px){
+  .hb-inner .hero-cta { flex-direction: column; align-items: stretch; gap: 10px; width: 100%; }
+  .hb-inner .hero-cta .btn { width: 100%; }
+}
 .hero--bleed .hd-figbadge { left: auto; right: 16px; bottom: 16px; }
 /* header sits over the dark render on the bleed hero — light logo + links +
    a soft top scrim until the user scrolls (then it reverts to frosted cream) */

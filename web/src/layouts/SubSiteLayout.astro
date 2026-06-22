@@ -54,7 +54,8 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
     <a href="#angle">Why Nivasa</a>
     <a href="#value">Full comparison</a>
     <a href="#emi">EMI</a>
-    <a class="btn btn--teal" href="#enquire">Enquire <span class="arr">→</span></a>
+    <a class="btn btn--teal" href="#reps">Enquire</a>
+    <a class="btn btn--gold" href="#enquire" data-book>Book a visit</a>
   </nav>
 </header>
 
@@ -189,7 +190,7 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
       </div>
     </div>
 
-    <div class="leads reveal d1">
+    <div class="leads reveal d1" id="reps">
       {site.reps.map((rep) => (
         <article class="lead-card">
           <div class="lc-top">
@@ -204,7 +205,7 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
             <div><b>{rep.closed}</b><span>closed last year</span></div>
             <div><b>{rep.homes}</b><span>Nivasa homes sold</span></div>
           </div>
-          <a class="btn btn--wa btn--block btn--lg" data-wa={enc(rep.wa)} data-rep={rep.name} data-wa-msg={waMessage} href="#enquire" rel="noopener" set:html={`${waSvg} WhatsApp ${rep.name} <span class="arr">→</span>`}></a>
+          <a class="btn btn--wa btn--block btn--lg" data-wa={enc(rep.wa)} data-rep={rep.name} data-wa-msg={waMessage} href="#enquire" rel="noopener" set:html={`${waSvg} WhatsApp ${rep.name}`}></a>
         </article>
       ))}
     </div>
@@ -217,7 +218,7 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
       <div class="ca-fields">
         <div class="form-field"><input name="name" type="text" placeholder="Your name" /><span class="form-err">Enter your name</span></div>
         <div class="form-field"><input name="phone" type="tel" placeholder="10-digit mobile" /><span class="form-err">Valid mobile please</span></div>
-        <button class="btn btn--orange btn--lg" type="submit">Get a personal text <span class="arr">→</span></button>
+        <button class="btn btn--orange btn--lg" type="submit">Get a personal text</button>
       </div>
     </form>
     <div class="form-success connect-success">
@@ -236,6 +237,10 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
         <img src="/assets/img/brand/nivasa-logo.png" alt="Elegant Nivasa" />
         <p style="max-width:36ch">High-rise lifestyle at Tellapur. Three towers, 526 residences and an 8-level clubhouse on a 4-acre gated community. A project by E-Infra — foundation on values.</p>
         <div class="foot-rera">RERA No. <b>P01100007243</b> · HMDA &amp; TS-RERA approved</div>
+        <div class="foot-dev">
+          <span>Developed by</span>
+          <img src="/assets/img/brand/einfra-wordmark-dark.png" alt="E-Infra — Foundation on Values" />
+        </div>
       </div>
       <div>
         <h4>Explore</h4>
@@ -255,8 +260,43 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
   </div>
 </footer>
 
-<!-- floating CTA -->
-<div class="float-cta"><a class="btn btn--orange" href="#enquire"><span class="label">Enquire</span> <span class="arr">→</span></a></div>
+<!-- ============ STICKY CTA — mobile floating card · desktop slim bar (shared site.css) ============ -->
+<div class="stickybar">
+  <p class="sb-msg">Talk to a closer now — <b>real price, real availability</b></p>
+  <div class="sb-actions">
+    <a class="sb-btn sb-enquire" href="#reps">Enquire</a>
+    <button class="sb-btn sb-book" type="button" data-book>Book a site visit</button>
+  </div>
+</div>
+
+<!-- ============ BOOK-A-VISIT DIALOG (opens in place for all [data-book] triggers; shared with homepage) ============ -->
+<dialog class="bookdlg" id="bookDialog" aria-labelledby="bookDlgTitle">
+  <div class="bookdlg-card">
+    <button class="bookdlg-x" type="button" data-book-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="bookdlg-head">
+      <p class="eyebrow">Book a site visit</p>
+      <h3 id="bookDlgTitle">Talk to a senior sales lead</h3>
+      <p class="bookdlg-sub">Leave your number — we&rsquo;ll confirm a slot and share availability &amp; pricing. No call-centre, no spam.</p>
+    </div>
+    <form class="bookdlg-form" data-leadform novalidate>
+      <div class="form-field"><input name="name" type="text" autocomplete="name" placeholder="Your name" /><span class="form-err">Enter your name</span></div>
+      <div class="form-field bookdlg-phone">
+        <span class="bookdlg-cc">+91</span>
+        <input name="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="10-digit mobile" />
+        <span class="form-err">Valid mobile please</span>
+      </div>
+      <button class="btn btn--gold btn--block" type="submit">Request a callback</button>
+      <p class="bookdlg-fine">By submitting you agree to be contacted about Elegant Nivasa.</p>
+    </form>
+    <div class="form-success">
+      <div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h3 style="color:var(--navy)">Thanks, <span data-name>there</span>!</h3>
+      <p class="muted" style="margin-top:6px">A senior sales lead will call you shortly.</p>
+    </div>
+  </div>
+</dialog>
 
 <script is:inline src="/assets/js/site.js"></script>
 </body>

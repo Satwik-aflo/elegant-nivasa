@@ -1,9 +1,23 @@
 ---
-// Bespoke angle-lead block for /handover — the 2027-vs-2031 timeline (ADR-0002 B2).
-// Content/figures come from the single source; layout lives here.
+// Bespoke angle-lead block for /handover — ONE shared-axis timeline comparing
+// both builders (ADR-0002 B2). Content/figures come from the single source;
+// layout lives here. The two tracks are merged onto a single time axis (union
+// of their years), Nivasa milestones above the line, the competitor below.
 import { ANGLES } from "../data/comparison.ts";
 const d = ANGLES.handover.lead;
 if (d.kind !== "handover") throw new Error("handover angle-lead expected");
+const [us, them] = d.tracks;
+
+// Build the shared axis: union of years, "Now" first then ascending.
+const yearVal = (y: string) => (y === "Now" ? -1 : parseInt(y, 10));
+const years = Array.from(
+  new Set([...us.milestones, ...them.milestones].map((m) => m.year))
+).sort((a, b) => yearVal(a) - yearVal(b));
+const cols = years.map((year) => ({
+  year,
+  us: us.milestones.find((m) => m.year === year) ?? null,
+  them: them.milestones.find((m) => m.year === year) ?? null,
+}));
 ---
 <section class="section al al-handover" id="angle">
   <div class="wrap">
@@ -12,21 +26,27 @@ if (d.kind !== "handover") throw new Error("handover angle-lead expected");
       <h2 class="h2">{d.headline}</h2>
       <p class="lead">{d.sub}</p>
     </div>
-    <div class="al-time reveal d1">
-      {d.tracks.map((tr) => (
-        <div class={`tl-track tl-${tr.who}`}>
-          <div class="tl-who">{tr.label}</div>
-          <ol class="tl-line">
-            {tr.milestones.map((m) => (
-              <li class={`tl-step${m.hot ? " tl-hot" : ""}`}>
-                <span class="tl-dot"></span>
-                <span class="tl-year">{m.year}</span>
-                <span class="tl-label">{m.label}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-      ))}
+    <div class="ctl reveal d1">
+      <div class="ctl-legend">
+        <span class="ctl-leg ctl-leg-us">{us.label}</span>
+        <span class="ctl-leg ctl-leg-them">{them.label}</span>
+      </div>
+      <ol class="ctl-line">
+        {cols.map((c) => (
+          <li class={`ctl-col${c.us?.hot ? " ctl-hot" : ""}${!c.us && c.them ? " ctl-them-only" : ""}`}>
+            <div class="ctl-lane ctl-lane-us">
+              {c.us && <span class="ctl-tag">{c.us.label}</span>}
+            </div>
+            <div class="ctl-axis">
+              <span class="ctl-dot"></span>
+              <span class="ctl-year">{c.year}</span>
+            </div>
+            <div class="ctl-lane ctl-lane-them">
+              {c.them && <span class="ctl-tag">{c.them.label}</span>}
+            </div>
+          </li>
+        ))}
+      </ol>
     </div>
     <p class="al-punch reveal d1">That&rsquo;s <b>{d.gap}</b> — and your returns start sooner.</p>
   </div>

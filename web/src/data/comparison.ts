@@ -214,7 +214,7 @@ export const ANGLES: Record<Angle, AngleContent> = {
     },
     lead: {
       kind: "handover",
-      eyebrow: "Two timelines, side by side",
+      eyebrow: "One timeline, two outcomes",
       headline: "One asset is nearly ready. One hasn't started.",
       sub: `Elegant Nivasa is 78% structure-complete and hands over in 2027. ${THEM} is a fresh launch — keys, and rent, arrive years later.`,
       tracks: [
