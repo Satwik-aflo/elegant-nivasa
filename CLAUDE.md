@@ -27,11 +27,18 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
 ## 2. Architecture / stack
 
 - **Framework:** Astro — static-first, zero-JS by default, shared components across all routes.
-- **Host:** Cloudflare Pages (`@astrojs/cloudflare`), free tier.
+- **Host:** Cloudflare **Workers** (`@astrojs/cloudflare`, Workers-only since v13), free tier. Worker
+  `elegant-nivasa`; **live at `https://elegantnivasa.com`** (apex + www custom domains, cutover
+  2026-06-22 — see §6). The `*.workers.dev` URL still resolves as a fallback.
 - **Form endpoint:** Astro server endpoint / Pages Function `POST /api/lead` (Worker runtime).
 - **Database:** Cloudflare **D1** (SQLite) — `leads` table, source of truth.
 - **Email:** **Resend** API (free tier) → notifies `sales@e-infra.in` on each Lead.
-- **Deploy:** git is source of truth; deploy via `wrangler` (one-time `wrangler login`).
+- **Deploy:** git is source of truth (GitHub `Satwik-aflo/elegant-nivasa`, **`main`** is the live
+  branch); deploy via `wrangler deploy` from `web/` (one-time `wrangler login`). `wrangler deploy`
+  ships straight to production — there is no staging environment.
+- **Favicon/icons:** the **E-Infra gold mark** (cropped from the brand wordmark, on brand navy
+  `#16204a`) — `public/favicon.ico` + `favicon-32/192/512.png` + `apple-touch-icon.png`, wired in
+  `SocialMeta.astro` so all routes share it.
 - **Layout:** the **homepage (`index.astro`) is self-contained** (own `<head>`/header/footer,
   loads `proto.css`/`proto.js`); the three **Sub-sites** share `layouts/SubSiteLayout`
   (distraction-free + WhatsApp) · `pages/` (index + 3 sub-sites) · `functions/api/lead.ts`.
@@ -72,8 +79,8 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
 
 - **Microsoft Clarity** — behaviour/retention (heatmaps, recordings, scroll), one project across
   all routes. **LIVE:** project id `xah4dbk2kt` set in `config/site.ts` (2026-06-21); the snippet
-  auto-injects on every route via `AnalyticsScripts.astro` (confirmed in the build). Starts
-  recording once deployed. _(Reminder: this tracks before a consent banner — DPDP, §8.)_
+  auto-injects on every route via `AnalyticsScripts.astro` (confirmed live on every route of the
+  production domain). _(Reminder: this tracks before a consent banner — DPDP, §8.)_
 - **Meta Pixel** — attribution for Instagram/Meta ad spend. _[ ] still needs a Pixel id_ —
   drop into `site.analytics.metaPixelId` (same auto-inject path as Clarity).
 - One `track()` wrapper fires **Conversion** events (Lead = form submit, Enquiry = WhatsApp click)
@@ -132,7 +139,7 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
   `npm run dev` 401 silently — the lead still writes to local D1 and the PDF still downloads, but no
   email sends and `notified` stays 0. To exercise email locally, drop a fresh full-access Resend key
   into `web/.dev.vars` and restart. **Prod is unaffected** (valid secret set via `wrangler secret
-  put`).  Test email on the **live** workers.dev URL, not localhost._
+  put`).  Test email on the **live** `elegantnivasa.com` site, not localhost._
 - [x] **Exposed Resend keys revoked** (2026-06-21). Both `re_FqkEryya…` (original test key) and
   `re_ZiCVqNvh…` (accidentally pasted on the command line) were revoked & deleted at resend.com.
   The live prod key (set via `wrangler secret put`, never pasted) is safe and remains in use.
@@ -155,8 +162,8 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
 - [x] **Email/brochure → production go-live** — DONE 2026-06-21 (all 5 checklist steps complete:
   sending domain verified, `mailFrom` swapped, fresh prod key set, `--remote` migration applied,
   built + deployed + live test passed with `notified=1`).
-- [x] One-time **`wrangler login`** — done; deployed to
-  `elegant-nivasa.satwik-958.workers.dev` (2026-06-21). Build with `npm run build`, ship with
+- [x] One-time **`wrangler login`** — done; live at **`https://elegantnivasa.com`** (and the
+  `elegant-nivasa.satwik-958.workers.dev` fallback). Build with `npm run build`, ship with
   `npx wrangler deploy` from `web/`.
 - [ ] **DPDP consent banner + privacy policy** (DPDP Act 2023) — Clarity is now LIVE (§5) and the
   Pixel will be too, so cookies / PII are processed **without consent**. Knowingly deferred by
@@ -218,11 +225,11 @@ open the **book-a-visit dialog** (§3). Remaining homepage work:
 - [x] **Amenities section** — built 2026-06-21 (`<section class="section am" id="amenities">` in
   `index.astro`, `.am-*` styles in `proto.css`, +nav link). Placed after the podium, before
   Location. 8-level/40,000+ sft clubhouse (indoor chip cloud) + outdoor amenities (outdoor chip
-  cloud), static/zero-JS. _(Local only — not yet deployed.)_
+  cloud), static/zero-JS. _(Live in production.)_
 - [x] **Confidence cross-sell band** — built 2026-06-21 (`<section class="section xs" id="compare">`
   in `index.astro`, `.xs-*` styles in `proto.css`). Placed between Floor Plans and Brochure as a
   "still comparing?" nudge — three cards linking `/cost` (₹20.6 L* less) · `/handover` (2027 not
-  2031, 78%*) · `/rental-yield` (₹16.8 L* rent). _(Local only — not yet deployed.)_
+  2031, 78%*) · `/rental-yield` (₹16.8 L* rent). _(Live in production.)_
 
 - [x] **"Email me the brochure" (email-first soft capture)** — built capture-first 2026-06-21
   (spec: [docs/specs/2026-06-20-brochure-email-capture.md](./docs/specs/2026-06-20-brochure-email-capture.md)).
@@ -246,8 +253,8 @@ open the **book-a-visit dialog** (§3). Remaining homepage work:
   and `npm run build` green. `src/data/comparison.ts` is now the single source; new components
   `Scoreboard.astro` + `AngleLead{Cost,Handover,Yield}.astro` render it at build time;
   `ComparisonTable.astro` deleted; `site.js` is behaviour-only (CMP/GROUPS/GROUP_ORDER/HILITE/
-  renderCompare/renderGroups/WA_MSG removed; reads `data-angle` + baked `data-wa-msg`). _(Local
-  only — not yet deployed.)_ As-built spec:
+  renderCompare/renderGroups/WA_MSG removed; reads `data-angle` + baked `data-wa-msg`).
+  _(Live in production.)_ As-built spec:
   - **B1 — single source + build-time render.** `src/data/comparison.ts` becomes the **one** home
     for all comparison *content* — scoreboard rows (the 3 Comparatives: Cost/Product/Yield),
     per-angle hero **words + numbers**, angle-lead data, WhatsApp message text, advantage totals.
