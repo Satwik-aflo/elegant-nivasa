@@ -1,9 +1,9 @@
 ---
 // Shared social/SEO head tags (Open Graph, Twitter Card, canonical, favicon).
 // Included inside every page's <head>. Robots/title/description stay on the
-// page (sub-sites + privacy are intentionally noindex; the homepage is noindex
-// while on workers.dev). Absolute URLs are built off site.url — the ACTUAL
-// serving origin (CLAUDE.md §6), so previews resolve before domain cutover.
+// page (sub-sites + privacy are intentionally noindex; the homepage is indexable
+// post-cutover). Absolute URLs are built off site.url — the live branded domain
+// elegantnivasa.com (CLAUDE.md §6, cutover done 2026-06-22).
 // WhatsApp/Meta previews want a JPEG/PNG, so default to a .jpg (not the .webp hero).
 import { site } from "../config/site";
 interface Props {

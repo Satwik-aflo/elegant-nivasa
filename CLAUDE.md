@@ -83,37 +83,36 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
 
 ## 6. Phasing (Cutover)
 
-1. **Build** on the free `*.pages.dev` URL — production WordPress untouched, zero risk.
-2. **Cutover** — **BLOCKED on GoDaddy access (re-confirmed 2026-06-21).** A custom domain on this
-   site requires the domain to be a **Cloudflare zone**, which means changing **nameservers at the
-   registrar (GoDaddy)** — the login we don't have. _(The "host on **Pages** + external Hostinger
-   CNAME, no GoDaddy" idea was investigated and **rejected 2026-06-21**: Astro 6 / `@astrojs/cloudflare`
-   v13 **dropped Pages support** — the adapter is Workers-only and the official path is Pages→Workers.
-   So we can't move to Pages without fighting the framework. The other no-GoDaddy route, Cloudflare
-   for SaaS custom hostnames, itself needs an existing Cloudflare zone → also a dead end.)_ **The only
-   real unlock is recovering GoDaddy.** Then: add domain to Cloudflare, verify it imported existing
-   DNS incl. **email/MX + the Resend `send` records + the catch-all** first, flip nameservers, attach
-   the Worker custom domain. Until then the site runs on `elegant-nivasa.satwik-958.workers.dev`.
-3. **Retire** WordPress hosting. _(NB: on the eventual Cloudflare-DNS cutover, email moves to
-   Cloudflare DNS too — recreate all Hostinger mail records there before flipping. Until cutover,
-   Hostinger DNS + email/forwarders stay live.)_
+1. **Build** on the free `*.workers.dev` URL — production WordPress untouched, zero risk.
+2. **Cutover — DONE 2026-06-22.** GoDaddy access was recovered, so we took the clean path:
+   added `elegantnivasa.com` as a **Cloudflare zone**, mirrored all 17 Hostinger DNS records (apex/www +
+   **MX/SPF/all 3 DKIM/DMARC/autodiscover/autoconfig + the Resend `send` records**), verified the copy
+   by querying Cloudflare's NS directly **before** flipping, then changed **nameservers at GoDaddy** to
+   `leif/ursula.ns.cloudflare.com`. Once active, attached the apex + `www` as **Worker custom domains**
+   (Cloudflare-issued certs). `site.url` flipped to `https://elegantnivasa.com` and the homepage
+   `noindex` removed (deployed, version `88dd94e0`). Verified live: apex+www serve the Astro worker,
+   `/api/lead` responds, mail send+receive intact, DKIM resolves end-to-end.
+   _**Gotchas hit & fixed:** the Worker custom-domain attach refused while the imported apex `A`/`AAAA`
+   existed → must delete those first (mail records are a different type on `@`, untouched). And the 5
+   mail CNAMEs (DKIM ×3, autodiscover, autoconfig) imported as **Proxied (orange)**, which breaks DKIM —
+   set them to **DNS-only (grey)**. Watch for stale local DNS caches showing old WordPress; verify via
+   `dig @leif.ns.cloudflare.com` / `curl --resolve` against the CF edge IPs, not the system resolver._
+3. **Retire** WordPress hosting — only the **hosting** is retired; the **Hostinger email plan stays**
+   (MX still points to `mx1/mx2.hostinger.com`). DNS now lives at Cloudflare; all mail records were
+   recreated there during cutover.
 
 ## 7. Open items (fill before cutover)
 
 - [x] Two **Sales rep WhatsApp numbers** — provided 2026-06-20, wired in `config/site.ts`
   (`site.reps`): Bharat → rep 1, Satish → rep 2. Base64-injected (anti-scrape), no raw number in
   HTML. _(Per-rep sales stats on the cards are still placeholders — see below.)_
-- [~] Domain **registrar / DNS** — discovered 2026-06-21: registrar is **GoDaddy**, but DNS is
-  **delegated to Hostinger** (nameservers `ns1/ns2.dns-parking.com`); email runs through Hostinger
-  (`mx1/mx2.hostinger.in` + SPF `_spf.mail.hostinger.com`). **Client has Hostinger access but NOT
-  GoDaddy.** Decision: take the **Hostinger-only DNS path** — edit records in Hostinger's zone, leave
-  nameservers at Hostinger, never touch GoDaddy. This already unblocked the Resend sending domain
-  (verified 2026-06-21, records added in Hostinger). **Still open:** custom-domain cutover for the
-  *website* — without GoDaddy we can't move nameservers to Cloudflare, so the route is CNAME
-  `www` → Pages + apex domain-forwarding in Hostinger (apex can't take a plain CNAME). GoDaddy access
-  is still worth recovering for a clean cutover; chase via whoever set up the domain (created
-  2024-01-22, privacy-protected). _(NB: §6 step 3 "cancel Hostinger" no longer fully applies — the
-  DNS zone must stay at Hostinger on this path; only the WordPress hosting is retired.)_
+- [x] Domain **registrar / DNS** — **RESOLVED 2026-06-22 by recovering GoDaddy access.** DNS moved
+  off Hostinger to a **Cloudflare zone** (nameservers `leif/ursula.ns.cloudflare.com`, changed at
+  GoDaddy; registration stays at GoDaddy). All mail records recreated in Cloudflare (MX still
+  `mx1/mx2.hostinger.com`, SPF `_spf.mail.hostinger.com`, DKIM ×3, DMARC, autodiscover/autoconfig, +
+  the Resend `send` records). Site is live on `https://elegantnivasa.com` (apex + www = Worker custom
+  domains). See §6 for the full cutover record and gotchas. _(NB: the Hostinger **email plan** stays —
+  only WordPress **hosting** is retired; DNS no longer lives at Hostinger.)_
 - [x] Static **comparison figures** confirmed 2026-06-21: **₹7,000/sft** (us) vs **₹8,500/sft**
   (competitor) → **₹20.6 L** saving on 1,375 sft; possession **2027 vs 2031**; **₹16.8 L** rent by
   2032; structure **78%** (latest 78.19, shown rounded). Clubhouse corrected to **8-level / 40,000+
@@ -147,15 +146,12 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
   and the client has no credentials for that inbox until **2026-06-22**. _(Outbound/branded sending
   and the `reply_to: sales@e-infra.in` on the brochure email are already live — this only adds direct
   inbound + catch-all.)_ Needs an active Hostinger Email plan with a free mailbox slot.
-- [ ] **FUTURE — if GoDaddy access is recovered:** reconsider the domain/host setup. With the
-  registrar login we could (a) move nameservers to Cloudflare for a clean apex (no www-forward) +
-  domain-wide Cloudflare features, and/or (b) move the site back to a **Worker** custom domain
-  (Cloudflare's preferred long-term platform). Not urgent — the Pages-via-Hostinger path (§6) works
-  fully without it. Chase GoDaddy via whoever set up the domain (created 2024-01-22, privacy-protected).
-- [ ] **Custom-domain cutover — BLOCKED on GoDaddy** (re-confirmed 2026-06-21; see §6). The
-  Pages-via-Hostinger workaround was investigated and **ruled out** (Astro 6 / adapter v13 dropped
-  Pages support; Workers-only). No sane no-GoDaddy path exists. Action: **recover GoDaddy access**
-  (the future item above), then do the §6 cutover. Until then the site stays on the `workers.dev` URL.
+- [x] **Domain/host setup — DONE 2026-06-22.** GoDaddy access recovered → took the clean path:
+  nameservers moved to Cloudflare, site on a **Worker custom domain** (Cloudflare's preferred
+  platform), clean apex (no www-forward). See §6.
+- [x] **Custom-domain cutover — DONE 2026-06-22** (see §6 for the full record). `elegantnivasa.com`
+  is a Cloudflare zone; apex + www are Worker custom domains with Cloudflare certs; `site.url` flipped
+  and homepage `noindex` removed (deployed). Mail verified intact (send/receive + DKIM).
 - [x] **Email/brochure → production go-live** — DONE 2026-06-21 (all 5 checklist steps complete:
   sending domain verified, `mailFrom` swapped, fresh prod key set, `--remote` migration applied,
   built + deployed + live test passed with `notified=1`).

@@ -6,12 +6,10 @@ export const site = {
   developer: "E-Infra",
   locality: "Tellapur",
   city: "Hyderabad",
-  // Canonical/OG absolute-URL base. TEMPORARY: serves on workers.dev (domain
-  // cutover blocked on GoDaddy — CLAUDE.md §6). OG/canonical must use the ACTUAL
-  // serving origin, else link previews 404 against the WordPress still occupying
-  // elegantnivasa.com. Switch to https://elegantnivasa.com at cutover (and drop
-  // the homepage noindex then).
-  url: "https://elegant-nivasa.satwik-958.workers.dev",
+  // Canonical/OG absolute-URL base. Domain cutover DONE 2026-06-22: elegantnivasa.com
+  // is now a Cloudflare zone with the apex + www attached as Worker custom domains;
+  // WordPress retired. OG/canonical resolve against the live branded domain.
+  url: "https://elegantnivasa.com",
   rera: "P01100007243",
   startingPrice: "₹96.2 L",
   leadEmailTo: "sales@e-infra.in",
