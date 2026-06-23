@@ -15,9 +15,8 @@ interface Props {
   description: string;
   /** Canonical Angle key (ADR-0002): cost | handover | yield. */
   angle: Angle;
-  adSet: string;
 }
-const { title, description, angle, adSet } = Astro.props;
+const { title, description, angle } = Astro.props;
 // WhatsApp message text is baked in at build time per Angle (single source);
 // site.js interpolates {rep} and decodes the anti-scrape number at runtime.
 const waMessage = ANGLES[angle].waMessage;
@@ -216,8 +215,8 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
         <p>Drop your number and <b>Bharat will text you himself</b> — still no call-centre.</p>
       </div>
       <div class="ca-fields">
-        <div class="form-field"><input name="name" type="text" placeholder="Your name" /><span class="form-err">Enter your name</span></div>
-        <div class="form-field"><input name="phone" type="tel" placeholder="10-digit mobile" /><span class="form-err">Valid mobile please</span></div>
+        <div class="form-field"><input name="name" type="text" autocomplete="name" maxlength="60" placeholder="Your name" /><span class="form-err">Enter your name</span></div>
+        <div class="form-field"><input name="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="10-digit mobile" /><span class="form-err">Valid mobile please</span></div>
         <button class="btn btn--orange btn--lg" type="submit">Get a personal text</button>
       </div>
     </form>
@@ -254,7 +253,7 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
     </div>
     <div class="foot-bottom">
       <span>© <span data-year>2026</span> Elegant Nivasa · E-Infra. All rights reserved.</span>
-      <span><a href="/privacy">Privacy policy</a> · Campaign landing page — {adSet}</span>
+      <span><a href="/privacy">Privacy policy</a></span>
     </div>
     <p class="foot-disclaimer">Disclaimer: This is a marketing landing page. Figures marked * — and all prices (from ₹6,999/sft), comparative figures, sales statistics, possession dates and images — are indicative, for representation only, and subject to change without notice. Comparison with &ldquo;other premium builders&rdquo; is illustrative of the micro-market and does not reference any specific developer. Floor areas are super built-up. Please verify all details with our authorised sales team and the RERA filing before purchase.</p>
   </div>

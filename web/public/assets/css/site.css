@@ -146,7 +146,7 @@ h1,h2,h3,h4 { font-family: var(--font-display); font-weight: 470; line-height: 1
 
 /* ===================== HEADER ===================== */
 .site-header {
-  position: fixed; inset: 0 0 auto 0; z-index: 60;
+  position: fixed; inset: 0 0 auto 0; z-index: 70;
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px var(--gut);
   transition: background .4s var(--ease), box-shadow .4s, padding .4s;
@@ -170,7 +170,11 @@ h1,h2,h3,h4 { font-family: var(--font-display); font-weight: 470; line-height: 1
 .nav .btn::after { display: none; }
 .nav-toggle { display: none; }
 @media (max-width: 940px) {
-  .nav { position: fixed; inset: 0 0 0 auto; width: min(82vw, 360px);
+  /* drawer height is viewport-based (100dvh, not `bottom:0`): a scrolled header
+     gets `backdrop-filter`, which makes it the containing block for this fixed
+     child — `bottom:0` would then collapse the panel to header height. */
+  .nav { position: fixed; inset: 0 0 auto auto; width: min(82vw, 360px);
+    height: 100vh; height: 100dvh; overflow-y: auto;
     flex-direction: column; align-items: flex-start; justify-content: center;
     gap: 26px; padding: var(--gut); background: var(--navy); color: #fff;
     transform: translateX(100%); transition: transform .5s var(--ease); }
@@ -387,6 +391,13 @@ input[type=range]::-moz-range-thumb { width:22px;height:22px;border-radius:50%; 
 .aff-fit { margin-top: 24px; padding-top: 22px; border-top:1px solid rgba(255,255,255,.16); }
 .fit-head { font-family: var(--font-display); font-size: 1.18rem; color:#fff; margin-bottom: 14px; line-height:1.3; }
 .fit-head b { color:#7fd3c2; }
+/* inline CTA in the "just shy of our configs" message — a link styled to read
+   as part of the sentence (button on the homepage, anchor on the sub-sites). */
+.fit-cta { font: inherit; color:#7fd3c2; font-weight:650; cursor:pointer;
+  background:none; border:0; padding:0; text-decoration:underline;
+  text-underline-offset:3px; text-decoration-thickness:1.5px; transition: color .2s var(--ease); }
+.fit-cta:hover { color:#a8ece0; }
+.fit-cta:focus-visible { outline:2px solid #7fd3c2; outline-offset:2px; border-radius:3px; }
 .fit-row { display:flex; align-items:center; gap: 12px; padding: 9px 0; border-bottom:1px solid rgba(255,255,255,.09); font-size:.92rem; }
 .fit-row:last-child { border-bottom:none; }
 .fit-row .fk { width:20px; height:20px; border-radius:50%; display:grid; place-items:center; font-size:.68rem; flex:none; }
@@ -418,7 +429,11 @@ input[type=range]::-moz-range-thumb { width:22px;height:22px;border-radius:50%; 
 
 /* ===================== LEAD FORM ===================== */
 .lead-sec { background: var(--navy); color:#fff; position:relative; overflow:hidden; }
-.lead-sec::before { content:""; position:absolute; inset:0; background: radial-gradient(90% 120% at 0 100%, rgba(15,107,95,.45), transparent 55%); }
+/* decorative glow only — must not eat taps: the enquire content (.connect-*/
+   .leads/form) is un-positioned, so this positioned ::before paints ABOVE it.
+   Without pointer-events:none it swallows every tap on the rep WhatsApp buttons
+   + form (no hover on touch to lift them out from under it). */
+.lead-sec::before { content:""; position:absolute; inset:0; pointer-events:none; background: radial-gradient(90% 120% at 0 100%, rgba(15,107,95,.45), transparent 55%); }
 .lead-grid { position: relative; z-index:2; display:grid; grid-template-columns: 1fr 1fr; gap: clamp(28px,5vw,70px); align-items:center; }
 .lead-sec .eyebrow { color: #7fd3c2; }
 .lead-sec h2 { color:#fff; }
@@ -430,7 +445,7 @@ input[type=range]::-moz-range-thumb { width:22px;height:22px;border-radius:50%; 
 .form-row { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .form-field { margin-bottom: 16px; }
 .form-field label { display:block; font-size:.85rem; font-weight:600; margin-bottom:7px; color: var(--ink-soft); }
-.form-field input, .form-field select, .form-field textarea { width:100%; padding: 13px 15px; border-radius: 10px; border:1px solid var(--line); background: #fff; transition: border .25s, box-shadow .25s; }
+.form-field input, .form-field select, .form-field textarea { width:100%; padding: 13px 15px; border-radius: 10px; border:1px solid var(--line); background: #fff; color: var(--ink); transition: border .25s, box-shadow .25s; }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline:none; border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-soft); }
 .form-field.err input, .form-field.err select { border-color: #c0392b; }
 .form-err { color:#c0392b; font-size:.78rem; margin-top:5px; display:none; }

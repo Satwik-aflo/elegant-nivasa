@@ -174,9 +174,23 @@
         return '<div class="fit-row ' + (ok ? "ok" : "no") + '"><span class="fk">' + (ok ? "✓" : "✕") + '</span>' +
           '<span class="fl">' + t.label + '</span><span class="fp">' + crore(price) + '</span></div>';
       }).join("");
+      // "talk to Bharat" is actionable: sub-sites have rep cards (#reps), the
+      // homepage doesn't — there the same CTA opens the book-a-visit dialog.
+      var noFitCta = document.getElementById("reps")
+        ? '<a class="fit-cta" href="#reps">talk to Bharat about flexible plans</a>'
+        : '<button type="button" class="fit-cta" data-book-fit>talk to Bharat about flexible plans</button>';
       var head = best ? ('Your income can own up to a <b>' + best.label + '</b> at Nivasa.')
-                      : 'Just shy of our current configs — talk to Bharat about flexible plans.';
+                      : ('Just shy of our current configs — ' + noFitCta);
       $("aff-fit").innerHTML = '<p class="fit-head">' + head + '</p>' + rows;
+      // wire the homepage CTA (re-injected each render; innerHTML drops the old node).
+      var fitBtn = $("aff-fit").querySelector("[data-book-fit]");
+      if (fitBtn) fitBtn.addEventListener("click", function () {
+        var d = document.getElementById("bookDialog");
+        if (!d) return;
+        if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open", "");
+        var fi = d.querySelector("input"); if (fi) fi.focus();
+        if (window.track) window.track("book_visit_open", { page: angleKey, from: "afford" });
+      });
       $("aff-income-val").textContent = crore(num(aInc));
       $("aff-co-val").textContent = crore(num(aCoInc));
       $("aff-emi-val").textContent = crore(num(aEx));
@@ -295,17 +309,23 @@
   function closeLightbox() { lb.classList.remove("open"); document.body.style.overflow = ""; }
   function step(d) { gIndex = (gIndex + d + gallerySet.length) % gallerySet.length; lbImg.src = gallerySet[gIndex]; }
 
-  var galWrap = document.querySelector("[data-gallery]");
-  if (galWrap) {
+  // wire EVERY [data-gallery] (the homepage has two: the gallery grid AND the
+  // floor-plans grid). Each gallery gets its own image set so prev/next stays
+  // within it. querySelector (singular) used to wire only the first → the
+  // floor-plan "Enlarge" cards were dead on both desktop and mobile.
+  document.querySelectorAll("[data-gallery]").forEach(function (galWrap) {
     var figs = Array.prototype.slice.call(galWrap.querySelectorAll("figure"));
     var srcs = figs.map(function (f) { return f.querySelector("img").getAttribute("data-full") || f.querySelector("img").src; });
     figs.forEach(function (f, i) { f.addEventListener("click", function () { openLightbox(srcs, i); }); });
-  }
+  });
 
   /* =====================================================================
      LEAD FORM validation + simulated submit (WhatsApp + DB in live build)
      ===================================================================== */
   var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  var PHONE_RE = /^[6-9]\d{9}$/;           // Indian mobile: 10 digits, starts 6-9
+  // last 10 digits, so a pasted "+91 98765 43210" still resolves correctly
+  var phone10 = function (v) { var d = v.replace(/\D/g, ""); return d.length > 10 ? d.slice(-10) : d; };
   document.querySelectorAll("[data-leadform]").forEach(function (form) {
     var success = form.parentNode.querySelector(".form-success");
     // intent="brochure" → email-only soft capture; default "lead" → name + phone.
@@ -314,8 +334,30 @@
       var wrap = field.closest(".form-field"); wrap.classList.add("err");
       var e = wrap.querySelector(".form-err"); if (e && msg) e.textContent = msg;
     }
+    // single source of truth for per-field rules (used live, on blur, and on submit)
+    function valid(f) {
+      var n = f.getAttribute("name"), v = f.value.trim();
+      if (n === "name") return v.length >= 2;
+      if (n === "phone") return PHONE_RE.test(phone10(f.value));
+      if (n === "email") return intent === "brochure" ? EMAIL_RE.test(v) : (!v || EMAIL_RE.test(v));
+      return true;
+    }
+    function msgFor(f) {
+      var n = f.getAttribute("name");
+      return n === "name" ? "Please enter your name"
+           : n === "phone" ? "Enter a valid 10-digit mobile"
+           : "Enter a valid email";
+    }
     form.querySelectorAll("input,select,textarea").forEach(function (f) {
-      f.addEventListener("input", function () { f.closest(".form-field").classList.remove("err"); });
+      var isPhone = f.getAttribute("name") === "phone";
+      f.addEventListener("input", function () {
+        if (isPhone) f.value = phone10(f.value);   // restrict to digits as they type
+        f.closest(".form-field").classList.remove("err");
+      });
+      // surface problems when leaving a field — but don't nag an empty one
+      f.addEventListener("blur", function () {
+        if (f.value.trim() && !valid(f)) fail(f, msgFor(f));
+      });
     });
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -326,11 +368,11 @@
       form.querySelectorAll(".form-field").forEach(function (w) { w.classList.remove("err"); });
       if (intent === "brochure") {
         // email required & valid; name/phone optional
-        if (!email || !EMAIL_RE.test(email.value.trim())) { if (email) fail(email, "Enter a valid email"); ok = false; }
+        if (!email || !valid(email)) { if (email) fail(email, msgFor(email)); ok = false; }
       } else {
-        if (name && !name.value.trim()) { fail(name, "Please enter your name"); ok = false; }
-        if (phone && !/^[6-9]\d{9}$/.test(phone.value.replace(/\D/g, "").slice(-10))) { fail(phone, "Enter a valid 10-digit mobile"); ok = false; }
-        if (email && email.value && !EMAIL_RE.test(email.value)) { fail(email, "Enter a valid email"); ok = false; }
+        if (name && !valid(name)) { fail(name, msgFor(name)); ok = false; }
+        if (phone && !valid(phone)) { fail(phone, msgFor(phone)); ok = false; }
+        if (email && email.value && !valid(email)) { fail(email, msgFor(email)); ok = false; }
       }
       if (!ok) return;
       // Live: POST to D1 + sales email via /api/lead
