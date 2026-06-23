@@ -3,6 +3,8 @@
 // adding GA4 / Google Ads / a CRM later is one place, not scattered calls.
 // NOTE: consent gating is deferred (CLAUDE.md §8) — events fire unconditionally for now.
 
+import { site } from "../config/site";
+
 type Props = Record<string, unknown>;
 
 declare global {
@@ -10,8 +12,17 @@ declare global {
     clarity?: (...args: unknown[]) => void;
     fbq?: (...args: unknown[]) => void;
     _fbq?: unknown; // internal handle set by the Meta Pixel bootstrap snippet
+    gtag?: (...args: unknown[]) => void;
+    dataLayer?: unknown[];
   }
 }
+
+// Our Conversion vocabulary → the matching Google Ads conversion-action label.
+const GOOGLE_ADS_EVENTS: Record<string, keyof typeof site.analytics.googleAdsLabels> = {
+  lead_submit: "lead",
+  whatsapp_click: "whatsapp",
+  brochure_request: "brochure",
+};
 
 export function track(event: string, props: Props = {}): void {
   if (typeof window === "undefined") return;
@@ -26,8 +37,20 @@ export function track(event: string, props: Props = {}): void {
     const fbq = window.fbq;
     if (fbq) {
       if (event === "lead_submit") fbq("track", "Lead", props);
-      else if (event === "whatsapp_click") fbq("track", "Contact", props);
+      // WhatsApp + phone-call clicks are both "Contact" in Meta's vocabulary.
+      else if (event === "whatsapp_click" || event === "call_click") fbq("track", "Contact", props);
       else fbq("trackCustom", event, props);
+    }
+  } catch {}
+
+  // Google Ads — fire a conversion for the events we've mapped to a conversion
+  // action. Guarded on the id + that action's label being set (empty = off).
+  try {
+    const { googleAdsId, googleAdsLabels } = site.analytics;
+    const labelKey = GOOGLE_ADS_EVENTS[event];
+    const label = labelKey && googleAdsLabels[labelKey];
+    if (window.gtag && googleAdsId && label) {
+      window.gtag("event", "conversion", { send_to: `${googleAdsId}/${label}` });
     }
   } catch {}
 }

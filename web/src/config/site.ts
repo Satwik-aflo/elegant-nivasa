@@ -34,7 +34,14 @@ export const site = {
   // Analytics — STUB ids. Empty string disables the snippet (safe for dev).
   analytics: {
     clarityId: "xah4dbk2kt",   // Microsoft Clarity project id (live 2026-06-21)
-    metaPixelId: "",           // Meta Pixel id
+    metaPixelId: "1036291125518805",  // Meta Pixel id (live 2026-06-23)
+    // Google Ads conversion tracking (for the Kollur/Tellapur conquest campaign).
+    // Empty googleAdsId disables gtag entirely (same safety model as metaPixelId).
+    // Create 3 conversion actions in Google Ads (Lead, WhatsApp Enquiry, Brochure),
+    // mark Lead+WhatsApp as Primary, then paste the conversion id + 3 labels here.
+    // See docs/specs/2026-06-23-google-ads-conversion-tracking.md.
+    googleAdsId: "",           // "AW-XXXXXXXXX"
+    googleAdsLabels: { lead: "", whatsapp: "", brochure: "" },
   },
 } as const;
 

@@ -49,6 +49,23 @@
     || document.body.getAttribute("data-page")
     || "home";
 
+  /* ---------- ad-tag (UTM) capture ----------
+     The ad's link carries ?utm_source=google&utm_campaign=…&utm_content=<angle>.
+     We stash it on first landing so the source survives navigation — e.g. a
+     visitor lands on /cost (tagged), clicks "explore full project" to the
+     homepage (untagged), then books: the lead still records the google ad it
+     came from. First tagged URL of the session wins. */
+  function adTag() {
+    var KEY = "en_utm";
+    try {
+      var current = location.search || "";
+      if (/[?&]utm_/.test(current)) { sessionStorage.setItem(KEY, current); return current; }
+      return sessionStorage.getItem(KEY) || current;
+    } catch (err) {
+      return location.search || "";
+    }
+  }
+
   /* =====================================================================
      NAV: scroll state + mobile toggle
      ===================================================================== */
@@ -402,7 +419,7 @@
           phone: phone ? phone.value.replace(/\D/g, "").slice(-10) : "",
           email: email ? email.value.trim() : "",
           source_page: location.pathname,
-          utm: location.search
+          utm: adTag()
         })
       }).then(function (r) {
         if (!r.ok) throw new Error(r.status);
@@ -459,6 +476,18 @@
     a.setAttribute("target", "_blank");
     a.addEventListener("click", function () {
       if (window.track) window.track("whatsapp_click", { page: angleKey, rep: rep });
+    });
+  });
+
+  /* =====================================================================
+     Generic click tracking — any [data-track] element fires its named event
+     through track() (Clarity + Meta + Google Ads). Covers the homepage
+     sticky-bar Call / WhatsApp, which are plain tel:/wa.me anchors (not
+     dialogs or [data-wa]), so every direct contact gets attributed.
+     ===================================================================== */
+  document.querySelectorAll("[data-track]").forEach(function (el) {
+    el.addEventListener("click", function () {
+      if (window.track) window.track(el.getAttribute("data-track"), { page: angleKey });
     });
   });
 

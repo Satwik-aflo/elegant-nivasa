@@ -2,7 +2,7 @@
 // Loads Clarity + Meta Pixel only when ids are set in config (empty = off, safe
 // for dev). Consent gating deferred — see CLAUDE.md §8.
 import { site } from "../config/site";
-const { clarityId, metaPixelId } = site.analytics;
+const { clarityId, metaPixelId, googleAdsId } = site.analytics;
 ---
 {clarityId && (
   <script is:inline define:vars={{ clarityId }}>
@@ -22,6 +22,21 @@ const { clarityId, metaPixelId } = site.analytics;
       t = b.createElement(e); t.async = !0; t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
     }(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
     fbq("init", metaPixelId); fbq("track", "PageView");
+  </script>
+)}
+
+{googleAdsId && (
+  <script is:inline define:vars={{ googleAdsId }}>
+    (function (d, s, id) {
+      var t = d.createElement(s); t.async = 1;
+      t.src = "https://www.googletagmanager.com/gtag/js?id=" + id;
+      var f = d.getElementsByTagName(s)[0]; f.parentNode.insertBefore(t, f);
+    })(document, "script", googleAdsId);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { window.dataLayer.push(arguments); };
+    gtag("js", new Date());
+    // Enables auto-tagging — captures the gclid so conversions attribute to the keyword.
+    gtag("config", googleAdsId);
   </script>
 )}
 

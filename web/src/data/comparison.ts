@@ -178,7 +178,7 @@ export const ANGLES: Record<Angle, AngleContent> = {
     hero: {
       eyebrow: "The cost question · Tellapur, West Hyderabad",
       headline: "Save <em>₹20.6 lakh*</em><br>on the same Tellapur home.",
-      lead: "Same 1,375 sft 3 BHK, same ORR corridor. Branded launches near the Financial District ask around <b>₹1.17 crore*</b> (₹8,500/sft*). At Elegant Nivasa, Tellapur it’s about <b>₹96 lakh*</b> (₹6,999/sft*) — you pocket <b>₹20.6 lakh*</b>.",
+      lead: "Same 1,375 sft 3 BHK, same ORR corridor. Branded launches near the Financial District ask around <b>₹1.17 crore*</b> (₹8,500/sft*). At Elegant Nivasa, Tellapur it’s about <b>₹96 lakh*</b> (₹7,000/sft*) — you pocket <b>₹20.6 lakh*</b>.",
       ctaPrimary: "Get the price sheet",
       ctaSecondary: "See the difference",
       badges: [
@@ -216,7 +216,7 @@ export const ANGLES: Record<Angle, AngleContent> = {
       kind: "handover",
       eyebrow: "One timeline, two outcomes",
       headline: "One asset is nearly ready. One hasn't started.",
-      sub: `Elegant Nivasa is 78% structure-complete and hands over in 2027. ${THEM} is a fresh launch — keys, and rent, arrive years later.`,
+      sub: `Elegant Nivasa is 78% structure-complete and hands over in 2027 — ${THEM} is still years from ready, so keys and rent arrive much later.`,
       tracks: [
         {
           who: "us",

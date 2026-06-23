@@ -81,12 +81,26 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
   all routes. **LIVE:** project id `xah4dbk2kt` set in `config/site.ts` (2026-06-21); the snippet
   auto-injects on every route via `AnalyticsScripts.astro` (confirmed live on every route of the
   production domain). _(Reminder: this tracks before a consent banner — DPDP, §8.)_
-- **Meta Pixel** — attribution for Instagram/Meta ad spend. _[ ] still needs a Pixel id_ —
-  drop into `site.analytics.metaPixelId` (same auto-inject path as Clarity).
+- **Meta Pixel** — attribution for Instagram/Meta ad spend. **LIVE:** id `1036291125518805` set in
+  `site.analytics.metaPixelId` (2026-06-23); auto-injects on every route via `AnalyticsScripts.astro`
+  (base code + `PageView`). `track()` maps Conversions to standard events: `lead_submit`→**Lead**,
+  `whatsapp_click`/`call_click`→**Contact** (homepage sticky Call/WhatsApp now fire via `[data-track]`);
+  brochure/book open as custom events. _(Reminder: fires before a consent banner — DPDP, §8.)_
+- **Google Ads conversion tracking — BUILT but SHELVED (2026-06-23).** For the Kollur/Tellapur
+  Search competitor-conquest campaign (spec
+  [docs/specs/2026-06-23-google-ads-conversion-tracking.md](./docs/specs/2026-06-23-google-ads-conversion-tracking.md)).
+  The code is **in the tree but dormant** — basic conversion tag (gtag.js, **no PII** in the ping)
+  that auto-injects via `AnalyticsScripts.astro` when `site.analytics.googleAdsId` (`AW-…`) is set,
+  and `track()` fires a per-event conversion via `googleAdsLabels` (`lead_submit`→lead,
+  `whatsapp_click`→whatsapp, `brochure_request`→brochure). **Parked pending a campaign go decision** —
+  not committed/deployed; `astro check` + build verified green; **inert until IDs are added** (same
+  model as the Pixel). _To unshelf:_ create 3 conversion actions in Google Ads (mark Lead+WhatsApp
+  **Primary**, Brochure Secondary), paste id + 3 labels into config, deploy. Enhanced conversions +
+  offline quality-lead/GCLID import remain deferred (layer onto the same config later, no rework).
 - One `track()` wrapper fires **Conversion** events (Lead = form submit, Enquiry = WhatsApp click)
-  to both, so numbers reconcile.
-- **Deferred** (drop-in later via the same wrapper): GA4, Google Ads conversion tag (Google ad
-  spend unconfirmed).
+  to all configured destinations (Clarity, Meta Pixel, Google Ads), so numbers reconcile.
+- **Deferred** (drop-in later via the same wrapper): GA4; Google Ads **enhanced/offline**
+  conversions (the basic tag is now in place).
 
 ## 6. Phasing (Cutover)
 
