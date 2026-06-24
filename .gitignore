@@ -8,3 +8,16 @@ __pycache__/
 # Local preview / temp
 *.log
 .cache/
+
+# Source material — large content assets (renders, brochure, sheets, comparison pics).
+# Kept locally / in cloud, NOT versioned. The site's own copies live under web/ and stay tracked.
+# (See CLAUDE.md §9.) Root-anchored so web/public assets are unaffected.
+/Renders/
+/Floor Plans/
+/Brochure.pdf
+/ProjectComparisionPicture/
+/Nivasa *.xlsx
+/Nivasa *.pdf
+
+# Marketing working folder (media plans, sheets, handoff notes) — not versioned.
+/Marketing/
