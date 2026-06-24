@@ -130,12 +130,20 @@
      ===================================================================== */
   var calcRoot = document.querySelector("[data-calc]");
   if (calcRoot) {
+    // `plans` = absolute plate paths (leading slash so they resolve on the
+    // sub-sites' /cost/ etc., not just the homepage). Areas with two variants
+    // (1,845) open both in the lightbox so the visitor can swipe between them.
     var TIERS = [
-      { label: "2 BHK · 1,375 sft", area: 1375 },
-      { label: "3 BHK · 1,700 sft", area: 1700 },
-      { label: "3 BHK · 1,845 sft", area: 1845 },
-      { label: "3 BHK · 2,205 sft", area: 2205 }
+      { label: "2 BHK · 1,375 sft", area: 1375, plans: ["/assets/img/floorplans/type-5.png"] },
+      { label: "3 BHK · 1,700 sft", area: 1700, plans: ["/assets/img/floorplans/type-1.png"] },
+      { label: "3 BHK · 1,845 sft", area: 1845, plans: ["/assets/img/floorplans/type-4.png", "/assets/img/floorplans/type-6.png"] },
+      { label: "3 BHK · 2,205 sft", area: 2205, plans: ["/assets/img/floorplans/type-3.png"] }
     ];
+    // magnify glyph for the fit-row floor-plan thumbnail (the chosen affordance).
+    var EYE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+    // warm the plate images so the result thumbnails paint instantly when the
+    // fit list re-renders on every slider move (no flash from the cache miss).
+    TIERS.forEach(function (t) { t.plans.forEach(function (src) { var im = new Image(); im.src = src; }); });
     function emiOf(P, annual, years) {
       var r = annual / 12 / 100, n = years * 12;
       return r === 0 ? P / n : (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
@@ -179,17 +187,24 @@
       var dp = +aDp.value / 100;
       var budget = dp < 1 ? loan / (1 - dp) : loan;
       var area = budget / RATE;
-      $("aff-loan").textContent = crore(loan);
-      $("aff-budget").textContent = crore(budget);
-      $("aff-maxemi").textContent = inr(maxEMI);
-      $("aff-dpamt").textContent = crore(budget - loan);
+      // indicative money outputs carry a `*` (footer disclaimer); the echoed
+      // user inputs (income considered) and the sft area do not.
+      $("aff-loan").textContent = crore(loan) + "*";
+      $("aff-budget").textContent = crore(budget) + "*";
+      $("aff-maxemi").textContent = inr(maxEMI) + "*";
+      $("aff-dpamt").textContent = crore(budget - loan) + "*";
       $("aff-area").textContent = Math.round(area).toLocaleString("en-IN") + " sft";
       $("aff-income-tot").textContent = crore(inc);
       var best = null;
-      var rows = TIERS.map(function (t) {
+      // Each config row is a button → opens that config's floor-plan plate(s).
+      var rows = TIERS.map(function (t, ti) {
         var price = t.area * RATE, ok = price <= budget; if (ok) best = t;
-        return '<div class="fit-row ' + (ok ? "ok" : "no") + '"><span class="fk">' + (ok ? "✓" : "✕") + '</span>' +
-          '<span class="fl">' + t.label + '</span><span class="fp">' + crore(price) + '</span></div>';
+        return '<button type="button" class="fit-row ' + (ok ? "ok" : "no") + '" data-plan="' + ti + '">' +
+          '<span class="fk">' + (ok ? "✓" : "✕") + '</span>' +
+          '<span class="fl">' + t.label + '</span>' +
+          '<span class="fit-fp">' + crore(price) + '*</span>' +
+          '<span class="fit-thumb"><img src="' + t.plans[0] + '" alt="" decoding="async">' +
+          '<span class="fit-mag">' + EYE_SVG + '</span></span></button>';
       }).join("");
       // "talk to Bharat" is actionable: sub-sites have rep cards (#reps), the
       // homepage doesn't — there the same CTA opens the book-a-visit dialog.
@@ -208,6 +223,15 @@
         var fi = d.querySelector("input"); if (fi) fi.focus();
         if (window.track) window.track("book_visit_open", { page: angleKey, from: "afford" });
       });
+      // each config row → open its floor-plan plate(s) in the lightbox.
+      $("aff-fit").querySelectorAll("[data-plan]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var t = TIERS[+b.getAttribute("data-plan")];
+          if (!t || !t.plans || !t.plans.length) return;
+          openLightbox(t.plans, 0);
+          if (window.track) window.track("floorplan_view", { page: angleKey, from: "afford", config: t.label });
+        });
+      });
       $("aff-income-val").textContent = crore(num(aInc));
       $("aff-co-val").textContent = crore(num(aCoInc));
       $("aff-emi-val").textContent = crore(num(aEx));
@@ -216,6 +240,7 @@
       $("aff-ten-val").textContent = aTen.value + " yrs";
       $("aff-dp-val").textContent = aDp.value + "%";
       [aFoir, aRate, aTen, aDp].forEach(fill);
+      shrinkStars(calcRoot); // re-wrap the freshly-injected money-output stars
     }
     aCo.addEventListener("change", function () { aCoWrap.hidden = !aCo.checked; calcAfford(); });
     [aInc, aCoInc, aEx].forEach(function (el) { el.addEventListener("input", calcAfford); });
@@ -257,10 +282,10 @@
         $("rnt-topup").innerHTML = bhk + " · " + covered.area.toLocaleString("en-IN") +
           " sft<small>your rent already covers this — ₹0 more</small>";
         $("rnt-sub").textContent = surplus > 0 ? inr(surplus) + "/mo to spare after the EMI" : "";
-        $("rnt-emi").textContent = inr(emi);
+        $("rnt-emi").textContent = inr(emi) + "*";
         $("rnt-rent2").textContent = inr(rent);
-        $("rnt-dpamt").textContent = crore(price * dp);
-        $("rnt-equity").textContent = crore(price);
+        $("rnt-dpamt").textContent = crore(price * dp) + "*";
+        $("rnt-equity").textContent = crore(price) + "*";
         $("rnt-msg").textContent = "Your " + inr(rent) + " rent already covers the full EMI on this home. " +
           "You're paying for a home every month — it just isn't yours.";
         $("rnt-dp-val").textContent = rDp.value + "% · " + crore(price * dp);
@@ -271,12 +296,12 @@
         var top = emi - rent;
         rPanel.classList.remove("emi--owns");
         $("rnt-head").textContent = "Just a little more than rent";
-        $("rnt-topup").innerHTML = (top > 0 ? inr(top) : "₹0") + '<small>/mo more</small>';
+        $("rnt-topup").innerHTML = (top > 0 ? inr(top) : "₹0") + '*<small>/mo more</small>';
         $("rnt-sub").textContent = "on top of your " + inr(rent) + " rent — and the home is yours";
-        $("rnt-emi").textContent = inr(emi);
+        $("rnt-emi").textContent = inr(emi) + "*";
         $("rnt-rent2").textContent = inr(rent);
-        $("rnt-dpamt").textContent = crore(price * dp);
-        $("rnt-equity").textContent = crore(price);
+        $("rnt-dpamt").textContent = crore(price * dp) + "*";
+        $("rnt-equity").textContent = crore(price) + "*";
         $("rnt-msg").textContent = "You already pay " + inr(rent) + " a month in rent. For about " +
           inr(top) + " more, that money builds your own " + crore(price) + " asset — instead of zero equity.";
         $("rnt-dp-val").textContent = rDp.value + "% · " + crore(price * dp);
@@ -285,11 +310,26 @@
       $("rnt-rate-val").textContent = (+rRate.value).toFixed(1) + "%";
       $("rnt-ten-val").textContent = rTen.value + " yrs";
       [rDp, rRate, rTen].forEach(fill);
+      shrinkStars(calcRoot); // re-wrap the freshly-injected money-output stars
     }
     rRent.addEventListener("input", calcRent);
     rUnit.addEventListener("change", calcRent);
     [rDp, rRate, rTen].forEach(function (el) { el.addEventListener("input", calcRent); });
     calcRent();
+
+    // "See all floor plans" link in each result panel (both tabs). Homepage has
+    // a #plans section to scroll to; sub-sites link to the homepage's (/#plans).
+    var plansHref = document.getElementById("plans") ? "#plans" : "/#plans";
+    calcRoot.querySelectorAll(".emi-result").forEach(function (res) {
+      var a = document.createElement("a");
+      a.className = "calc-plans-link";
+      a.href = plansHref;
+      a.innerHTML = 'See all six floor plans <span aria-hidden="true">→</span>';
+      a.addEventListener("click", function () {
+        if (window.track) window.track("floorplan_view", { page: angleKey, from: "viewall" });
+      });
+      res.appendChild(a);
+    });
   }
 
   /* =====================================================================
@@ -344,7 +384,6 @@
   // last 10 digits, so a pasted "+91 98765 43210" still resolves correctly
   var phone10 = function (v) { var d = v.replace(/\D/g, ""); return d.length > 10 ? d.slice(-10) : d; };
   document.querySelectorAll("[data-leadform]").forEach(function (form) {
-    var success = form.parentNode.querySelector(".form-success");
     // intent="brochure" → email-only soft capture; default "lead" → name + phone.
     var intent = form.getAttribute("data-intent") === "brochure" ? "brochure" : "lead";
     function fail(field, msg) {
@@ -396,19 +435,10 @@
       var btn = form.querySelector("button[type=submit]");
       btn.textContent = "Sending…"; btn.disabled = true;
       function showSuccess() {
-        form.style.display = "none";
-        if (success) {
-          success.classList.add("show");
-          var nm = success.querySelector("[data-name]"); if (nm && name) nm.textContent = name.value.trim().split(" ")[0];
-        }
-        // brochure prompt: kick off the actual PDF download once captured
-        var dl = form.getAttribute("data-download");
-        if (dl) {
-          var a = document.createElement("a");
-          a.href = dl; a.setAttribute("download", "");
-          document.body.appendChild(a); a.click(); a.remove();
-        }
-        if (window.track) window.track(intent === "brochure" ? "brochure_request" : "lead_submit", { page: angleKey });
+        // Lead is already written to D1. Navigate to the matching thank-you page; it
+        // fires the conversion on load (Meta + Clarity + dataLayer via track(), GTM
+        // page-view → Google Ads) and, for brochure, auto-starts the PDF download.
+        window.location.href = intent === "brochure" ? "/thank-you-brochure" : "/thank-you-visit";
       }
       fetch("/api/lead", {
         method: "POST",
@@ -495,4 +525,41 @@
      YEAR + smooth anchor offset
      ===================================================================== */
   document.querySelectorAll("[data-year]").forEach(function (e) { e.textContent = new Date().getFullYear(); });
+
+  /* =====================================================================
+     FOOTNOTE STARS — every figure carries a literal "*" tied to the footer
+     disclaimer. Shrink each into a small superscript marker (<sup.dstar>).
+     Most *-bearing copy is server-rendered (caught by the one-time pass on
+     load below); the EMI calculator re-injects starred money outputs on every
+     slider move, so calcAfford()/calcRent() call shrinkStars(calcRoot) again
+     after each render to re-wrap their fresh stars (already-wrapped <sup> are
+     skipped, and re-rendered textContent drops the old <sup> first).
+     ===================================================================== */
+  function shrinkStars(root) {
+    root = root || document.body;
+    var SKIP = { SCRIPT: 1, STYLE: 1, TEXTAREA: 1, SUP: 1, NOSCRIPT: 1, OPTION: 1 };
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) {
+        if (!n.nodeValue || n.nodeValue.indexOf("*") < 0) return NodeFilter.FILTER_REJECT;
+        if (n.parentNode && SKIP[n.parentNode.nodeName]) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var nodes = [], n;
+    while ((n = walker.nextNode())) nodes.push(n);
+    nodes.forEach(function (node) {
+      var parts = node.nodeValue.split("*");
+      var frag = document.createDocumentFragment();
+      parts.forEach(function (p, i) {
+        if (i > 0) {
+          var s = document.createElement("sup");
+          s.className = "dstar"; s.textContent = "*";
+          frag.appendChild(s);
+        }
+        if (p) frag.appendChild(document.createTextNode(p));
+      });
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+  shrinkStars();
 })();
