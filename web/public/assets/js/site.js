@@ -438,7 +438,7 @@
         // Lead is already written to D1. Navigate to the matching thank-you page; it
         // fires the conversion on load (Meta + Clarity + dataLayer via track(), GTM
         // page-view → Google Ads) and, for brochure, auto-starts the PDF download.
-        window.location.href = intent === "brochure" ? "/thank-you-brochure" : "/thank-you-visit";
+        window.location.href = intent === "brochure" ? "/thank-you-brochure/" : "/thank-you-visit/";
       }
       fetch("/api/lead", {
         method: "POST",
