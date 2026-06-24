@@ -3,6 +3,7 @@
 // gallery · corridor test · car-free podium · location · possession/trust ·
 // floor plans · brochure + Lead form. Styled to match the three sub-sites.
 import AnalyticsScripts from "../components/AnalyticsScripts.astro";
+import GtmNoscript from "../components/GtmNoscript.astro";
 import SocialMeta from "../components/SocialMeta.astro";
 
 // Floor-plan plates (open — no gating). Config/saleable/facing read off each
@@ -70,6 +71,7 @@ const PAGE_DESC = "Premium 2 & 3 BHK homes at Tellapur, West Hyderabad — three
 <AnalyticsScripts />
 </head>
 <body data-page="home">
+<GtmNoscript />
 
 <!-- ============ HEADER ============ -->
 <header class="site-header">

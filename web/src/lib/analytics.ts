@@ -1,9 +1,12 @@
 // Single event layer. Every Conversion (Lead, Enquiry) and engagement event
-// goes through track(); destinations (Clarity, Meta Pixel) are added here so
-// adding GA4 / Google Ads / a CRM later is one place, not scattered calls.
+// goes through track(); destinations are wired here so adding a CRM etc. later
+// is one place, not scattered calls.
+//   • Microsoft Clarity  — hardcoded (custom event tag)
+//   • Meta Pixel         — hardcoded (standard events)
+//   • Google Tag Manager — every event is pushed to the dataLayer so GTM
+//     triggers fire Google Ads conversions (+ future GA4 / remarketing).
+//     Google Ads is NOT fired here — it lives in the marketing-owned GTM container.
 // NOTE: consent gating is deferred (CLAUDE.md §8) — events fire unconditionally for now.
-
-import { site } from "../config/site";
 
 type Props = Record<string, unknown>;
 
@@ -12,17 +15,9 @@ declare global {
     clarity?: (...args: unknown[]) => void;
     fbq?: (...args: unknown[]) => void;
     _fbq?: unknown; // internal handle set by the Meta Pixel bootstrap snippet
-    gtag?: (...args: unknown[]) => void;
-    dataLayer?: unknown[];
+    dataLayer?: Array<Record<string, unknown>>; // GTM queue (created by the GTM snippet)
   }
 }
-
-// Our Conversion vocabulary → the matching Google Ads conversion-action label.
-const GOOGLE_ADS_EVENTS: Record<string, keyof typeof site.analytics.googleAdsLabels> = {
-  lead_submit: "lead",
-  whatsapp_click: "whatsapp",
-  brochure_request: "brochure",
-};
 
 export function track(event: string, props: Props = {}): void {
   if (typeof window === "undefined") return;
@@ -43,15 +38,13 @@ export function track(event: string, props: Props = {}): void {
     }
   } catch {}
 
-  // Google Ads — fire a conversion for the events we've mapped to a conversion
-  // action. Guarded on the id + that action's label being set (empty = off).
+  // Google Tag Manager — push the semantic event so GTM triggers can fire Google
+  // Ads conversions. The WhatsApp links are base64/JS-built and the book-a-visit
+  // is a native dialog, so GTM's auto click/form triggers can't see them — this
+  // dataLayer push is how GTM learns a conversion happened. Marketing builds a
+  // Custom Event trigger per event name (whatsapp_click / lead_submit / brochure_request).
   try {
-    const { googleAdsId, googleAdsLabels } = site.analytics;
-    const labelKey = GOOGLE_ADS_EVENTS[event];
-    const label = labelKey && googleAdsLabels[labelKey];
-    if (window.gtag && googleAdsId && label) {
-      window.gtag("event", "conversion", { send_to: `${googleAdsId}/${label}` });
-    }
+    (window.dataLayer = window.dataLayer || []).push({ event, ...props });
   } catch {}
 }
 

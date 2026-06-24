@@ -1,0 +1,13 @@
+---
+// GTM <noscript> fallback — must sit immediately after the opening <body> tag.
+// Companion to the GTM head snippet in AnalyticsScripts.astro. Off when gtmId empty.
+import { site } from "../config/site";
+const { gtmId } = site.analytics;
+---
+{gtmId && (
+  <noscript>
+    <iframe
+      src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+      height="0" width="0" style="display:none;visibility:hidden"></iframe>
+  </noscript>
+)}

@@ -7,6 +7,7 @@
 // Cloudflare/Resend, DPDP rights). Bracketed items still need the client's
 // real details; have legal counsel review before relying on it.
 import AnalyticsScripts from "../components/AnalyticsScripts.astro";
+import GtmNoscript from "../components/GtmNoscript.astro";
 import SocialMeta from "../components/SocialMeta.astro";
 import { site } from "../config/site.ts";
 
@@ -48,6 +49,7 @@ const BROCHURE = "/assets/brochure/Elegant-Nivasa-Brochure.pdf";
 </style>
 </head>
 <body data-page="legal">
+<GtmNoscript />
 
 <header class="site-header scrolled">
   <a class="brand" href="/" aria-label="Elegant Nivasa home">

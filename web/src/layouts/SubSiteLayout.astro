@@ -4,6 +4,7 @@
 // /assets/js/site.js (in public/). (Originally ported from a hand-coded static
 // HTML site that has since been deleted — recoverable from git history.)
 import AnalyticsScripts from "../components/AnalyticsScripts.astro";
+import GtmNoscript from "../components/GtmNoscript.astro";
 import Scoreboard from "../components/Scoreboard.astro";
 import AngleLeadCost from "../components/AngleLeadCost.astro";
 import AngleLeadHandover from "../components/AngleLeadHandover.astro";
@@ -42,6 +43,7 @@ const waSvg = `<svg viewBox="0 0 32 32" width="21" height="21" fill="currentColo
 <AnalyticsScripts />
 </head>
 <body data-angle={angle}>
+<GtmNoscript />
 
 <!-- ============ HEADER ============ -->
 <header class="site-header">

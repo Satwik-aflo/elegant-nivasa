@@ -86,21 +86,23 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
   (base code + `PageView`). `track()` maps Conversions to standard events: `lead_submit`→**Lead**,
   `whatsapp_click`/`call_click`→**Contact** (homepage sticky Call/WhatsApp now fire via `[data-track]`);
   brochure/book open as custom events. _(Reminder: fires before a consent banner — DPDP, §8.)_
-- **Google Ads conversion tracking — BUILT but SHELVED (2026-06-23).** For the Kollur/Tellapur
-  Search competitor-conquest campaign (spec
-  [docs/specs/2026-06-23-google-ads-conversion-tracking.md](./docs/specs/2026-06-23-google-ads-conversion-tracking.md)).
-  The code is **in the tree but dormant** — basic conversion tag (gtag.js, **no PII** in the ping)
-  that auto-injects via `AnalyticsScripts.astro` when `site.analytics.googleAdsId` (`AW-…`) is set,
-  and `track()` fires a per-event conversion via `googleAdsLabels` (`lead_submit`→lead,
-  `whatsapp_click`→whatsapp, `brochure_request`→brochure). **Parked pending a campaign go decision** —
-  not committed/deployed; `astro check` + build verified green; **inert until IDs are added** (same
-  model as the Pixel). _To unshelf:_ create 3 conversion actions in Google Ads (mark Lead+WhatsApp
-  **Primary**, Brochure Secondary), paste id + 3 labels into config, deploy. Enhanced conversions +
-  offline quality-lead/GCLID import remain deferred (layer onto the same config later, no rework).
+- **Google Tag Manager** — container `GTM-5FCBHXLJ` (**marketing-owned**). **LIVE:** id set in
+  `site.analytics.gtmId` (2026-06-24); head snippet auto-injects on every route via
+  `AnalyticsScripts.astro`, `<body>` noscript via `GtmNoscript.astro` (first child of `<body>` on all
+  routes). **GTM owns Google Ads conversions** (and any future GA4 / remarketing) — those are **NOT
+  hardcoded**. `track()` pushes every event to the **`dataLayer`** (`whatsapp_click` / `lead_submit` /
+  `brochure_request` + props) so GTM **Custom-Event triggers** fire the conversions — the WhatsApp
+  links are base64/JS-built and book-a-visit is a native dialog, so GTM's auto click/form triggers
+  can't see them without this bridge. **Ownership rule (verified before adding): GTM must NOT re-add
+  Meta Pixel or Clarity — code owns those, GTM would double-fire them.** _Marketing to-do: build the 3
+  Custom-Event triggers + Google Ads conversion tags in GTM; mark Lead+WhatsApp Primary, Brochure
+  Secondary._ _(Decision 2026-06-24: split architecture — Pixel+Clarity hardcoded, Ads via GTM. This
+  **superseded** the earlier in-code gtag.js Google Ads tag, now removed; see spec
+  [docs/specs/2026-06-23-google-ads-conversion-tracking.md](./docs/specs/2026-06-23-google-ads-conversion-tracking.md).)_
 - One `track()` wrapper fires **Conversion** events (Lead = form submit, Enquiry = WhatsApp click)
-  to all configured destinations (Clarity, Meta Pixel, Google Ads), so numbers reconcile.
-- **Deferred** (drop-in later via the same wrapper): GA4; Google Ads **enhanced/offline**
-  conversions (the basic tag is now in place).
+  to Clarity + Meta Pixel directly **and** pushes them to the GTM `dataLayer`, so numbers reconcile.
+- **Deferred** (drop-in later): GA4 + Google Ads **enhanced/offline** conversions — these now layer
+  into the **GTM container**, not the code.
 
 ## 6. Phasing (Cutover)
 
