@@ -44,6 +44,9 @@ const PHONE = "9090366366"; // public sales line (matches index.astro)
   .ty .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 22px; }
   .ty .slot { margin-bottom: 22px; }
   .ty .back { color: var(--navy); font-weight: 600; text-decoration: underline; }
+  /* site.css makes .site-footer a display:block (for the homepage's footer columns);
+     keep the bottom-row links inline so the " · " between them isn't orphaned. */
+  .foot-bottom a { display: inline; padding: 0; }
 </style>
 </head>
 <body data-page="thankyou">
