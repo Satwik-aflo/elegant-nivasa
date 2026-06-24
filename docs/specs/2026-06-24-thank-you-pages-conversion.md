@@ -1,5 +1,9 @@
 # Thank-you pages for form conversion tracking
 
+> **IMPLEMENTED 2026-06-24.** Live in code: `layouts/ThankYouLayout.astro` + `/thank-you-visit` +
+> `/thank-you-brochure`; `site.js` `showSuccess()` redirects on success. `astro check` 0/0/0, build
+> green. Marketing's GTM page-view triggers are the remaining (non-code) step.
+
 _Spec — 2026-06-24. Adds dedicated thank-you pages for the two on-site form conversions
 (book-a-visit Lead, brochure request) so Google Ads can track them with a rock-solid
 page-load trigger instead of a JS event. Requested by marketing. Covers the main site and

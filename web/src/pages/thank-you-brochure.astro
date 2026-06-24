@@ -1,0 +1,19 @@
+---
+import ThankYouLayout from "../layouts/ThankYouLayout.astro";
+const BROCHURE = "/assets/brochure/Elegant-Nivasa-Brochure.pdf";
+---
+<ThankYouLayout
+  title="Brochure on its way — Elegant Nivasa"
+  conversion="brochure_request"
+  heading="Your brochure is downloading"
+  lead="If the download doesn't start automatically, tap the button below. We've noted your interest — our team may reach out with availability and pricing."
+>
+  <a class="btn btn--gold btn--lg" href={BROCHURE} download>Download brochure</a>
+  <script is:inline define:vars={{ BROCHURE }}>
+    (function () {
+      var a = document.createElement("a");
+      a.href = BROCHURE; a.setAttribute("download", "");
+      document.body.appendChild(a); a.click(); a.remove();
+    })();
+  </script>
+</ThankYouLayout>

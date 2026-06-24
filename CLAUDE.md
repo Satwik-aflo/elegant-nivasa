@@ -101,6 +101,17 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
   [docs/specs/2026-06-23-google-ads-conversion-tracking.md](./docs/specs/2026-06-23-google-ads-conversion-tracking.md).)_
 - One `track()` wrapper fires **Conversion** events (Lead = form submit, Enquiry = WhatsApp click)
   to Clarity + Meta Pixel directly **and** pushes them to the GTM `dataLayer`, so numbers reconcile.
+- **Thank-you pages (form conversions)** — **LIVE 2026-06-24.** A successful book-a-visit or brochure
+  submit now **navigates** to `/thank-you-visit` or `/thank-you-brochure` (shared
+  `layouts/ThankYouLayout.astro`, both `noindex`) instead of revealing an in-dialog success panel.
+  Each fires its conversion **on page load** (`track()` → Meta `Lead` / Clarity / dataLayer) so GTM can
+  map **Google Ads** to a reliable **page-view trigger** rather than the submit-time event;
+  `/thank-you-brochure` also auto-downloads the PDF. `site.js` `showSuccess()` just redirects now.
+  _Marketing: build the Google Ads conversions on **page-view triggers** (`/thank-you-visit`,
+  `/thank-you-brochure`) — do **NOT** also trigger Ads off the `lead_submit` / `brochure_request`
+  dataLayer events, or it double-counts. WhatsApp has no thank-you page (it leaves the site) — it stays
+  on the `whatsapp_click` click event._ (Spec:
+  [docs/specs/2026-06-24-thank-you-pages-conversion.md](./docs/specs/2026-06-24-thank-you-pages-conversion.md).)
 - **Deferred** (drop-in later): GA4 + Google Ads **enhanced/offline** conversions — these now layer
   into the **GTM container**, not the code.
 

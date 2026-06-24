@@ -1,0 +1,92 @@
+---
+// Shared chrome for the post-submit thank-you pages (/thank-you-visit, /thank-you-brochure).
+// Self-contained like privacy.astro: own <head>, loads site.css + AnalyticsScripts, GtmNoscript
+// first in <body>. Fires its conversion `event` via window.track once on load (poll until the
+// analytics module exposes it) → Meta Pixel (Lead) + Clarity + dataLayer. GTM's page-view on this
+// URL is what marketing maps the Google Ads conversion to. noindex — post-submit page.
+import AnalyticsScripts from "../components/AnalyticsScripts.astro";
+import GtmNoscript from "../components/GtmNoscript.astro";
+import SocialMeta from "../components/SocialMeta.astro";
+import { site } from "../config/site.ts";
+
+interface Props {
+  title: string;
+  conversion: "lead_submit" | "brochure_request";
+  heading: string;
+  lead: string;
+}
+const { title, conversion, heading, lead } = Astro.props;
+const PHONE = "9090366366"; // public sales line (matches index.astro)
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{title}</title>
+<meta name="description" content="Thank you — Elegant Nivasa." />
+<SocialMeta title={title} description="Thank you — Elegant Nivasa." />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/css/site.css" />
+<AnalyticsScripts />
+<style>
+  .ty { min-height: 72vh; display: grid; place-items: center; text-align: center;
+        padding: clamp(120px,16vw,160px) 0 clamp(56px,8vw,90px); }
+  .ty .wrap { max-width: 620px; }
+  .ty .tick { width: 64px; height: 64px; border-radius: 50%; background: var(--gold); color: #fff;
+              display: grid; place-items: center; margin: 0 auto 24px; font-size: 2rem; line-height: 1; }
+  .ty h1 { font-family: var(--font-display); color: var(--navy); margin: 0 0 12px;
+           font-size: clamp(1.9rem,4.5vw,2.7rem); }
+  .ty p.lead { color: var(--ink-soft); font-size: 1.08rem; line-height: 1.6; margin: 0 0 28px; }
+  .ty .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 22px; }
+  .ty .slot { margin-bottom: 22px; }
+  .ty .back { color: var(--navy); font-weight: 600; text-decoration: underline; }
+</style>
+</head>
+<body data-page="thankyou">
+<GtmNoscript />
+
+<header class="site-header scrolled">
+  <a class="brand" href="/" aria-label="Elegant Nivasa home">
+    <img src="/assets/img/brand/nivasa-logo.png" alt="Elegant Nivasa" />
+  </a>
+  <nav class="nav">
+    <a class="btn btn--gold" href="/">Back to site</a>
+  </nav>
+</header>
+
+<main class="ty">
+  <div class="wrap">
+    <div class="tick" aria-hidden="true">✓</div>
+    <h1>{heading}</h1>
+    <p class="lead">{lead}</p>
+    <div class="cta-row">
+      <a class="btn btn--gold btn--lg" href={`tel:${PHONE}`} data-track="call_click">Call us now</a>
+      <a class="btn btn--ghost btn--lg" href={`https://wa.me/91${PHONE}`} target="_blank" rel="noopener" data-track="whatsapp_click">WhatsApp us</a>
+    </div>
+    <div class="slot"><slot /></div>
+    <a class="back" href="/">← Explore the project</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-bottom">
+      <span>© <span data-year>2026</span> {site.name} · {site.developer}. All rights reserved.</span>
+      <span><a href="/" style="color:inherit">Home</a></span>
+    </div>
+  </div>
+</footer>
+
+<script is:inline src="/assets/js/site.js"></script>
+<script is:inline define:vars={{ conversion }}>
+  (function fire() {
+    if (window.track) { window.track(conversion, { page: "thankyou" }); }
+    else { setTimeout(fire, 50); }
+  })();
+</script>
+</body>
+</html>
