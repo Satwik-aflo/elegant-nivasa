@@ -54,9 +54,33 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
 - **Lead (Main site):** every "Book a visit" trigger (`[data-book]` — header, hero, sticky CTA,
   footer) opens a centred **book-a-visit dialog** (native `<dialog>`, name + `+91` phone) instead
   of navigating; submit → `POST /api/lead` (intent `lead`) → write to **D1 first** (never lost) →
-  email to **sales@e-infra.in** → success. (Brochure email capture is the same endpoint, intent
-  `brochure`.) A CRM (e.g. Tranquil) is a later add the same endpoint can call; no CRM in the MVP.
-  _(Dialog open/close is in `site.js`; Spectra-style **OTP** verification is deferred — needs backend.)_
+  email to **sales@e-infra.in** → **push to Tranquil CRM** → success. (Brochure email capture is
+  the same endpoint, intent `brochure`.) D1 is the source of truth; **email and the Tranquil push
+  are both best-effort** downstream notifies — either can fail without losing the lead or blocking
+  the user. _(Dialog open/close is in `site.js`; Spectra-style **OTP** verification is deferred —
+  needs backend.)_
+  - **Tranquil CRM push** (built+tested locally 2026-06-25, **NOT yet in prod**; spec
+    [docs/specs/2026-06-25-tranquil-crm-lead-sync.md](./docs/specs/2026-06-25-tranquil-crm-lead-sync.md)):
+    on each submit, after D1 + email, `lead.ts` fires `GET einfra.tranquilcrmone.in/v2/createlead`
+    (Tranquil's **only** API; auth via an `api_key` **query param**, not a header — stored as the
+    Worker secret **`TRANQUIL_API_KEY`**, never in `site.ts`). Config in `site.tranquil`:
+    **`project_id=1`** (= Elegant Nivasa in Tranquil's project table), **`source_type=3`**
+    (mandatory), `country_code=91`. Tranquil **dedupes server-side on `mobile_number`**; brochure
+    email-captures with no phone are pushed under a shared placeholder `9999999999` (so only the
+    **first** such lead creates a CRM contact — accepted trade-off, the email still catches every
+    one). A `crm` column on `leads` (migration `0003`, mirrors `notified`) flips to 1 on a
+    confirmed insert. **Two apidoc gotchas (verified against the live API — don't trust the doc):**
+    (1) the success response is **non-standard concatenated JSON** with `"status":"success"` as a
+    **string** (not the doc's boolean `true`), so success is matched on the body **text**
+    (`inserted successfully`), never `JSON.parse`; (2) Tranquil is **slow (~4s)**, so the call runs
+    **after the response via `waitUntil()`** (from `cloudflare:workers`) — submit stays ~1.3s.
+    **To go live:** `wrangler secret put TRANQUIL_API_KEY` + `wrangler d1 migrations apply
+    elegant-nivasa --remote` + `wrangler deploy` (see the spec's rollout checklist), and delete the
+    `ZZ TEST` rows from Tranquil. _Replaced an earlier idea of WhatsApp rep-notifications — rejected
+    as too heavyweight (Meta template + dedicated SIM + business verification) for an internal alert
+    the sales email already covers; see the spec's "Why not WhatsApp"._
+  - _**The WhatsApp on the sub-sites is unrelated** — those are free visitor-facing `wa.me`
+    Enquiry links (below), not an outbound API; untouched by the CRM work._
 - **Enquiry (Sub-sites):** **two Sales rep cards** (Bharat → rep 1, Satish → rep 2), each its own
   WhatsApp click-to-chat button → opens WhatsApp with a per-angle prefilled message. _(Decision
   2026-06-20: we show both reps as cards rather than one round-robin button — better UX, and the
@@ -115,6 +139,16 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
   straight to the trailing-slash URL — and GTM triggers must match on **Page URL _contains_**, not
   _equals_. (Spec:
   [docs/specs/2026-06-24-thank-you-pages-conversion.md](./docs/specs/2026-06-24-thank-you-pages-conversion.md).)
+- **E-Infra projects panorama (thank-you pages)** — **LIVE 2026-06-25.** Below the confirmation on both
+  thank-you pages, `components/ProjectsPanorama.astro` (rendered once in `ThankYouLayout`) shows an
+  "E-Infra is building across the city" render with **6 clickable projects** (Moonglade · Skyven · One
+  Downtown · La Casa → their sites in a new tab; **Elegant Nivasa → home**; **Celosia = "coming soon"**,
+  not linked until `celosiavillas.com` is built — see the handoff doc). Builds cross-project confidence
+  post-conversion. Design picked by prototyping (`prototypes/panorama/`): **dots + labels** on desktop,
+  **tap-to-zoom fullscreen** on mobile (primary, per Tranquil). Hotspots are baked at build time
+  (percentage-positioned); the only client JS is the zoom open/close + a `project_click` engagement
+  ping. Image `assets/img/renders/einfra-panorama.webp` (135 KB). Classes namespaced `enp-`. (Spec:
+  [docs/specs/2026-06-25-projects-panorama-thankyou.md](./docs/specs/2026-06-25-projects-panorama-thankyou.md).)
 - **Deferred** (drop-in later): GA4 + Google Ads **enhanced/offline** conversions — these now layer
   into the **GTM container**, not the code.
 

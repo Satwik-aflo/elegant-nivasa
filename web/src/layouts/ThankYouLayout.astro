@@ -6,6 +6,7 @@
 // URL is what marketing maps the Google Ads conversion to. noindex — post-submit page.
 import AnalyticsScripts from "../components/AnalyticsScripts.astro";
 import GtmNoscript from "../components/GtmNoscript.astro";
+import ProjectsPanorama from "../components/ProjectsPanorama.astro";
 import SocialMeta from "../components/SocialMeta.astro";
 import { site } from "../config/site.ts";
 
@@ -74,6 +75,8 @@ const PHONE = "9090366366"; // public sales line (matches index.astro)
     <a class="back" href="/">← Explore the project</a>
   </div>
 </main>
+
+<ProjectsPanorama />
 
 <footer class="site-footer">
   <div class="wrap">

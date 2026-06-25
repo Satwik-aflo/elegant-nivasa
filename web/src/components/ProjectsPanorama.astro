@@ -1,0 +1,158 @@
+---
+// "E-Infra is building across the city" — a panorama of E-Infra projects with clickable buildings,
+// shown on both thank-you pages to build cross-project confidence post-conversion.
+// Direction chosen by prototyping (prototypes/panorama/): Variant A (dots + labels) + tap-to-zoom on
+// mobile. Hotspots are rendered at build time; the only client JS is the zoom open/close + a
+// project_click analytics ping. Classes are namespaced `enp-` to avoid clashing with site.css/site.js.
+// Spec: docs/specs/2026-06-25-projects-panorama-thankyou.md
+interface Project {
+  label: string; left: number; top: number; width: number; height: number;
+  href?: string; home?: boolean; soon?: boolean;
+}
+// Percentages from the marked render. Elegant Nivasa → home ("/"). Celosia's site is pending
+// (celosiavillas.com owned but not built — see the handoff doc); shown as "coming soon", not linked.
+const PROJECTS: Project[] = [
+  { label: "Moonglade",      left: 27.8, top: 59.5, width: 8, height: 18, href: "https://beseen.moonglade.life/" },
+  { label: "Skyven",         left: 62.0, top:  8.5, width: 8, height: 18, href: "https://www.theskyven.com" },
+  { label: "One Downtown",   left: 55.7, top: 36.0, width: 8, height: 18, href: "https://onedowntown.in/" },
+  { label: "Elegant Nivasa", left: 42.5, top: 43.2, width: 8, height: 18, href: "/", home: true },
+  { label: "La Casa",        left: 63.9, top: 66.2, width: 8, height: 18, href: "https://lacasavilla.in/" },
+  { label: "Celosia",        left: 78.2, top: 68.7, width: 8, height: 18, soon: true },
+];
+const IMG = "/assets/img/renders/einfra-panorama.webp";
+const pos = (p: Project) => `left:${p.left}%;top:${p.top}%;width:${p.width}%;height:${p.height}%`;
+---
+<section class="enp" id="projects">
+  <div class="enp-wrap">
+    <p class="enp-eyebrow">Not just one address</p>
+    <h2 class="enp-h2">E-Infra is building across the city.</h2>
+    <p class="enp-sub">Elegant Nivasa is one of several E-Infra developments rising across Hyderabad —
+      proof you're buying from an established builder, not a one-off. Explore the others:</p>
+
+    <div class="enp-pano">
+      <div class="enp-inner">
+        <img src={IMG} alt="E-Infra projects across the city" width="1500" height="500" loading="lazy" decoding="async" />
+        {PROJECTS.map((p) => (p.soon
+          ? <span class="enp-hot enp-soon" style={pos(p)} aria-label={`${p.label} — coming soon`}><span class="enp-name">{p.label} · soon</span><span class="enp-dot"></span></span>
+          : <a class="enp-hot" href={p.href} target={p.home ? undefined : "_blank"} rel={p.home ? undefined : "noopener"} data-proj={p.label} style={pos(p)} aria-label={p.label}><span class="enp-name">{p.label}</span><span class="enp-dot"></span></a>
+        ))}
+      </div>
+      <span class="enp-badge">⤢ Tap to zoom</span>
+    </div>
+
+    <div class="enp-chips">
+      {PROJECTS.map((p) => (p.soon
+        ? <span class="enp-chip enp-chip-soon"><span class="enp-b"></span>{p.label} · coming soon</span>
+        : <a class="enp-chip" href={p.href} target={p.home ? undefined : "_blank"} rel={p.home ? undefined : "noopener"} data-proj={p.label}><span class="enp-b"></span>{p.label}{p.home ? " · home" : ""}</a>
+      ))}
+    </div>
+
+    <p class="enp-future"><b>Completed projects</b> — coming soon. Delivered, occupied E-Infra buildings will join this view as the strongest proof of all.</p>
+  </div>
+
+  <!-- fullscreen zoom (mobile) -->
+  <div class="enp-zoom" aria-hidden="true">
+    <button class="enp-zoom-close" type="button" aria-label="Close">✕</button>
+    <div class="enp-zoom-hint">Swipe · tap a building to open it</div>
+    <div class="enp-zoom-scroll">
+      <div class="enp-zoom-inner">
+        <img src={IMG} alt="" width="1500" height="500" />
+        {PROJECTS.map((p) => (p.soon
+          ? <span class="enp-hot enp-soon" style={pos(p)} aria-label={`${p.label} — coming soon`}><span class="enp-name">{p.label} · soon</span><span class="enp-dot"></span></span>
+          : <a class="enp-hot" href={p.href} target={p.home ? undefined : "_blank"} rel={p.home ? undefined : "noopener"} data-proj={p.label} style={pos(p)} aria-label={p.label}><span class="enp-name">{p.label}</span><span class="enp-dot"></span></a>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .enp { background:#16204a; padding:clamp(40px,6vw,72px) 0; }
+  .enp-wrap { max-width:1180px; margin:0 auto; padding:0 20px; }
+  .enp-eyebrow { color:var(--gold); font-weight:700; letter-spacing:.14em; text-transform:uppercase; font-size:.74rem; margin:0 0 10px; }
+  .enp-h2 { font-family:var(--font-display, "Fraunces", serif); font-weight:500; color:#fff; font-size:clamp(1.6rem,3.6vw,2.4rem); line-height:1.12; margin:0 0 12px; }
+  .enp-sub { color:#aeb9da; font-size:1rem; line-height:1.6; max-width:60ch; margin:0 0 24px; }
+
+  .enp-pano { position:relative; width:100%; border-radius:12px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.4); }
+  .enp-inner { position:relative; width:100%; }
+  .enp-inner img { display:block; width:100%; height:auto; }
+  .enp-hot { position:absolute; display:block; border:2px solid transparent; border-radius:6px; text-decoration:none; transition:background .2s, border-color .2s, box-shadow .2s; }
+  .enp-hot:hover, .enp-hot:focus-visible { background:rgba(201,161,74,.20); border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,161,74,.25); outline:none; }
+  .enp-dot { position:absolute; left:50%; top:-8px; transform:translateX(-50%); width:12px; height:12px; border-radius:50%; background:var(--gold); border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.5); }
+  .enp-name { position:absolute; left:50%; bottom:calc(100% + 13px); transform:translateX(-50%); background:var(--gold); color:#16204a; font-weight:700; font-size:.76rem; white-space:nowrap; padding:3px 9px; border-radius:5px; box-shadow:0 2px 6px rgba(0,0,0,.4); }
+  .enp-name::after { content:""; position:absolute; left:50%; top:100%; transform:translateX(-50%); border:5px solid transparent; border-top-color:var(--gold); }
+  .enp-soon .enp-dot { background:#8794b5; }
+  .enp-soon .enp-name { background:#8794b5; color:#0f1838; }
+  .enp-soon .enp-name::after { border-top-color:#8794b5; }
+
+  .enp-badge { position:absolute; left:10px; top:10px; z-index:2; background:rgba(22,32,74,.88); color:#fff; border:1px solid rgba(255,255,255,.14); border-radius:999px; padding:6px 12px; font-size:.8rem; font-weight:600; display:none; pointer-events:none; }
+
+  .enp-chips { display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+  .enp-chip { display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:#e9edf7; background:#1c2547; border:1px solid rgba(255,255,255,.14); border-radius:999px; padding:9px 16px; font-weight:600; font-size:.92rem; transition:background .2s, border-color .2s; }
+  .enp-chip:hover { background:#27345f; border-color:var(--gold); }
+  .enp-b { width:8px; height:8px; border-radius:50%; background:var(--gold); }
+  .enp-chip-soon { color:#aeb9da; border-style:dashed; }
+
+  .enp-future { margin-top:26px; color:#8a96bb; font-size:.92rem; line-height:1.55; }
+  .enp-future b { color:#cdd6ef; }
+
+  /* fullscreen zoom overlay */
+  .enp-zoom { position:fixed; inset:0; z-index:1000; background:rgba(6,9,20,.97); display:none; }
+  .enp-zoom.open { display:block; }
+  .enp-zoom-close { position:absolute; top:14px; right:14px; z-index:3; width:42px; height:42px; border-radius:50%; border:none; background:var(--gold); color:#16204a; font-size:1.2rem; font-weight:800; cursor:pointer; }
+  .enp-zoom-hint { position:absolute; top:22px; left:16px; z-index:3; color:#aeb9da; font-size:.84rem; }
+  .enp-zoom-scroll { position:absolute; inset:0; overflow-x:auto; overflow-y:hidden; display:flex; align-items:center; -webkit-overflow-scrolling:touch; }
+  .enp-zoom-inner { position:relative; height:60vh; flex:0 0 auto; margin:auto; }
+  .enp-zoom-inner img { display:block; height:100%; width:auto; }
+
+  /* MOBILE: clean whole-skyline preview; tap opens the fullscreen interactive view */
+  @media (max-width:720px) {
+    .enp-pano { cursor:zoom-in; }
+    .enp-pano .enp-hot { pointer-events:none; }     /* a tap anywhere on the preview opens zoom */
+    .enp-pano .enp-name { display:none; }             /* too small to label in the preview */
+    .enp-badge { display:block; }
+    .enp-chips { gap:8px; }
+    .enp-chip { flex:1 1 calc(50% - 8px); justify-content:center; min-height:48px; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var section = document.getElementById('projects');
+    if (!section) return;
+    var pano = section.querySelector('.enp-pano');
+    var zoom = section.querySelector('.enp-zoom');
+    var zscroll = zoom && zoom.querySelector('.enp-zoom-scroll');
+
+    function openZoom() {
+      if (!zoom) return;
+      zoom.classList.add('open'); zoom.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(function () { zscroll.scrollLeft = (zscroll.scrollWidth - zscroll.clientWidth) / 2; });
+    }
+    function closeZoom() {
+      if (!zoom) return;
+      zoom.classList.remove('open'); zoom.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    var closeBtn = zoom && zoom.querySelector('.enp-zoom-close');
+    if (closeBtn) closeBtn.addEventListener('click', closeZoom);
+    if (zoom) zoom.addEventListener('click', function (e) { if (e.target === zoom || e.target === zscroll) closeZoom(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeZoom(); });
+
+    // tap the preview → open zoom (but let a live desktop hotspot navigate normally)
+    if (pano) pano.addEventListener('click', function (e) {
+      var hot = e.target.closest('.enp-hot');
+      if (hot && getComputedStyle(hot).pointerEvents !== 'none') return;
+      e.preventDefault(); openZoom();
+    });
+
+    // engagement signal (not a conversion) → Clarity / Meta / dataLayer via the shared wrapper
+    section.querySelectorAll('[data-proj]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        if (window.track) window.track('project_click', { project: el.getAttribute('data-proj') });
+      });
+    });
+  })();
+</script>
