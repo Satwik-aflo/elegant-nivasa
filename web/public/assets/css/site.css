@@ -390,6 +390,19 @@ input[type=range]::-moz-range-thumb { width:22px;height:22px;border-radius:50%; 
 .emi-note { font-size:.78rem; color: var(--muted); margin-top: 16px; }
 @media (max-width: 800px){ .emi { grid-template-columns: 1fr; } }
 
+/* Display-only figures must not read as interactive. Clarity showed visitors
+   tapping these computed numbers (calculator outputs, yield earnings, the
+   scoreboard cells) expecting them to do something — a top dead-click source.
+   Kill the text I-beam and selection highlight so they present as plain output;
+   the editable controls (inputs/sliders) keep their own affordances. */
+.emi-result, .emi-result *,
+.yl-val, .yl-total-v,
+.cmp-row .cr-val, .adv-card .a {
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 /* calculator tabs + affordability / rent-vs-own */
 .calc-tabs { display:flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
 .calc-tab { padding: 12px 22px; border-radius: 100px; border:1px solid var(--line); background: var(--cream-2); font-weight:650; font-size:.96rem; color: var(--ink-soft); transition: .25s var(--ease); }

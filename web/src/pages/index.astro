@@ -5,6 +5,7 @@
 import AnalyticsScripts from "../components/AnalyticsScripts.astro";
 import GtmNoscript from "../components/GtmNoscript.astro";
 import SocialMeta from "../components/SocialMeta.astro";
+import Scoreboard from "../components/Scoreboard.astro";
 
 // Floor-plan plates (open — no gating). Config/saleable/facing read off each
 // plate; site.js wires the [data-gallery] lightbox.
@@ -80,6 +81,7 @@ const PAGE_DESC = "Premium 2 & 3 BHK homes at Tellapur, West Hyderabad — three
   </a>
   <button class="nav-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
   <nav class="nav">
+    <a href="#value">Compare</a>
     <a href="#gallery">Gallery</a>
     <a href="#corridor">The corridor</a>
     <a href="#amenities">Amenities</a>
@@ -119,6 +121,9 @@ const PAGE_DESC = "Premium 2 & 3 BHK homes at Tellapur, West Hyderabad — three
     </div>
   </div>
 </section>
+
+<!-- ============ COMPARISON SCOREBOARD — reused sub-site table, up front ============ -->
+<Scoreboard />
 
 <!-- ============ GALLERY — the project, up front ============ -->
 <section class="section gallery" id="gallery">

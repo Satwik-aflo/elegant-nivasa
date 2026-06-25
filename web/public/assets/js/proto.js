@@ -61,6 +61,40 @@
   function ons() { if (!tick) { tick = true; requestAnimationFrame(frame); } }
   addEventListener("scroll", ons, { passive: true });
   addEventListener("resize", ons);
+
+  // Click / drag to advance. The section is scroll-driven, but visitors tap it
+  // expecting it to respond (Clarity: this is the homepage's top dead-click
+  // cluster). Translate pointer gestures into scroll so the scroll position
+  // stays the single source of truth: a mouse-drag scrubs the opening both
+  // ways, and a tap (any pointer) advances it ~a third of the run — or exits
+  // once it's fully open. Touch scrolling is left to the browser (we only read
+  // the gesture to tell a tap from a scroll), so this never fights native pans.
+  var stage = sec.querySelector(".ct-stage") || sec;
+  function range() { return Math.max(1, track.offsetHeight - window.innerHeight); }
+  function progress() { return clamp(-track.getBoundingClientRect().top / range(), 0, 1); }
+  var dragging = false, moved = false, startY = 0, startScroll = 0;
+  stage.addEventListener("pointerdown", function (e) {
+    dragging = true; moved = false; startY = e.clientY; startScroll = window.scrollY || window.pageYOffset;
+    if (e.pointerType === "mouse" && stage.setPointerCapture) stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener("pointermove", function (e) {
+    if (!dragging) return;
+    var dy = startY - e.clientY;              // drag up → advance (scroll down)
+    if (Math.abs(dy) > 5) moved = true;
+    if (e.pointerType === "mouse") window.scrollTo(0, startScroll + dy);  // touch = native scroll
+  });
+  function release() {
+    if (!dragging) return;
+    dragging = false;
+    if (moved) return;                        // it was a drag/scroll, not a tap
+    var p = progress();
+    var nextP = p >= 0.92 ? 1.08 : p + 0.34;  // step ~1/3 of the run, or scroll past when open
+    window.scrollTo({ top: (window.scrollY || window.pageYOffset) + (nextP - p) * range(), behavior: "smooth" });
+  }
+  stage.addEventListener("pointerup", release);
+  stage.addEventListener("pointercancel", release);
+  stage.style.cursor = "grab";
+
   frame();
 })();
 
