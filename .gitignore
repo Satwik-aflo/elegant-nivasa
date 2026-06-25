@@ -18,6 +18,8 @@ __pycache__/
 /ProjectComparisionPicture/
 /Nivasa *.xlsx
 /Nivasa *.pdf
+# Site archives (e.g. "E-Infra Client Sharing.site") — large local-only bundles.
+/*.site
 
 # Marketing working folder (media plans, sheets, handoff notes) — not versioned.
 /Marketing/
