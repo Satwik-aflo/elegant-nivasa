@@ -83,9 +83,10 @@ export interface AdvCard {
   total?: boolean;
 }
 export const ADVANTAGE: AdvCard[] = [
-  { a: "₹20.6L*", l: "Lower entry cost" },
-  { a: "₹16.8L*", l: "Rent earned by 2032" },
-  { a: "₹6.2L*", l: "Interest saved" },
+  // Component figures carry no `*`; the single disclaimer star rides the total.
+  { a: "₹20.6L", l: "Lower entry cost" },
+  { a: "₹16.8L", l: "Rent earned by 2032" },
+  { a: "₹6.2L", l: "Interest saved" },
   { a: "₹43.6L*", l: "Total advantage", total: true },
 ];
 export const ADVANTAGE_TAGLINE = {

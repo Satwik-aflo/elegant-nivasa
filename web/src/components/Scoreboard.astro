@@ -40,8 +40,8 @@ import {
             {SCOREBOARD.filter((r) => r.comparative === key).map((r, i) => (
               <div class="cmp-row" data-v={r.v}>
                 <div class="cr-metric"><span class="cr-n">{String(i + 1).padStart(2, "0")}</span><span class="cr-name">{r.metric}<small>{r.sub}</small></span></div>
-                <div class="cr-us"><span class="cr-cap">Nivasa</span>{r.us}</div>
-                <div class="cr-them"><span class="cr-cap">Branded</span>{r.them}</div>
+                <div class="cr-us"><span class="cr-cap">Nivasa</span><span class="cr-val">{r.us}</span></div>
+                <div class="cr-them"><span class="cr-cap">Branded</span><span class="cr-val">{r.them}</span></div>
                 <div class="cr-edge"><span class={`cr-pill cr-${r.v}`}>{r.edge}</span></div>
               </div>
             ))}
@@ -50,10 +50,14 @@ import {
       </div>
 
       <div class="cmp-bottom reveal d1">
+        <div class="adv-head">
+          <p class="eyebrow">Add it all up</p>
+          <h3 class="adv-title">Choose Nivasa and you&rsquo;re <em>₹43.6 lakh*</em> ahead.</h3>
+        </div>
         <div class="adv-row">
           {ADVANTAGE.map((card, i) => (
             <>
-              {i > 0 && <div class="adv-op">{card.total ? "=" : "+"}</div>}
+              {i > 0 && <div class={`adv-op${card.total ? " eq" : ""}`}>{card.total ? "=" : "+"}</div>}
               <div class={`adv-card${card.total ? " total" : ""}`}><div class="a">{card.a}</div><div class="l">{card.l}</div></div>
             </>
           ))}

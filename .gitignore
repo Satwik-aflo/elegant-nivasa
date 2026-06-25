@@ -21,3 +21,4 @@ __pycache__/
 
 # Marketing working folder (media plans, sheets, handoff notes) — not versioned.
 /Marketing/
+/prototypes
