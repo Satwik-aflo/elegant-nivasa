@@ -97,8 +97,9 @@ on success, browser navigates to `/thank-you-visit` (or `-brochure`) → page lo
 
 ## Outside the code (marketing, in GTM)
 
-- Google Ads "Site Visit" conversion → **page-view** trigger, Page URL = `/thank-you-visit`.
-- Google Ads "Brochure" conversion → **page-view** trigger, Page URL = `/thank-you-brochure`.
+- Google Ads "Site Visit" conversion → **page-view** trigger, Page URL **contains** `/thank-you-visit`.
+- Google Ads "Brochure" conversion → **page-view** trigger, Page URL **contains** `/thank-you-brochure`.
+  (Use _contains_, not _equals_ — the live URLs carry a trailing slash; see Post-deploy notes.)
 - Google Ads "WhatsApp Enquiry" conversion → **Custom Event** trigger, event =
   `whatsapp_click` (already planned).
 - **Do NOT** also build Google Ads triggers on the `lead_submit` / `brochure_request`
@@ -121,3 +122,28 @@ on success, browser navigates to `/thank-you-visit` (or `-brochure`) → page lo
   rest of the site. Same deferred consent item; no new exposure beyond what already ships.
 - The thank-you pages are also a natural future home for richer post-conversion UX
   (next-steps, map, "what happens now") — out of scope here, but the page exists for it.
+
+## Post-deploy notes (as-built gotchas)
+
+Learned while building/deploying — keep these if the pages are ever changed:
+
+- **Trailing slash.** Astro/Cloudflare serves the pages **with a trailing slash**
+  (`/thank-you-visit/`); a bare `/thank-you-visit` returns a `307` to the slashed form. So
+  `site.js` `showSuccess()` redirects **directly** to the trailing-slash URL (avoids the extra
+  hop), and GTM page-view triggers must match on **Page URL _contains_**, not _equals_.
+- **`window.track` timing.** `track()` is exposed on `window` by the **deferred** `analytics.ts`
+  module import in `AnalyticsScripts.astro`, so it is not defined when an inline script first
+  runs. `ThankYouLayout` fires its conversion via a tiny **poll** (`if (window.track) … else
+  setTimeout(fire, 50)`) so the event isn't lost to that race. `window.track` is always set
+  (the import is unconditional), even when analytics ids are empty — `track()` just no-ops.
+- **Footer `display:block` gotcha.** `site.css` sets `.site-footer a { display:block }` (for the
+  homepage's footer columns). The thank-you footer's bottom row has two inline links + a ` · `
+  separator, which stacked vertically and orphaned the dot. Fixed with a **scoped** override in
+  `ThankYouLayout` (`.foot-bottom a { display:inline; padding:0 }`) — added specificity beats the
+  global rule without touching `site.css`.
+- **The prop is `conversion`, not `event`.** Naming the layout prop `event` made `astro check`
+  read the inline-script reference as the deprecated DOM global `window.event`; renamed to
+  `conversion` to dodge it (keeps `astro check` at 0/0/0).
+- **No conversion gating.** A direct hit / crawl of a thank-you URL would fire the conversion
+  (standard for thank-you pages). Mitigated by `noindex` + the pages being unlinked; not gated,
+  to keep marketing's page-view trigger trivial.

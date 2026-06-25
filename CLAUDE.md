@@ -110,7 +110,10 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
   _Marketing: build the Google Ads conversions on **page-view triggers** (`/thank-you-visit`,
   `/thank-you-brochure`) — do **NOT** also trigger Ads off the `lead_submit` / `brochure_request`
   dataLayer events, or it double-counts. WhatsApp has no thank-you page (it leaves the site) — it stays
-  on the `whatsapp_click` click event._ (Spec:
+  on the `whatsapp_click` click event._ **Gotcha:** Astro/Cloudflare serves these with a **trailing
+  slash** (`/thank-you-visit/`; a bare `/thank-you-visit` 307-redirects to it), so `site.js` redirects
+  straight to the trailing-slash URL — and GTM triggers must match on **Page URL _contains_**, not
+  _equals_. (Spec:
   [docs/specs/2026-06-24-thank-you-pages-conversion.md](./docs/specs/2026-06-24-thank-you-pages-conversion.md).)
 - **Deferred** (drop-in later): GA4 + Google Ads **enhanced/offline** conversions — these now layer
   into the **GTM container**, not the code.
@@ -238,9 +241,14 @@ Other top-level folders are **not** the site:
 
 Specs live in [docs/specs/](./docs/specs/); implement against the spec, not a re-derivation.
 
-**Homepage (`index.astro`) — settled so far:** _(updated 2026-06-22)_ **"Stacked" hero** on the
-bright E-Infra "Sunshine" render (`hero-alt.webp`, 212 KB) — mobile shows the full render in a top
-frame with a solid navy copy panel below; desktop is a left-scrim cinematic full-bleed. Headline
+**Homepage (`index.astro`) — settled so far:** _(updated 2026-06-25)_ **"Stacked" hero** on an
+**AI render** (`hero-ai.webp`, 205 KB; set via `HERO_IMG` in `index.astro`) — mobile shows the full
+render in a top frame with a solid navy copy panel below; desktop is a left-scrim cinematic full-bleed.
+_(Hero swapped to the AI render 2026-06-25 from the earlier E-Infra "Sunshine" `hero-alt.webp`, which
+is retained for a one-line revert. **Image recipe** for the hero: source PNG (~1464×1074) →
+`cwebp -q 80 src.png -o public/assets/img/renders/hero-ai.webp` → ~200 KB WebP; keep the hero ≈200 KB
+since it's the `fetchpriority="high"` LCP image, and drop the multi-MB source PNG out of `public/` so it
+doesn't ship as a dead asset. `cwebp` is installed locally via Homebrew.)_ Headline
 **"A home, and a *world* around it."** + project-focused subhead (526 homes · 4 acres · 8-level
 clubhouse · ₹6,999/sft\* · 2027); hero chips removed; CTAs **Book a visit** (dialog) + **Download
 brochure**. E-Infra render badge + footer credit (gold mark). Flow: gallery → corridor → podium →
