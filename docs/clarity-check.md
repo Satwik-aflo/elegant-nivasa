@@ -32,18 +32,17 @@ Status legend: ✅ Fixed · 🟡 Partial · 🔴 Open. "Evidence" = the commit o
 | 4 | Hero doesn't front-load all proof | ✅ Fixed | `8f76c53` — full Scoreboard now sits on homepage after hero ribbon + "Compare" nav link | Targets the 42% top-quarter bounce (re-measure next run) |
 | 5 | Scoreboard "Add it all up → ₹43.6L ahead" summary | ✅ Fixed | `0585d9d` (2026-06-25 15:18) — `Scoreboard.astro` + `comparison.ts` + `site.css` | Polish only; did **not** move dead-click friction (158, flat) |
 | 6 | Meta/Instagram attribution collapsing into "Direct" | 🔴 Open (marketing-side) | Not a code task; IG link-in-bio already carries UTMs + `fbclid` (seen in recordings) | "Direct" 97 sessions vs ig/social ~3; in-app browser strips referrer |
-| 7 | URL fragmentation across `http://` / `https://` / `www.` | 🔴 Open | No single canonical redirect confirmed (thank-you canonical only, `f902bf5`) | 35 `http://` + 14 `www.` homepage sessions split from canonical |
+| 7 | URL fragmentation across `http://` / `https://` / `www.` | ✅ Fixed | Cloudflare edge (2026-06-25): "Always Use HTTPS" ON + "WWW→root" Single Redirect (301, path+query preserved). Verified: `www`/`http` → `https://elegantnivasa.com`; MX `mx1/mx2.hostinger.com` intact | Was: 35 `http://` + 14 `www.` homepage sessions split from canonical |
 | 8 | Homepage → sub-site cross-sell barely used | 🔴 Open | `index.astro` confidence band (`#compare`) | "Already paying rent?" cross-sell: 4 mobile clicks; mobile 1.29 pages/session |
 
 ---
 
 ## Current prioritized fix list (as of 2026-06-25 run 2)
 
-Ranked by behavioural impact. Already-shipped items (#1, #2, #3, #4, #5) excluded.
+Ranked by behavioural impact. Already-shipped items (#1, #2, #3, #4, #5, #7) excluded.
 
 1. **Attribution: UTM every ad destination** (#6) — marketing-side; lean on `fbclid`/recordings to measure Meta.
-2. **Enforce a single canonical** (`https://elegantnivasa.com/`) (#7) — stop URL/data fragmentation + redirect hop.
-3. **Rethink the homepage→sub-site cross-sell** (#8) — elevate it or treat sub-sites as standalone ad landers.
+2. **Rethink the homepage→sub-site cross-sell** (#8) — elevate it or treat sub-sites as standalone ad landers.
 
 **Deployed 2026-06-25 (`8f76c53`):** #2 corridor click/drag, #3 number de-affordance, #4 homepage
 comparison table. Re-measure dead clicks + top-quarter bounce on the next run to confirm impact.
