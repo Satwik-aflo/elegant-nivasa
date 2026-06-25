@@ -2,7 +2,7 @@
 // Flow: validate → store in D1 (source of truth) → notify sales via Resend.
 // Defensive: works in dev without bindings (logs instead of failing).
 import type { APIRoute } from "astro";
-import { env } from "cloudflare:workers"; // Astro v6 binding access
+import { env, waitUntil } from "cloudflare:workers"; // Astro v6 binding access
 import { site } from "../../config/site";
 
 export const prerender = false;
@@ -32,19 +32,17 @@ export const POST: APIRoute = async ({ request }) => {
   const name = (body.name ?? "").toString().trim();
   const phone = (body.phone ?? "").toString().trim();
   const email = (body.email ?? "").toString().trim();
-  // intent="brochure" → email-only soft capture; default "lead" → name + phone.
+  // Both intents require name + phone (the brochure form now collects them too, 2026-06-25);
+  // brochure ADDITIONALLY requires a valid email. Mirrors the client-side checks in site.js.
   const intent = body.intent === "brochure" ? "brochure" : "lead";
   const isEmail = (e: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 
-  if (intent === "brochure") {
-    if (!isEmail(email)) return json({ error: "validation" }, 422);
-  } else if (!name || !/^[6-9]\d{9}$/.test(phone)) {
-    return json({ error: "validation" }, 422);
-  }
+  if (!name || !/^[6-9]\d{9}$/.test(phone)) return json({ error: "validation" }, 422);
+  if (intent === "brochure" && !isEmail(email)) return json({ error: "validation" }, 422);
 
   const lead = {
-    name, // "" allowed for brochure intent (phone NOT NULL → stored as "")
-    phone,
+    name,
+    phone, // required for both intents now (validated above)
     email: email || null,
     unit: (body.unit ?? "").toString().trim() || null,
     message: (body.message ?? "").toString().trim() || null,
@@ -56,6 +54,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const DB = (env as any)?.DB;
   const RESEND_API_KEY = (env as any)?.RESEND_API_KEY as string | undefined;
+  const TRANQUIL_API_KEY = (env as any)?.TRANQUIL_API_KEY as string | undefined;
 
   // 1) store first — the lead must never be lost
   let id: number | null = null;
@@ -145,5 +144,101 @@ export const POST: APIRoute = async ({ request }) => {
     }
   }
 
+  // 3) push to Tranquil CRM (best-effort). Gated on TRANQUIL_API_KEY — until the secret is
+  //    set this is a no-op (like Resend). Tranquil is SLOW (~4s) and runs AFTER the response
+  //    via waitUntil() so it never blocks the visitor; it updates leads.crm in the background.
+  //    Skipped under `astro dev` (import.meta.env.DEV) so local test submits never punch a
+  //    lead into the LIVE CRM (the api_key sits in .dev.vars for parity; there is no sandbox).
+  //    The waitUntil() call itself is wrapped — it must never be the thing that 500s the POST
+  //    (which would make the visitor resubmit and duplicate the already-saved lead + email).
+  if (TRANQUIL_API_KEY && !import.meta.env.DEV) {
+    try {
+      waitUntil(syncTranquil(TRANQUIL_API_KEY, lead, intent, DB, id));
+    } catch (err) {
+      console.error("Tranquil waitUntil failed:", err instanceof Error ? err.name : "error");
+    }
+  }
+
   return json({ ok: true });
 };
+
+// Push one lead to Tranquil CRM. Tranquil's ONLY API: GET /v2/createlead with the api_key
+// as a query param (no auth header). Two real-world gotchas the apidoc gets wrong (verified
+// against the live endpoint 2026-06-25):
+//   • Response is non-standard: two concatenated JSON objects, e.g.
+//     {"message":"success","callid":"…"}{"status":"success","message":"Lead inserted successfully"}
+//     — so JSON.parse throws; we detect success by matching the body TEXT instead.
+//   • `status` is the STRING "success", not the documented boolean true.
+// Sets leads.crm = 1 only on a confirmed fresh insert (duplicates/errors stay 0).
+async function syncTranquil(
+  apiKey: string,
+  lead: {
+    name: string;
+    phone: string;
+    email: string | null;
+    message: string | null;
+    source_page: string;
+    utm: string;
+  },
+  intent: string,
+  DB: any,
+  id: number | null
+) {
+  try {
+    const fromUtm = (key: string) => {
+      try {
+        return new URLSearchParams(lead.utm.replace(/^\?/, "")).get(key) || "";
+      } catch {
+        return "";
+      }
+    };
+    // Tranquil requires mobile_number; no-phone brochure leads go under a placeholder
+    // (dedups in the CRM — see site.tranquil.placeholderPhone & the spec).
+    const mobile = lead.phone || site.tranquil.placeholderPhone;
+    const remark = [`intent=${intent}`, lead.message, lead.source_page]
+      .filter(Boolean)
+      .join(" | ");
+
+    const params = new URLSearchParams({
+      api_key: apiKey,
+      country_code: site.tranquil.countryCode,
+      mobile_number: mobile,
+      project_id: String(site.tranquil.projectId),
+      source_type: String(site.tranquil.sourceType),
+      lead_type: "sales",
+    });
+    if (lead.name) params.set("customer_name", lead.name);
+    if (lead.email) params.set("email", lead.email);
+    const campaign = fromUtm("utm_campaign");
+    if (campaign) params.set("campaign_name", campaign);
+    const gclid = fromUtm("gclid");
+    if (gclid) params.set("gcl_id", gclid);
+    if (lead.source_page) params.set("sub_source", lead.source_page);
+    if (remark) params.set("remark", remark);
+
+    // 15s timeout — generous because this runs in the background (waitUntil, 30s budget);
+    // Tranquil typically answers in ~4s.
+    const r = await fetch(`${site.tranquil.endpoint}?${params.toString()}`, {
+      signal: AbortSignal.timeout(15000),
+    });
+    const body = await r.text();
+    // Success = a fresh insert. Match the body TEXT (the response isn't parseable JSON).
+    // Cover the live phrase ("Lead inserted successfully") and the apidoc phrase ("punched
+    // in the CRM"); exclude duplicates ("Lead is Duplicate…"), which leave crm = 0.
+    const inserted =
+      r.ok &&
+      /inserted successfully|punched in the crm/i.test(body) &&
+      !/duplicate/i.test(body);
+    if (inserted && DB && id != null) {
+      await DB.prepare("UPDATE leads SET crm = 1 WHERE id = ?").bind(id).run();
+    }
+  } catch (err) {
+    // Never log the request URL — it carries the api_key in the query string, and some
+    // runtimes embed the failing URL in a fetch error's message/cause. Sanitize before logging.
+    const msg = (err instanceof Error ? `${err.name}: ${err.message}` : String(err)).replace(
+      /api_key=[^&\s]*/gi,
+      "api_key=***"
+    );
+    console.error("Tranquil sync failed:", msg);
+  }
+}

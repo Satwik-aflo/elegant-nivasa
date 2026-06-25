@@ -54,12 +54,15 @@
      We stash it on first landing so the source survives navigation — e.g. a
      visitor lands on /cost (tagged), clicks "explore full project" to the
      homepage (untagged), then books: the lead still records the google ad it
-     came from. First tagged URL of the session wins. */
+     came from. First tagged URL of the session wins. We treat a Google Ads
+     click id (gclid/gclsrc/wbraid/gbraid) as "tagged" too — auto-tagged Ads
+     landings carry only gclid (no utm_), and the server forwards it to the CRM
+     as gcl_id for conversion attribution. */
   function adTag() {
     var KEY = "en_utm";
     try {
       var current = location.search || "";
-      if (/[?&]utm_/.test(current)) { sessionStorage.setItem(KEY, current); return current; }
+      if (/[?&](utm_|gclid=|gclsrc=|wbraid=|gbraid=)/.test(current)) { sessionStorage.setItem(KEY, current); return current; }
       return sessionStorage.getItem(KEY) || current;
     } catch (err) {
       return location.search || "";
@@ -384,7 +387,7 @@
   // last 10 digits, so a pasted "+91 98765 43210" still resolves correctly
   var phone10 = function (v) { var d = v.replace(/\D/g, ""); return d.length > 10 ? d.slice(-10) : d; };
   document.querySelectorAll("[data-leadform]").forEach(function (form) {
-    // intent="brochure" → email-only soft capture; default "lead" → name + phone.
+    // intent="brochure" → name + phone + email (gated); default "lead" → name + phone.
     var intent = form.getAttribute("data-intent") === "brochure" ? "brochure" : "lead";
     function fail(field, msg) {
       var wrap = field.closest(".form-field"); wrap.classList.add("err");
@@ -422,13 +425,13 @@
       var phone = form.querySelector("[name=phone]");
       var email = form.querySelector("[name=email]");
       form.querySelectorAll(".form-field").forEach(function (w) { w.classList.remove("err"); });
+      // name + phone required on both; brochure also requires a valid email.
+      if (name && !valid(name)) { fail(name, msgFor(name)); ok = false; }
+      if (phone && !valid(phone)) { fail(phone, msgFor(phone)); ok = false; }
       if (intent === "brochure") {
-        // email required & valid; name/phone optional
         if (!email || !valid(email)) { if (email) fail(email, msgFor(email)); ok = false; }
-      } else {
-        if (name && !valid(name)) { fail(name, msgFor(name)); ok = false; }
-        if (phone && !valid(phone)) { fail(phone, msgFor(phone)); ok = false; }
-        if (email && email.value && !valid(email)) { fail(email, msgFor(email)); ok = false; }
+      } else if (email && email.value && !valid(email)) {
+        fail(email, msgFor(email)); ok = false;
       }
       if (!ok) return;
       // Live: POST to D1 + sales email via /api/lead
@@ -465,8 +468,8 @@
      navigating (href kept as a no-JS fallback). Native <dialog> gives us
      Esc-to-close + focus trapping for free. Two dialogs:
        [data-book]      → book-a-visit (name + phone, intent=lead)
-       [data-brochure]  → brochure email prompt (email, intent=brochure)
-     Internal links (close ✕, "download without email") have no trigger attr.
+       [data-brochure]  → brochure prompt (name + phone + email, intent=brochure)
+     Internal links (close ✕) have no trigger attr.
      ===================================================================== */
   function wireDialog(dlg, triggerSel, trackName) {
     if (!dlg) return;

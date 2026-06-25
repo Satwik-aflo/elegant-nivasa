@@ -36,6 +36,12 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
 - **Deploy:** git is source of truth (GitHub `Satwik-aflo/elegant-nivasa`, **`main`** is the live
   branch); deploy via `wrangler deploy` from `web/` (one-time `wrangler login`). `wrangler deploy`
   ships straight to production — there is no staging environment.
+- **Deploy rule (every prod push):** immediately after a `wrangler deploy`, **commit the deployed
+  changes to git** on `main` with a clear message — so git keeps an audit log of exactly what
+  shipped (deploys are otherwise off-the-record since the build comes from the working tree, not a
+  commit) — and **confirm any cleanup deletions are done** (test rows/leads, temp/sentinel data).
+  Commit only what was deployed; hold back unrelated WIP that wasn't part of the push. This is
+  enforced by a `PostToolUse` reminder hook in `web/.claude/settings.json`.
 - **Favicon/icons:** the **E-Infra gold mark** (cropped from the brand wordmark, on brand navy
   `#16204a`) — `public/favicon.ico` + `favicon-32/192/512.png` + `apple-touch-icon.png`, wired in
   `SocialMeta.astro` so all routes share it.
@@ -54,8 +60,9 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
 - **Lead (Main site):** every "Book a visit" trigger (`[data-book]` — header, hero, sticky CTA,
   footer) opens a centred **book-a-visit dialog** (native `<dialog>`, name + `+91` phone) instead
   of navigating; submit → `POST /api/lead` (intent `lead`) → write to **D1 first** (never lost) →
-  email to **sales@e-infra.in** → **push to Tranquil CRM** → success. (Brochure email capture is
-  the same endpoint, intent `brochure`.) D1 is the source of truth; **email and the Tranquil push
+  email to **sales@e-infra.in** → **push to Tranquil CRM** → success. (Brochure capture is the same
+  endpoint, intent `brochure` — also name + phone + email since 2026-06-25.) D1 is the source of
+  truth; **email and the Tranquil push
   are both best-effort** downstream notifies — either can fail without losing the lead or blocking
   the user. _(Dialog open/close is in `site.js`; Spectra-style **OTP** verification is deferred —
   needs backend.)_
@@ -65,10 +72,11 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
     (Tranquil's **only** API; auth via an `api_key` **query param**, not a header — stored as the
     Worker secret **`TRANQUIL_API_KEY`**, never in `site.ts`). Config in `site.tranquil`:
     **`project_id=1`** (= Elegant Nivasa in Tranquil's project table), **`source_type=3`**
-    (mandatory), `country_code=91`. Tranquil **dedupes server-side on `mobile_number`**; brochure
-    email-captures with no phone are pushed under a shared placeholder `9999999999` (so only the
-    **first** such lead creates a CRM contact — accepted trade-off, the email still catches every
-    one). A `crm` column on `leads` (migration `0003`, mirrors `notified`) flips to 1 on a
+    (mandatory), `country_code=91`. Tranquil **dedupes server-side on `mobile_number`** — fine now
+    that **both** forms require a phone (book-a-visit and, since 2026-06-25, brochure too; validated
+    in `site.js` **and** `lead.ts`), so every lead carries a real number and gets its own CRM
+    contact. (`site.tranquil.placeholderPhone` `9999999999` is now just a defensive fallback for a
+    malformed direct API post.) A `crm` column on `leads` (migration `0003`, mirrors `notified`) flips to 1 on a
     confirmed insert. **Two apidoc gotchas (verified against the live API — don't trust the doc):**
     (1) the success response is **non-standard concatenated JSON** with `"status":"success"` as a
     **string** (not the doc's boolean `true`), so success is matched on the body **text**
@@ -91,8 +99,9 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
 ## 4. Pages
 
 - **Main site (`/`):** hero · highlights/key facts · amenities · floor plans · gallery ·
-  location/connectivity (bespoke drive-time SVG **+ Google Maps embed**) · brochure (ungated
-  download + optional email capture) · RERA + legal footer. Single scrolling page, full nav.
+  location/connectivity (bespoke drive-time SVG **+ Google Maps embed**) · brochure (gated
+  download — name + phone + email required, since 2026-06-25; a no-JS direct-download href is
+  the only fallback) · RERA + legal footer. Single scrolling page, full nav.
   The **Lead** is captured via a **book-a-visit dialog** (see §3), not an inline form.
   **Dropped for MVP:** team, project updates, FAQs.
 - **Sub-sites:** distraction-free (logo + soft "explore full project →" link only) · **lead with
@@ -287,7 +296,7 @@ doesn't ship as a dead asset. `cwebp` is installed locally via Homebrew.)_ Headl
 clubhouse · ₹6,999/sft\* · 2027); hero chips removed; CTAs **Book a visit** (dialog) + **Download
 brochure**. E-Infra render badge + footer credit (gold mark). Flow: gallery → corridor → podium →
 amenities → location (drive-time SVG **+ Google Maps embed**, two-up) → possession/trust (78% ring)
-→ floor plans → confidence cross-sell → brochure (download + email capture). **Sticky CTA** —
+→ floor plans → confidence cross-sell → brochure (gated download — name + phone + email). **Sticky CTA** —
 floating card on mobile, slim full-width bar on desktop (Call · WhatsApp · Book); all "Book a visit"
 open the **book-a-visit dialog** (§3). Remaining homepage work:
 
@@ -311,8 +320,14 @@ open the **book-a-visit dialog** (§3). Remaining homepage work:
   capture is a **lightweight prompt dialog** (`#brochureDialog`, reuses `.bookdlg`) that every
   `[data-brochure]` trigger (hero · trust · footer) opens. On submit → `POST /api/lead`
   (intent=brochure) → success **auto-triggers the PDF download** (`data-download` on the form) and,
-  on prod, emails the visitor the brochure link. A "download without sharing your email" escape keeps
-  it ungated. `site.js` `wireDialog()` drives both this and the book-a-visit dialog._ Visitor
+  on prod, emails the visitor the brochure link. `site.js` `wireDialog()` drives both this and the
+  book-a-visit dialog._ **Gated 2026-06-25 (lead-quality):** the brochure dialog now collects
+  **name + phone + email — all three required** (was email-only) and the "download without sharing
+  your email" escape link was **removed**, so the brochure only downloads after a real submit. (The
+  no-JS `[data-brochure]` href is still a direct-download fallback for the JS-disabled edge case.)
+  Client (`site.js`) enforces all three; `lead.ts` still gates server-side on **email only** as a
+  belt-and-suspenders fallback — but real phones now flow through, so brochure leads dedupe on their
+  own `mobile_number` in Tranquil instead of the `9999999999` placeholder. Visitor
   brochure email + sales notify send on **prod** (valid Resend secret); **broken on local dev**
   (revoked `.dev.vars` key — see §7).
 - [x] **Sub-site comparison architecture — DECIDED 2026-06-21, IMPLEMENTED 2026-06-21**

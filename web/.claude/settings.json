@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.command // \"\"' | grep -q 'wrangler deploy' && printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"PRODUCTION DEPLOY DETECTED (wrangler deploy). Project deploy rule (see CLAUDE.md): before finishing, (1) commit the deployed changes to git on the live branch with a clear message so there is an audit log of exactly what shipped; (2) confirm any cleanup deletions are done (test rows/leads, temp or sentinel data). Hold back unrelated WIP that was not part of this deploy.\"},\"systemMessage\":\"Prod deploy detected - commit the shipped changes to git and confirm test-data cleanup (project rule).\"}' || true"
+          }
+        ]
+      }
+    ]
+  }
+}

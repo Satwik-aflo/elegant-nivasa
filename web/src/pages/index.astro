@@ -481,7 +481,7 @@ const PAGE_DESC = "Premium 2 & 3 BHK homes at Tellapur, West Hyderabad — three
       <div class="form-field"><input name="name" type="text" autocomplete="name" placeholder="Your name" /><span class="form-err">Enter your name</span></div>
       <div class="form-field bookdlg-phone">
         <span class="bookdlg-cc">+91</span>
-        <input name="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="10-digit mobile" />
+        <input name="phone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="10" placeholder="10-digit mobile" />
         <span class="form-err">Valid mobile please</span>
       </div>
       <button class="btn btn--gold btn--block" type="submit">Request a callback</button>
@@ -504,12 +504,18 @@ const PAGE_DESC = "Premium 2 & 3 BHK homes at Tellapur, West Hyderabad — three
     <div class="bookdlg-head">
       <p class="eyebrow">The full brochure</p>
       <h3 id="brDlgTitle">Get the brochure</h3>
-      <p class="bookdlg-sub">Master plan, unit plans, amenities &amp; specs — downloads instantly. <strong style="color:var(--navy)">Reply to the email to reach a sales rep</strong> — nothing else from us.</p>
+      <p class="bookdlg-sub">The complete picture — master plan, every unit plan, amenities &amp; full specs — <strong style="color:var(--navy)">in your hands the moment you submit</strong>. It lands in your inbox too; reply whenever you&rsquo;re ready and a sales rep will help you find the right home — no pressure, no spam.</p>
     </div>
     <form class="bookdlg-form" data-leadform data-intent="brochure" data-download={BROCHURE} novalidate>
+      <div class="form-field"><input name="name" type="text" autocomplete="name" placeholder="Your name" /><span class="form-err">Enter your name</span></div>
+      <div class="form-field bookdlg-phone">
+        <span class="bookdlg-cc">+91</span>
+        <input name="phone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="10" placeholder="10-digit mobile" />
+        <span class="form-err">Valid mobile please</span>
+      </div>
       <div class="form-field"><input name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@email.com" /><span class="form-err">Enter a valid email</span></div>
       <button class="btn btn--gold btn--block" type="submit">Email it &amp; download</button>
-      <p class="bookdlg-fine"><a href={BROCHURE} download>or download without sharing your email →</a></p>
+      <p class="bookdlg-fine">Your details download the brochure and let a sales rep reach you about Elegant Nivasa.</p>
     </form>
     <div class="form-success">
       <div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></div>

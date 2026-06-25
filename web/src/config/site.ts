@@ -31,6 +31,24 @@ export const site = {
     { name: "Satish", wa: "919550488200", initials: "ST", avatar: "av-s", closed: "₹33 Cr*", homes: "28" },
   ],
 
+  // Tranquil CRM — every lead/brochure submit is pushed to einfra.tranquilcrmone.in
+  // (best-effort, after the D1 write + email; see CLAUDE.md §3 and
+  // docs/specs/2026-06-25-tranquil-crm-lead-sync.md). The api_key is a Worker SECRET
+  // (TRANQUIL_API_KEY) — NEVER here. projectId 1 = Elegant Nivasa in Tranquil's project
+  // table; sourceType 3 is Tranquil's mandatory source id.
+  tranquil: {
+    endpoint: "https://einfra.tranquilcrmone.in/v2/createlead",
+    projectId: 1,
+    sourceType: 3,
+    countryCode: "91",
+    // Defensive fallback for Tranquil's required mobile_number. As of 2026-06-25 BOTH the
+    // brochure and book-a-visit forms require a phone (front- and back-end validated), so a
+    // real submit always carries one and this is effectively unreachable — it only guards a
+    // malformed direct API post. (It used to cover phone-less brochure captures, which then
+    // collided on Tranquil's mobile_number dedup; forcing a phone removed that trade-off.)
+    placeholderPhone: "9999999999",
+  },
+
   // Analytics — STUB ids. Empty string disables the snippet (safe for dev).
   analytics: {
     clarityId: "xah4dbk2kt",   // Microsoft Clarity project id (live 2026-06-21) — HARDCODED, not in GTM
