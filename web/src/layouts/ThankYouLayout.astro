@@ -15,8 +15,9 @@ interface Props {
   conversion: "lead_submit" | "brochure_request";
   heading: string;
   lead: string;
+  showBook?: boolean;   // sticky-bar "Book a site visit" — on for /thank-you-brochure, off for /thank-you-visit
 }
-const { title, conversion, heading, lead } = Astro.props;
+const { title, conversion, heading, lead, showBook = false } = Astro.props;
 const PHONE = "9090366366"; // public sales line (matches index.astro)
 ---
 <!DOCTYPE html>
@@ -34,20 +35,40 @@ const PHONE = "9090366366"; // public sales line (matches index.astro)
 <link rel="stylesheet" href="/assets/css/site.css" />
 <AnalyticsScripts />
 <style>
-  .ty { min-height: 72vh; display: grid; place-items: center; text-align: center;
-        padding: clamp(120px,16vw,160px) 0 clamp(56px,8vw,90px); }
-  .ty .wrap { max-width: 620px; }
-  .ty .tick { width: 64px; height: 64px; border-radius: 50%; background: var(--gold); color: #fff;
-              display: grid; place-items: center; margin: 0 auto 24px; font-size: 2rem; line-height: 1; }
+  /* Two columns: confirmation left, masterplan video + project hotspots right. Light theme. */
+  .ty { min-height: 100svh; display: flex; align-items: center;
+        padding: clamp(96px,12vh,128px) 0 clamp(40px,6vh,64px); }
+  .ty-grid { max-width: 1280px; width: 100%; margin: 0 auto; padding: 0 clamp(20px,4vw,40px);
+             display: grid; grid-template-columns: minmax(0,0.82fr) minmax(0,1.18fr);
+             gap: clamp(32px,4.5vw,64px); align-items: center; }
+  .ty .tick { width: 54px; height: 54px; border-radius: 50%; background: var(--gold); color: #fff;
+              display: grid; place-items: center; margin: 0 0 18px; font-size: 1.6rem; line-height: 1;
+              box-shadow: 0 8px 24px rgba(199,154,69,.35); }
   .ty h1 { font-family: var(--font-display); color: var(--navy); margin: 0 0 12px;
-           font-size: clamp(1.9rem,4.5vw,2.7rem); }
-  .ty p.lead { color: var(--ink-soft); font-size: 1.08rem; line-height: 1.6; margin: 0 0 28px; }
-  .ty .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 22px; }
-  .ty .slot { margin-bottom: 22px; }
-  .ty .back { color: var(--navy); font-weight: 600; text-decoration: underline; }
+           font-size: clamp(1.7rem,3.2vw,2.4rem); line-height: 1.12; }
+  .ty p.lead { color: var(--ink-soft); font-size: 1.02rem; line-height: 1.55; margin: 0 0 4px; max-width: 46ch; }
+  .ty .slot:not(:empty) { margin-top: 18px; }
+
+  @media (max-width: 940px) {
+    .ty { min-height: 0; padding: clamp(96px,20vw,120px) 0 clamp(40px,8vw,56px); }
+    .ty-grid { grid-template-columns: 1fr; gap: 30px; text-align: center; }
+    .ty .tick, .ty p.lead { margin-left: auto; margin-right: auto; }
+    /* This header has no hamburger — keep the single link inline/visible (site.css hides .nav here). */
+    .nav { position: static; width: auto; height: auto; flex-direction: row; justify-content: flex-end;
+           gap: 0; padding: 0; background: none; transform: none; overflow: visible; }
+    .nav a { color: #fff; font-size: .9rem; font-family: inherit; }
+  }
   /* site.css makes .site-footer a display:block (for the homepage's footer columns);
      keep the bottom-row links inline so the " · " between them isn't orphaned. */
   .foot-bottom a { display: inline; padding: 0; }
+  /* This footer has no column grid above, so site.css's top padding + .foot-bottom
+     margin-top leave a big empty gap — collapse it. */
+  .site-footer { padding-top: clamp(26px, 4vw, 40px); }
+  .foot-bottom { margin-top: 0; }
+  /* no Book button (/thank-you-visit): let Call + WhatsApp become full, labelled buttons
+     instead of two small icon squares stranded on the left. */
+  .stickybar--nobook .sb-call, .stickybar--nobook .sb-wa { width: auto; flex: 1 1 0; padding: 0 18px; }
+  .stickybar--nobook .sb-call span, .stickybar--nobook .sb-wa span { display: inline; }
 </style>
 </head>
 <body data-page="thankyou">
@@ -58,25 +79,69 @@ const PHONE = "9090366366"; // public sales line (matches index.astro)
     <img src="/assets/img/brand/nivasa-logo.png" alt="Elegant Nivasa" />
   </a>
   <nav class="nav">
-    <a class="btn btn--gold" href="/">Back to site</a>
+    <a class="btn btn--gold" href="/">← Explore the project</a>
   </nav>
 </header>
 
 <main class="ty">
-  <div class="wrap">
-    <div class="tick" aria-hidden="true">✓</div>
-    <h1>{heading}</h1>
-    <p class="lead">{lead}</p>
-    <div class="cta-row">
-      <a class="btn btn--gold btn--lg" href={`tel:${PHONE}`} data-track="call_click">Call us now</a>
-      <a class="btn btn--ghost btn--lg" href={`https://wa.me/91${PHONE}`} target="_blank" rel="noopener" data-track="whatsapp_click">WhatsApp us</a>
+  <div class="ty-grid">
+    <div class="ty-confirm">
+      <div class="tick" aria-hidden="true">✓</div>
+      <h1>{heading}</h1>
+      <p class="lead">{lead}</p>
+      <div class="slot"><slot /></div>
     </div>
-    <div class="slot"><slot /></div>
-    <a class="back" href="/">← Explore the project</a>
+
+    <ProjectsPanorama />
   </div>
 </main>
 
-<ProjectsPanorama />
+<!-- ============ STICKY CTA — same as homepage: mobile floating card · desktop slim bar ============ -->
+<div class:list={["stickybar", { "stickybar--nobook": !showBook }]}>
+  <p class="sb-msg">Talk to a senior sales lead — <b>2027 possession</b></p>
+  <div class="sb-actions">
+    <a class="sb-btn sb-call" href={`tel:${PHONE}`} data-track="call_click" aria-label="Call sales">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      <span>Call</span>
+    </a>
+    <a class="sb-btn sb-wa" href={`https://wa.me/91${PHONE}`} target="_blank" rel="noopener" data-track="whatsapp_click" aria-label="WhatsApp sales">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.978-.997zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+      <span>WhatsApp</span>
+    </a>
+    {showBook && <button class="sb-btn sb-book" type="button" data-book>Book a site visit</button>}
+  </div>
+</div>
+
+{showBook && (
+<!-- ============ BOOK-A-VISIT DIALOG (powers the sticky bar's Book button; wired by site.js) ============ -->
+<dialog class="bookdlg" id="bookDialog" aria-labelledby="bookDlgTitle">
+  <div class="bookdlg-card">
+    <button class="bookdlg-x" type="button" data-book-close aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="bookdlg-head">
+      <p class="eyebrow">Book a site visit</p>
+      <h3 id="bookDlgTitle">Talk to a senior sales lead</h3>
+      <p class="bookdlg-sub">Leave your number — we&rsquo;ll confirm a slot and share availability &amp; pricing. No call-centre, no spam.</p>
+    </div>
+    <form class="bookdlg-form" data-leadform novalidate>
+      <div class="form-field"><input name="name" type="text" autocomplete="name" placeholder="Your name" /><span class="form-err">Enter your name</span></div>
+      <div class="form-field bookdlg-phone">
+        <span class="bookdlg-cc">+91</span>
+        <input name="phone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="10" placeholder="10-digit mobile" />
+        <span class="form-err">Valid mobile please</span>
+      </div>
+      <button class="btn btn--gold btn--block" type="submit">Request a callback</button>
+      <p class="bookdlg-fine">By submitting you agree to be contacted about Elegant Nivasa.</p>
+    </form>
+    <div class="form-success">
+      <div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h3 style="color:var(--navy)">Thanks, <span data-name>there</span>!</h3>
+      <p class="muted" style="margin-top:6px">A senior sales lead will call you shortly.</p>
+    </div>
+  </div>
+</dialog>
+)}
 
 <footer class="site-footer">
   <div class="wrap">

@@ -30,6 +30,22 @@ const gallery = [
   { n: 10, cls: "" },
 ].map((g) => ({ ...g, img: `/assets/img/renders/render-${g.n}.jpg` }));
 
+// Sister-brand logo strip ("By the team behind") — logos in their own brand colours on the cream
+// band. Two-tier sizing: E-Infra projects (Moonglade, Skyven, La Casa) render larger; EIPL projects
+// (Apila, Skyila, La Paloma, River Edge) smaller. Per-logo mh/mw cap each optically (bold wordmarks
+// need less height than thin/stacked marks). Linked to each project's site where one exists.
+const brands = [
+  { name: "Skyven",           file: "skyven",               href: "https://www.theskyven.com", mh: 60, mw: 150 },
+  { name: "River Edge",       file: "river-edge",           href: "",                          mh: 30, mw: 118 },
+  { name: "Skyila",           file: "skyila",               href: "",                          mh: 40, mw: 66 },
+  { name: "La Casa",          file: "la-casa",              href: "https://lacasavilla.in/",   mh: 48, mw: 160 },
+  { name: "Rivera",           file: "rivera",               href: "",                          mh: 32, mw: 116 },
+  // La Paloma exists only as a white logo in the export → tinted antique-gold so it reads on cream.
+  { name: "La Paloma Villas", file: "la-paloma-villas-gold", href: "",                         mh: 40, mw: 80 },
+  { name: "Moonglade",        file: "moonglade",            href: "https://beseen.moonglade.life/", mh: 30, mw: 205 },
+  { name: "Apila",            file: "apila",                href: "",                          mh: 28, mw: 100 },
+].map((b) => ({ ...b, img: `/assets/img/brands/${b.file}.webp` }));
+
 // Amenities — the 8-level / 40,000+ sft clubhouse + outdoor amenities
 // (source: live site / Brochure.pdf). Static, zero-JS; each group renders a
 // chip cloud under a sub-heading.
@@ -122,6 +138,22 @@ const PAGE_DESC = "Premium 2 & 3 BHK homes at Tellapur, West Hyderabad — three
   </div>
 </section>
 
+<!-- ============ E-INFRA FAMILY — sister-brand logo strip ============ -->
+<section class="brandband" aria-label="Other developments by E-Infra">
+  <div class="wrap">
+    <p class="brandband-kicker">By the team behind</p>
+  </div>
+  <div class="brandmarq">
+    <div class="brandmarq-track">
+      {[...brands, ...brands].map((b, i) => (
+        b.href
+          ? <a class="brandmarq-item" href={b.href} target="_blank" rel="noopener" aria-label={b.name} aria-hidden={i >= brands.length ? "true" : undefined} tabindex={i >= brands.length ? -1 : undefined} style={`--mh:${b.mh}px;--mw:${b.mw}px`}><img src={b.img} alt={b.name} loading="lazy" decoding="async" /></a>
+          : <span class="brandmarq-item" aria-hidden={i >= brands.length ? "true" : undefined} style={`--mh:${b.mh}px;--mw:${b.mw}px`}><img src={b.img} alt={i >= brands.length ? "" : b.name} loading="lazy" decoding="async" /></span>
+      ))}
+    </div>
+  </div>
+</section>
+
 <!-- ============ COMPARISON SCOREBOARD — reused sub-site table, up front ============ -->
 <Scoreboard />
 
@@ -143,50 +175,34 @@ const PAGE_DESC = "Premium 2 & 3 BHK homes at Tellapur, West Hyderabad — three
   </div>
 </section>
 
-<!-- ============ THE CORRIDOR TEST — intro band ============ -->
-<section class="section corridor-intro" id="corridor">
-  <div class="wrap center">
-    <div class="shead reveal">
-      <p class="eyebrow eyebrow--center">The difference you can feel</p>
-      <h2 class="h2">The corridor test</h2>
-      <p class="lead" style="margin-inline:auto">Same cheque, very different hallway. Scroll — and watch a cramped <b>6′6″</b> corridor open out to the Nivasa <b>14&nbsp;ft</b>.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ============ THE CORRIDOR TEST — scroll animation ============ -->
-<section class="ct" data-corridor data-open="0">
-  <div class="ct-track" data-track>
-    <div class="ct-stage">
-      <div class="ct-bg"></div>
-      <div class="wall l"></div>
-      <div class="wall r"></div>
-      <div class="ct-logo" data-logo><img src="/assets/img/brand/nivasa-logo.png" alt="Elegant Nivasa" /></div>
-      <div class="ct-num" data-num>6′6″</div>
-      <p class="ct-eyebrow">keep scrolling</p>
-      <div class="ct-scrim"></div>
-      <div class="ct-hud">
-        <p class="tag" data-tag>A typical branded-builder corridor</p>
-        <p class="msg" data-msg>Two people pass shoulder-to-shoulder. A shoe rack, and the hallway is blocked.</p>
+<!-- ============ CORRIDOR + PODIUM — half-height split (static) ============ -->
+<section class="cmp-split" id="corridor">
+  <div class="cmp-grid">
+    <!-- LEFT · corridor width comparison on a true 0–14 ft scale -->
+    <div class="cmp-pane cmp-corridor reveal">
+      <p class="eyebrow">The corridor test</p>
+      <h2 class="cmp-h">Same cheque.<br>Very different hallway.</h2>
+      <div class="bar-row">
+        <div class="bar-lab"><b>Branded builder</b><span>6′6″</span></div>
+        <div class="bar-track"><span class="bar them" style="width:46%"></span></div>
+        <p class="bar-cap">Two people pass shoulder-to-shoulder. A shoe rack, and it’s blocked.</p>
       </div>
-      <div class="ct-bar"><span data-bar></span></div>
+      <div class="bar-row">
+        <div class="bar-lab"><b>Elegant Nivasa</b><span class="gold">8–14 ft</span></div>
+        <div class="bar-track"><span class="bar us" style="margin-left:57%;width:43%"></span></div>
+        <p class="bar-cap">Anywhere from 8 ft to a full 14 — its whole range sits beyond the branded 6′6″: plants, bikes, neighbours, and still room to pass.</p>
+      </div>
     </div>
-  </div>
-</section>
-
-<!-- ============ THE CAR-FREE PODIUM — safe haven ============ -->
-<section class="section value podium" id="podium">
-  <div class="wrap value-inner">
-    <div class="shead center reveal">
-      <p class="eyebrow eyebrow--center">The safe haven we built on purpose</p>
-      <p class="podium-num">0</p>
-      <h2 class="h2">cars on the podium. <em class="podium-ever">Ever.</em></h2>
-      <p class="lead" style="margin-inline:auto">Every vehicle parks <b>below</b> the deck — so the only thing moving across the podium is people. Your children walk to the play area without watching for traffic.</p>
-    </div>
-    <div class="podium-stats reveal">
-      <div class="ps-cell"><span class="ps-n">100%</span><span class="ps-l">of the podium is pedestrian-only</span></div>
-      <div class="ps-cell"><span class="ps-n">~1,100</span><span class="ps-l">parking spaces, across 5 levels below the deck</span></div>
-      <div class="ps-cell"><span class="ps-n">4 acres</span><span class="ps-l">to roam, without watching for a car</span></div>
+    <!-- RIGHT · car-free podium (Option B copy + deck-over-parking diagram) -->
+    <div class="cmp-pane cmp-podium reveal d1" id="podium">
+      <p class="eyebrow">The safe haven we built on purpose</p>
+      <h2 class="cmp-h">Zero cars where you walk. <em>Ever.</em></h2>
+      <p class="cmp-lead">The <b>podium is a raised deck built over the parking</b>: ~1,100 cars tuck into five levels below, and the entire 4-acre surface on top becomes gardens, play areas and walkways. The towers sit on the park — not beside the traffic.</p>
+      <div class="pod-stack">
+        <div class="ps-deck"><b>The podium deck</b><span>people · play · 4 acres of greens</span></div>
+        <div class="ps-arrow">▼ everything drives below</div>
+        <div class="ps-park"><b>~1,100 cars</b><span>parked across 5 levels, beneath the deck</span></div>
+      </div>
     </div>
   </div>
 </section>
@@ -282,18 +298,23 @@ const PAGE_DESC = "Premium 2 & 3 BHK homes at Tellapur, West Hyderabad — three
     <div class="shead reveal center">
       <p class="eyebrow eyebrow--center">Floor plans</p>
       <h2 class="h2">Six thoughtful configurations.</h2>
-      <p class="lead" style="margin-inline:auto">2 &amp; 3 BHK homes, 1,372&ndash;2,206 sft saleable. Tap any plate to enlarge &mdash; open to view, no form, no gate.</p>
+      <p class="lead" style="margin-inline:auto">2 &amp; 3 BHK homes, 1,372&ndash;2,206 sft saleable. Swipe through all six &mdash; tap any plate to enlarge, no form, no gate.</p>
     </div>
-    <div class="fp-grid" data-gallery>
-      {plans.map((p) => (
-        <figure class="fp-card">
-          <img src={p.img} alt={p.alt} loading="lazy" />
-          <figcaption>
-            <span class="fp-meta"><b>{p.bhk} &middot; {p.sft} sft</b><span class="fp-face">{p.face} facing</span></span>
-            <span class="fp-zoom" aria-hidden="true">&#10530; Enlarge</span>
-          </figcaption>
-        </figure>
-      ))}
+    <div class="fp-carousel" data-fpcar>
+      <button type="button" class="fp-arrow fp-prev" aria-label="Previous floor plan">&lsaquo;</button>
+      <div class="fp-track" data-gallery>
+        {plans.map((p) => (
+          <figure class="fp-card">
+            <img src={p.img} alt={p.alt} loading="lazy" />
+            <figcaption>
+              <span class="fp-meta"><b>{p.bhk} &middot; {p.sft} sft</b><span class="fp-face">{p.face} facing</span></span>
+              <span class="fp-zoom" aria-hidden="true">&#10530; Enlarge</span>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+      <button type="button" class="fp-arrow fp-next" aria-label="Next floor plan">&rsaquo;</button>
+      <div class="fp-progress" data-fpbar aria-hidden="true"><span></span></div>
     </div>
   </div>
 </section>

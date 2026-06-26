@@ -148,16 +148,35 @@ blocker; we 301-redirect old URLs as a courtesy. (Terms: see CONTEXT.md.)
   straight to the trailing-slash URL — and GTM triggers must match on **Page URL _contains_**, not
   _equals_. (Spec:
   [docs/specs/2026-06-24-thank-you-pages-conversion.md](./docs/specs/2026-06-24-thank-you-pages-conversion.md).)
-- **E-Infra projects panorama (thank-you pages)** — **LIVE 2026-06-25.** Below the confirmation on both
-  thank-you pages, `components/ProjectsPanorama.astro` (rendered once in `ThankYouLayout`) shows an
-  "E-Infra is building across the city" render with **6 clickable projects** (Moonglade · Skyven · One
-  Downtown · La Casa → their sites in a new tab; **Elegant Nivasa → home**; **Celosia = "coming soon"**,
-  not linked until `celosiavillas.com` is built — see the handoff doc). Builds cross-project confidence
-  post-conversion. Design picked by prototyping (`prototypes/panorama/`): **dots + labels** on desktop,
-  **tap-to-zoom fullscreen** on mobile (primary, per Tranquil). Hotspots are baked at build time
-  (percentage-positioned); the only client JS is the zoom open/close + a `project_click` engagement
-  ping. Image `assets/img/renders/einfra-panorama.webp` (135 KB). Classes namespaced `enp-`. (Spec:
-  [docs/specs/2026-06-25-projects-panorama-thankyou.md](./docs/specs/2026-06-25-projects-panorama-thankyou.md).)
+  - **Layout/CTA (redesigned 2026-06-26):** **two-column** — confirmation left (h1 just **"Thank you!"**
+    on `/thank-you-visit`), projects video panorama right (above). Contact CTAs are the **homepage sticky
+    CTA** (`.stickybar`: Call · WhatsApp · Book), **not** inline buttons. The **Book a site visit** button
+    + `#bookDialog` ship **only on `/thank-you-brochure`** (gated by the layout's `showBook` prop — the
+    visit page already booked, so it shows Call + WhatsApp as full labelled buttons via
+    `.stickybar--nobook`). The "← Explore the project" link lives in the **header** (kept inline ≤940px
+    since this header has no hamburger). _Known follow-ups (code-review 2026-06-26): the sticky-bar +
+    book-dialog markup is now duplicated across `index.astro` / `SubSiteLayout` / `ThankYouLayout` (no
+    shared component), `PHONE` is hardcoded per-file, and the copied `.form-success` panel is dead markup._
+- **E-Infra projects panorama (thank-you pages)** — **LIVE 2026-06-25, redesigned 2026-06-26.**
+  `components/ProjectsPanorama.astro` (rendered once in `ThankYouLayout`, right column of the two-column
+  layout) shows "E-Infra is building across the city" over the **masterplan flythrough video** with **6
+  numbered hotspots + a numbered legend** linking each project. Builds cross-project confidence
+  post-conversion. _**Superseded the original static-image design**: the earlier `dots + labels` /
+  tap-to-zoom render (`einfra-panorama.webp`, 135 KB) was **deleted**; the visual is now
+  `assets/video/einfra-masterplan.mp4` (re-encoded **324 KB @ 960×540**) + poster
+  `assets/img/renders/einfra-masterplan-poster.jpg` (72 KB)._
+  - **Labelling — map-legend pattern** (chosen by prototype 2026-06-26): each hotspot is a numbered gold
+    pin; the legend below repeats the numbers + names so dots are identifiable on mobile (desktop also
+    reveals the name on hover). Pin order/number: **1 Moonglade · 2 Elegant Nivasa · 3 One Downtown ·
+    4 Skyven · 5 La Casa · 6 Celosia** (Nivasa/Skyven numbers swapped per client). Positions are
+    `left/top` % over the (static-camera) video — picked with a throwaway picker tool, since deleted.
+  - **All 6 link out**: Elegant Nivasa → home; the rest → their sites in a new tab. **Celosia is now
+    linked** (`celosiavillas.com` went live 2026-06-26 — no longer "coming soon").
+  - **Video playback**: **no autoplay** — an IntersectionObserver plays it only while ≥25% on screen and
+    pauses it off-screen (defers the download via `preload="metadata"`, stops forever-decoding), and it
+    stays on the poster for `prefers-reduced-motion` (WCAG 2.2.2). Only other client JS is the
+    `project_click` engagement ping. Classes namespaced `enp-`. (Spec:
+    [docs/specs/2026-06-25-projects-panorama-thankyou.md](./docs/specs/2026-06-25-projects-panorama-thankyou.md).)
 - **Deferred** (drop-in later): GA4 + Google Ads **enhanced/offline** conversions — these now layer
   into the **GTM container**, not the code.
 
@@ -308,6 +327,18 @@ open the **book-a-visit dialog** (§3). Remaining homepage work:
   in `index.astro`, `.xs-*` styles in `proto.css`). Placed between Floor Plans and Brochure as a
   "still comparing?" nudge — three cards linking `/cost` (₹20.6 L* less) · `/handover` (2027 not
   2031, 78%*) · `/rental-yield` (₹16.8 L* rent). _(Live in production.)_
+- [x] **Sister-brand logo band ("By the team behind")** — built 2026-06-26
+  (`<section class="brandband">` right after the hero in `index.astro`, `.brandband`/`.brandmarq-*` in
+  `proto.css`; `brands` array drives it). Auto-scrolling marquee (pauses on hover; static centred row
+  for reduced-motion) of E-Infra's other developments in their **own brand colours** on a **cream**
+  band (deliberately not navy — it sat between the dark hero and the navy comparison table). Logos:
+  **Skyven · River Edge · Skyila · La Casa · Rivera · La Paloma Villas · Moonglade · Apila**
+  (`public/assets/img/brands/*.webp`, trimmed to content). **Two-tier optical sizing** via per-logo
+  `mh`/`mw`: E-Infra projects (Moonglade/Skyven/La Casa) render larger, EIPL (Apila/Skyila/La
+  Paloma/River Edge/Rivera) smaller. _Asset notes: logos came from the `E-Infra Client Sharing.site`
+  Figma export (gitignored `*.site`); **Skyven** + **Rivera** were supplied/sourced separately (Rivera's
+  light bg was keyed out); **La Paloma** existed only as white, so it's tinted antique-gold to read on
+  cream._
 
 - [x] **"Email me the brochure" (email-first soft capture)** — built capture-first 2026-06-21
   (spec: [docs/specs/2026-06-20-brochure-email-capture.md](./docs/specs/2026-06-20-brochure-email-capture.md)).

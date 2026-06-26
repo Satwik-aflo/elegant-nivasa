@@ -1,6 +1,14 @@
 # E-Infra projects panorama on the thank-you pages
 
-> **IMPLEMENTED 2026-06-25.** `components/ProjectsPanorama.astro` rendered in `ThankYouLayout`
+> **⚠️ SUPERSEDED 2026-06-26 — this spec describes the original static-image design, since replaced.**
+> The panorama is now the **masterplan flythrough video** (`assets/video/einfra-masterplan.mp4`, 324 KB
+> @ 960×540 + poster) with **numbered hotspots + a numbered legend** (map-legend pattern, picked by a
+> fresh prototype) inside a **two-column** thank-you layout. The static `einfra-panorama.webp` and the
+> tap-to-zoom interaction described below are **gone**; Celosia is now a live link (`celosiavillas.com`);
+> the video plays only while on-screen (IntersectionObserver) and respects `prefers-reduced-motion`.
+> **See CLAUDE.md §5 "E-Infra projects panorama" for the current design.** Kept below for history only.
+>
+> **IMPLEMENTED 2026-06-25 (original).** `components/ProjectsPanorama.astro` rendered in `ThankYouLayout`
 > (both thank-you pages); image `assets/img/renders/einfra-panorama.webp` (135 KB). `astro check`
 > 0/0/0, build green. Not yet deployed at time of writing.
 
