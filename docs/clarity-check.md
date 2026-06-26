@@ -13,10 +13,10 @@ Clarity project id: `xah4dbk2kt`.
 
 | | |
 |---|---|
-| **Date checked** | 2026-06-25 (run 2) |
-| **Clarity data window** | 2026-06-23 → 2026-06-25 |
-| **Git checkpoint (HEAD)** | `0585d9d` — _Updates to Comparision figures and site css_ |
-| **Next run** | pull the window since 2026-06-25; diff against `git log 0585d9d..HEAD` |
+| **Date checked** | 2026-06-26 (run 3) |
+| **Clarity data window** | 2026-06-24 → 2026-06-26 (clean post-corridor-fix = 06-26 only) |
+| **Git checkpoint (HEAD)** | `dae96db` — _replace location SVG map with drive-time timeline_ |
+| **Next run** | pull window since 2026-06-26; diff against `git log dae96db..HEAD` |
 
 ---
 
@@ -27,13 +27,15 @@ Status legend: ✅ Fixed · 🟡 Partial · 🔴 Open. "Evidence" = the commit o
 | # | Issue (from behaviour) | Status | Evidence / where | Clarity signal |
 |---|---|---|---|---|
 | 1 | Floor-plan & render images not zoomable (dead "Enlarge" cards) | ✅ Fixed | `b5fddeb` (2026-06-23 10:35); `site.js` wires every `[data-gallery]` — both `fp-grid` & `g-grid` | Dead clicks on floor-plan/render **pre-fix only**; post-fix taps open lightbox |
-| 2 | Corridor reads as clickable but is **scroll-only** | ✅ Fixed | `8f76c53` (2026-06-25, deployed) — `proto.js` pointer click/drag→scroll on `[data-corridor]` | Was: desktop clicks on corridor headlines (684/760 dead clicks) |
+| 2 | Corridor reads as clickable but is **scroll-only** | ✅ Fixed (confirmed) | `8f76c53` (2026-06-25, deployed) — `proto.js` pointer click/drag→scroll. **Run-3 verdict: KEEP the animation** — post-fix (06-26) the corridor produces ~0 dead clicks / 0 rage and is absent from 12 recordings; people reach downstream sections | Was: 684/760 dead clicks on corridor headlines → now none |
 | 3 | Rent calculator **result tiles look like inputs** (display-only) | ✅ Fixed | `8f76c53` — `site.css` `cursor:default`+`user-select:none` on `.emi-result` / `.yl-val` / `.cr-val` | Was: dead clicks on ₹70,989 / ₹16,000 / yield ₹96.2L·₹14.4L |
 | 4 | Hero doesn't front-load all proof | ✅ Fixed | `8f76c53` — full Scoreboard now sits on homepage after hero ribbon + "Compare" nav link | Targets the 42% top-quarter bounce (re-measure next run) |
 | 5 | Scoreboard "Add it all up → ₹43.6L ahead" summary | ✅ Fixed | `0585d9d` (2026-06-25 15:18) — `Scoreboard.astro` + `comparison.ts` + `site.css` | Polish only; did **not** move dead-click friction (158, flat) |
 | 6 | Meta/Instagram attribution collapsing into "Direct" | 🔴 Open (marketing-side) | Not a code task; IG link-in-bio already carries UTMs + `fbclid` (seen in recordings) | "Direct" 97 sessions vs ig/social ~3; in-app browser strips referrer |
 | 7 | URL fragmentation across `http://` / `https://` / `www.` | ✅ Fixed | Cloudflare edge (2026-06-25): "Always Use HTTPS" ON + "WWW→root" Single Redirect (301, path+query preserved). Verified: `www`/`http` → `https://elegantnivasa.com`; MX `mx1/mx2.hostinger.com` intact | Was: 35 `http://` + 14 `www.` homepage sessions split from canonical |
 | 8 | Homepage → sub-site cross-sell barely used | 🔴 Open | `index.astro` confidence band (`#compare`) | "Already paying rent?" cross-sell: 4 mobile clicks; mobile 1.29 pages/session |
+| 9 | **Affordability calculator** numbers read as interactive (de-affordance gap) | 🔴 Open (NEW, run 3) | `#3` covered `.emi-result` (rent-vs-own); the "afford" tab + slider labels are NOT covered | New #1 dead-click cluster: "Your monthly income ₹90,000" (84), "You could be eligible for" (36), "Your income can own up to" (24) |
+| 10 | Hero copy + gallery `›` arrow taps | 🔴 Open (NEW, run 3, low) | Hero subhead/eyebrow (`index.astro`); gallery carousel arrow (`site.js`) | Hero "526 residences…" (30) / "Tellapur·West Hyderabad" (40) dead clicks; one session rage-tapped gallery `›` 26× |
 
 ---
 
@@ -41,8 +43,13 @@ Status legend: ✅ Fixed · 🟡 Partial · 🔴 Open. "Evidence" = the commit o
 
 Ranked by behavioural impact. Already-shipped items (#1, #2, #3, #4, #5, #7) excluded.
 
-1. **Attribution: UTM every ad destination** (#6) — marketing-side; lean on `fbclid`/recordings to measure Meta.
-2. **Rethink the homepage→sub-site cross-sell** (#8) — elevate it or treat sub-sites as standalone ad landers.
+1. **De-affordance the affordability calculator** (#9, NEW) — friction has *moved* here post-corridor-fix; new #1 dead-click cluster. Extend the `#3` `cursor:default`/`user-select:none` treatment to the "afford" tab + slider value labels.
+2. **Attribution: UTM every ad destination** (#6) — marketing-side; lean on `fbclid`/`twclid`/recordings (X ads now visible via `twclid`).
+3. **Rethink the homepage→sub-site cross-sell** (#8) — elevate it or treat sub-sites as standalone ad landers.
+4. **Hero copy + gallery arrow taps** (#10, NEW, low) — minor; watch the gallery `›` rage signal.
+
+**Corridor (#2): KEEP.** Run-3 data clears it — post-fix it generates ~0 dead clicks / 0 rage and people
+get past it to downstream sections. No friction case to remove the scroll animation.
 
 **Deployed 2026-06-25 (`8f76c53`):** #2 corridor click/drag, #3 number de-affordance, #4 homepage
 comparison table. Re-measure dead clicks + top-quarter bounce on the next run to confirm impact.
@@ -52,6 +59,37 @@ deployed.)_
 ---
 
 ## Run log
+
+### 2026-06-26 (run 3) — focus: keep the corridor scroll animation? checkpoint `dae96db`
+
+**Commits since run 2 (`0585d9d..dae96db`):** `8f76c53` (corridor click/drag + comparison table +
+de-affordance, **deployed 06-25**) · `00e96dd`/`4313589` (docs) · `57daf3f` (Tranquil CRM + **gated
+brochure**) · `dae96db` (location SVG map → static drive-time timeline).
+
+**Question answered: KEEP the corridor scroll animation.**
+- Pre-fix it was the #1 dead-click/rage cluster (684/760 on corridor headlines, 12 rage site-wide).
+- Clean post-fix day (06-26): **corridor produces ~0 dead clicks and 0 rage** — absent from the
+  top-dead-click list *and* from a manual scan of 12 mobile homepage recordings.
+- Recordings show visitors getting *past* the corridor to floor plans / brochure / cost cross-sell;
+  ~30% mobile / 37% PC reach 75-100% scroll. So it's not a hard scroll-gate.
+- ⇒ No friction case to remove it. Lever (if any) is *shortening the pin*, not deleting it. Re-confirm
+  on a fuller post-fix window.
+
+**Friction has MOVED (new findings):**
+- New #1 dead-click cluster = the **affordability calculator** ("Your monthly income ₹90,000" 84,
+  "You could be eligible for" 36, "Your income can own up to" 24). The `#3` de-affordance covered the
+  rent-vs-own tiles but NOT this tab → logged as **#9**.
+- Hero copy taps ("526 residences…" 30, "Tellapur·West Hyderabad" 40) + a gallery `›` rage burst
+  (26× in one session) → logged as **#10** (low).
+
+**Other observations:**
+- Friction totals 06-24→06-25: dead clicks 158→**43**, rage 12→**0**, quick-backs 6→**11**. (Window
+  straddles the fix; treat as directional.)
+- Heavy **t.co / `twclid`** traffic — several 4-20 min sessions with **zero interaction** (parked X-ad
+  tabs). X ads ARE running and now measurable via `twclid` — feeds attribution (#6).
+- Scroll still bimodal / thin middle (mobile 0-25% 44.7%, 75-100% 30.1%; PC 0-25% 53%, 75-100% 37%).
+
+_Caveat: only ~1 day of clean post-fix data — directional, not definitive._
 
 ### 2026-06-25 (run 2) — window 2026-06-23 → 06-25, checkpoint `0585d9d`
 
